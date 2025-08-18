@@ -20,14 +20,25 @@ type LoginResponse = CurrentUser | ErrorResult;
 type RegisterResponse = { __typename: 'Success'; success: boolean } | ErrorResult;
 
 // Create HTTP link to Vendure Shop API
+const getApiUrl = () => {
+  // On server-side, use BASE_PATH directly, on client-side use NEXT_PUBLIC_API_URL
+  if (typeof window === 'undefined') {
+    // Server-side: use BASE_PATH environment variable
+    return `${process.env.BASE_PATH || 'http://localhost:3000'}/shop-api`;
+  } else {
+    // Client-side: use NEXT_PUBLIC_API_URL
+    return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/shop-api`;
+  }
+};
+
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3000/shop-api', // Update with your Vendure server URL
+  uri: getApiUrl(),
 });
 
 // Auth middleware to add token to requests
 const authLink = setContext((_, { headers = {} }) => {
-  // Get the token from localStorage
-  const token = localStorage.getItem('customerToken');
+  // Get the token from localStorage (only in browser)
+  const token = typeof window !== 'undefined' ? localStorage.getItem('customerToken') : null;
   
   // Return the headers with the token if it exists
   return {

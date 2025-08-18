@@ -1,9 +1,8 @@
 // noinspection JSUnusedGlobalSymbols
 module.exports = {
     env: {
-        basePath: process.env.BASE_PATH || '',
+        NEXT_PUBLIC_API_URL: process.env.BASE_PATH || 'http://localhost:3000',
     },
-    basePath: process.env.BASE_PATH || '',
     i18n: {
         locales: ['en', 'ru', 'ar'],
         defaultLocale: 'en',

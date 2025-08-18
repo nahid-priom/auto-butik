@@ -88,12 +88,9 @@ export function Search() {
         return pattern.test(value);
     };
 
-    // Navigate to products page with search query
-    const navigateToProducts = (searchQuery: string) => {
-        router.push({
-            pathname: '/catalog/products',
-            query: { search: searchQuery }
-        });
+    // Navigate to products page without search query
+    const navigateToProducts = () => {
+        router.push('/catalog/products');
     };
 
     const search = (value: string) => {
@@ -174,7 +171,7 @@ export function Search() {
             setVehiclePickerIsOpen(false);
             
             // Navigate to products page
-            navigateToProducts(formattedValue);
+            navigateToProducts();
         } else {
             // For incomplete input, still show suggestions
             search(formattedValue);
@@ -192,7 +189,7 @@ export function Search() {
         if (isSwedishRegistrationComplete(query)) {
             setSuggestionsIsOpen(false);
             setVehiclePickerIsOpen(false);
-            navigateToProducts(query);
+            navigateToProducts();
         }
     };
 

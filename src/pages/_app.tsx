@@ -5,8 +5,10 @@ import AppBase, { AppContext, AppProps } from 'next/app';
 import Head from 'next/head';
 import { NextComponentType, NextPageContext } from 'next';
 import { useStore } from 'react-redux';
+import { ApolloProvider } from '@apollo/client';
 // application
 import { AuthProvider } from '~/contexts/AuthContext';
+import { graphqlClient } from '~/api/graphql/account.api';
 // application
 import config from '~/config';
 import LanguageProvider, { getLanguageInitialProps, ILanguageProviderProps } from '~/services/i18n/provider';
@@ -97,16 +99,18 @@ function App(props: Props) {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
 
-            <LanguageProvider {...languageInitialProps}>
-                <AuthProvider>
-                    <CurrentVehicleGarageProvider>
-                        <Layout>
-                            <PageTitle />
-                            {page}
-                        </Layout>
-                    </CurrentVehicleGarageProvider>
-                </AuthProvider>
-            </LanguageProvider>
+            <ApolloProvider client={graphqlClient}>
+                <LanguageProvider {...languageInitialProps}>
+                    <AuthProvider>
+                        <CurrentVehicleGarageProvider>
+                            <Layout>
+                                <PageTitle />
+                                {page}
+                            </Layout>
+                        </CurrentVehicleGarageProvider>
+                    </AuthProvider>
+                </LanguageProvider>
+            </ApolloProvider>
         </React.Fragment>
     );
 }

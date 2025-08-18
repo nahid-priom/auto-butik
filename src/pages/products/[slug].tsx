@@ -5,7 +5,7 @@ import { GetServerSideProps } from 'next';
 // application
 import ShopPageProduct from '~/components/shop/ShopPageProduct';
 import { IProduct } from '~/interfaces/product';
-import { shopApi } from '~/api';
+import { fetchProductDetail } from '~/api/graphql/products.api';
 import SitePageNotFound from '~/components/site/SitePageNotFound';
 
 interface Props {
@@ -15,11 +15,22 @@ interface Props {
 export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
     const slug = typeof params?.slug === 'string' ? params?.slug : null;
 
-    return {
-        props: {
-            product: slug ? await shopApi.getProductBySlug(slug) : null,
-        },
-    };
+    try {
+        const product = slug ? await fetchProductDetail(slug) : null;
+        
+        return {
+            props: {
+                product,
+            },
+        };
+    } catch (error) {
+        console.error('Error fetching product:', error);
+        return {
+            props: {
+                product: null,
+            },
+        };
+    }
 };
 
 function Page(props: Props) {
