@@ -83,11 +83,9 @@ function App(props: Props) {
         const PageLayout = Component.Layout || React.Fragment;
 
         return (
-            <Layout>
-                <PageLayout>
-                    <Component {...pageProps} />
-                </PageLayout>
-            </Layout>
+            <PageLayout>
+                <Component {...pageProps} />
+            </PageLayout>
         );
     }, [Component, pageProps]);
 

@@ -100,42 +100,7 @@ function VehiclePickerModal(props: Props) {
                                 </span>
                             </span>
                         </label>
-                        {vehicles.map((vehicle, vehicleIdx) => (
-                            // eslint-disable-next-line jsx-a11y/label-has-associated-control
-                            <label key={vehicleIdx} className="vehicles-list__item">
-                                <RadioButton
-                                    className="vehicles-list__item-radio"
-                                    checked={innerValue !== null && innerValue.id === vehicle.id}
-                                    onChange={() => setInnerValue(vehicle)}
-                                />
-                                <span className="vehicles-list__item-info">
-                                    <span className="vehicles-list__item-name">
-                                        {`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-                                    </span>
-                                    <span className="vehicles-list__item-details">
-                                        <FormattedMessage
-                                            id="TEXT_VEHICLE_ENGINE"
-                                            values={{ engine: vehicle.engine }}
-                                        />
-                                    </span>
-                                </span>
 
-                                <AsyncAction
-                                    action={() => garageRemoveItem(vehicle.id)}
-                                    render={({ run, loading }) => (
-                                        <button
-                                            type="button"
-                                            className={classNames('vehicles-list__item-remove', {
-                                                'vehicles-list__item-remove--loading': loading,
-                                            })}
-                                            onClick={run}
-                                        >
-                                            <RecycleBin16Svg />
-                                        </button>
-                                    )}
-                                />
-                            </label>
-                        ))}
                     </div>
                 </div>
 

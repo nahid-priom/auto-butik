@@ -2,6 +2,7 @@
 import React, { useRef, useState } from 'react';
 // third-party
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useRouter } from 'next/router';
 import classNames from 'classnames';
 // application
 import AppImage from '~/components/shared/AppImage';
@@ -28,6 +29,7 @@ import {
 
 export function Search() {
     const intl = useIntl();
+    const router = useRouter();
     const [query, setQuery] = useState('');
     const [suggestionsIsOpen, setSuggestionsIsOpen] = useState(false);
     const [hasSuggestions, setHasSuggestions] = useState(false);
@@ -48,6 +50,51 @@ export function Search() {
 
     const searchCancelFnRef = useRef(() => {});
     const rootRef = useRef<HTMLDivElement>(null);
+
+    // Format Swedish registration number (ABC 123)
+    const formatSwedishRegistration = (value: string): string => {
+        // Remove all non-alphanumeric characters and convert to uppercase
+        const cleaned = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        
+        let formatted = '';
+        
+        // Process each character sequentially
+        for (let i = 0; i < cleaned.length && i < 6; i++) {
+            const char = cleaned[i];
+            
+            if (i < 3) {
+                // First 3 positions: only letters allowed
+                if (/[A-Z]/.test(char)) {
+                    formatted += char;
+                }
+            } else {
+                // Positions 4-6: only numbers allowed
+                if (/[0-9]/.test(char)) {
+                    if (i === 3) {
+                        // Add space before first number
+                        formatted += ' ';
+                    }
+                    formatted += char;
+                }
+            }
+        }
+        
+        return formatted;
+    };
+
+    // Check if Swedish registration format is complete (ABC 123)
+    const isSwedishRegistrationComplete = (value: string): boolean => {
+        const pattern = /^[A-Z]{3} [0-9]{3}$/;
+        return pattern.test(value);
+    };
+
+    // Navigate to products page with search query
+    const navigateToProducts = (searchQuery: string) => {
+        router.push({
+            pathname: '/catalog/products',
+            query: { search: searchQuery }
+        });
+    };
 
     const search = (value: string) => {
         searchCancelFnRef.current();
@@ -112,12 +159,41 @@ export function Search() {
 
     const handleInputChange = (event: React.FormEvent<HTMLInputElement>) => {
         const input = event.currentTarget;
-
-        search(input.value);
+        const rawValue = input.value;
+        
+        // Format the input according to Swedish registration format
+        const formattedValue = formatSwedishRegistration(rawValue);
+        
+        // Update the input value with formatted text
+        setQuery(formattedValue);
+        
+        // Check if the format is complete and trigger automatic search
+        if (isSwedishRegistrationComplete(formattedValue)) {
+            // Close suggestions dropdown
+            setSuggestionsIsOpen(false);
+            setVehiclePickerIsOpen(false);
+            
+            // Navigate to products page
+            navigateToProducts(formattedValue);
+        } else {
+            // For incomplete input, still show suggestions
+            search(formattedValue);
+        }
     };
 
     const handleButtonClick = () => {
         toggleVehiclePicker();
+    };
+
+    const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        
+        // If the format is complete, navigate to products
+        if (isSwedishRegistrationComplete(query)) {
+            setSuggestionsIsOpen(false);
+            setVehiclePickerIsOpen(false);
+            navigateToProducts(query);
+        }
     };
 
     const handleChangeCurrentVehicle = (event: React.FormEvent<HTMLInputElement>) => {
@@ -175,7 +251,7 @@ export function Search() {
 
     return (
         <div className="search" ref={rootRef} onBlur={handleRootBlur}>
-            <form className="search__body">
+            <form className="search__body" onSubmit={handleFormSubmit}>
                 <div className="search__shadow" />
 
                 <label className="sr-only" htmlFor="site-search">
@@ -329,45 +405,7 @@ export function Search() {
                                             </span>
                                         </span>
                                     </label>
-                                    {vehicles.map((vehicle, index) => (
-                                        <React.Fragment key={index}>
-                                            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                                            <label className="vehicles-list__item">
-                                                <RadioButton
-                                                    className="vehicles-list__item-radio"
-                                                    name="header-current-vehicle"
-                                                    defaultValue={vehicle.id}
-                                                    checked={currentVehicle?.id === vehicle.id}
-                                                    onChange={handleChangeCurrentVehicle}
-                                                />
-                                                <span className="vehicles-list__item-info">
-                                                    <span className="vehicles-list__item-name">
-                                                        {`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-                                                    </span>
-                                                    <span className="vehicles-list__item-details">
-                                                        <FormattedMessage
-                                                            id="TEXT_VEHICLE_ENGINE"
-                                                            values={{ engine: vehicle.engine }}
-                                                        />
-                                                    </span>
-                                                </span>
-                                                <AsyncAction
-                                                    action={() => garageRemoveItem(vehicle.id)}
-                                                    render={({ run, loading }) => (
-                                                        <button
-                                                            type="button"
-                                                            className={classNames('vehicles-list__item-remove', {
-                                                                'vehicles-list__item-remove--loading': loading,
-                                                            })}
-                                                            onClick={run}
-                                                        >
-                                                            <RecycleBin16Svg />
-                                                        </button>
-                                                    )}
-                                                />
-                                            </label>
-                                        </React.Fragment>
-                                    ))}
+
                                 </div>
                             </div>
 
