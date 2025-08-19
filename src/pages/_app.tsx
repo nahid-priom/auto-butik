@@ -8,6 +8,7 @@ import { useStore } from 'react-redux';
 import { ApolloProvider } from '@apollo/client';
 // application
 import { AuthProvider } from '~/contexts/AuthContext';
+import { CarProvider } from '~/contexts/CarContext';
 import { graphqlClient } from '~/api/graphql/account.api';
 // application
 import config from '~/config';
@@ -102,12 +103,14 @@ function App(props: Props) {
             <ApolloProvider client={graphqlClient}>
                 <LanguageProvider {...languageInitialProps}>
                     <AuthProvider>
-                        <CurrentVehicleGarageProvider>
-                            <Layout>
-                                <PageTitle />
-                                {page}
-                            </Layout>
-                        </CurrentVehicleGarageProvider>
+                        <CarProvider>
+                            <CurrentVehicleGarageProvider>
+                                <Layout>
+                                    <PageTitle />
+                                    {page}
+                                </Layout>
+                            </CurrentVehicleGarageProvider>
+                        </CarProvider>
                     </AuthProvider>
                 </LanguageProvider>
             </ApolloProvider>

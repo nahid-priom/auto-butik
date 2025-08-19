@@ -18,6 +18,8 @@ import { IProduct } from '~/interfaces/product';
 import { IShopCategory } from '~/interfaces/category';
 import { IVehicle } from '~/interfaces/vehicle';
 import { shopApi } from '~/api';
+import { carApi } from '~/api/car.api';
+import { useCurrentActiveCar } from '~/contexts/CarContext';
 import { useGlobalMousedown } from '~/services/hooks';
 import {
     useGarageAddItem,
@@ -31,6 +33,7 @@ export function Search() {
     const intl = useIntl();
     const router = useRouter();
     const [query, setQuery] = useState('');
+    const { setCurrentActiveCar, setIsLoading } = useCurrentActiveCar();
     const [suggestionsIsOpen, setSuggestionsIsOpen] = useState(false);
     const [hasSuggestions, setHasSuggestions] = useState(false);
     const [products, setProducts] = useState<IProduct[]>([]);
@@ -86,6 +89,31 @@ export function Search() {
     const isSwedishRegistrationComplete = (value: string): boolean => {
         const pattern = /^[A-Z]{3} [0-9]{3}$/;
         return pattern.test(value);
+    };
+
+    // Fetch car data by registration number
+    const fetchCarData = async (regNumber: string) => {
+        try {
+            setIsLoading(true);
+            const response = await carApi.getCarByRegistration(regNumber);
+            
+            if (response.success && response.data) {
+                const currentActiveCar = {
+                    regNr: response.regNr,
+                    data: response.data,
+                    fetchedAt: Date.now(),
+                };
+                
+                setCurrentActiveCar(currentActiveCar);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Failed to fetch car data:', error);
+            return false;
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     // Navigate to products page without search query
@@ -154,7 +182,7 @@ export function Search() {
         search(input.value);
     };
 
-    const handleInputChange = (event: React.FormEvent<HTMLInputElement>) => {
+    const handleInputChange = async (event: React.FormEvent<HTMLInputElement>) => {
         const input = event.currentTarget;
         const rawValue = input.value;
         
@@ -170,6 +198,9 @@ export function Search() {
             setSuggestionsIsOpen(false);
             setVehiclePickerIsOpen(false);
             
+            // Fetch car data
+            const carFetched = await fetchCarData(formattedValue);
+            
             // Navigate to products page
             navigateToProducts();
         } else {
@@ -182,13 +213,17 @@ export function Search() {
         toggleVehiclePicker();
     };
 
-    const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         
-        // If the format is complete, navigate to products
+        // If the format is complete, fetch car data and navigate to products
         if (isSwedishRegistrationComplete(query)) {
             setSuggestionsIsOpen(false);
             setVehiclePickerIsOpen(false);
+            
+            // Fetch car data
+            const carFetched = await fetchCarData(query);
+            
             navigateToProducts();
         }
     };

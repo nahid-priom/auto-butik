@@ -5,6 +5,7 @@ import { FormattedMessage } from 'react-intl';
 // application
 import AccountMenu from '~/components/header/AccountMenu';
 import AppLink from '~/components/shared/AppLink';
+import CarIndicator from '~/components/header/CarIndicator';
 import CurrencyFormat from '~/components/shared/CurrencyFormat';
 import Departments from '~/components/header/Departments';
 import Dropcart from '~/components/header/Dropcart';
@@ -103,6 +104,8 @@ function Header() {
                 >
                     <AccountMenu onCloseMenu={() => accountIndicatorCtrl.current?.close()} />
                 </Indicator>
+
+                <CarIndicator />
 
                 <Indicator
                     href={url.cart()}
