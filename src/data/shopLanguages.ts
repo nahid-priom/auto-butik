@@ -3,28 +3,21 @@ import { ILanguage } from '~/interfaces/language';
 
 const dataShopLanguages: ILanguage[] = [
     {
+        locale: 'swe',
+        code: 'swe',
+        name: 'Svenska',
+        icon: '/images/languages/language-swe.png',
+        direction: 'ltr',
+    },
+    {
         locale: 'en',
         code: 'en',
         name: 'English',
         icon: '/images/languages/language-1.png',
         direction: 'ltr',
     },
-    {
-        locale: 'ru',
-        code: 'ru',
-        name: 'Russian',
-        icon: '/images/languages/language-2.png',
-        direction: 'ltr',
-    },
-    {
-        locale: 'ar',
-        code: 'ar',
-        name: 'RTL',
-        icon: '/images/languages/language-3.png',
-        direction: 'rtl',
-    },
 ];
 
-export const dataShopDefaultLocale = 'en';
+export const dataShopDefaultLocale = 'swe';
 
 export default dataShopLanguages;

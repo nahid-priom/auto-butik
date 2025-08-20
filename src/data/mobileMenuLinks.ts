@@ -143,16 +143,6 @@ const dataMobileMenuLinks: IMobileMenuLink[] = [
             { title: 'Typography', url: '/demo/site/typography' },
         ],
     },
-    {
-        title: 'Buy Theme',
-        url: 'https://themeforest.net/item/redparts-auto-parts-react-ecommerce-template/28404847',
-        customFields: {
-            anchorProps: {
-                target: '_blank',
-            },
-            highlight: true,
-        },
-    },
 ];
 
 export default dataMobileMenuLinks;
