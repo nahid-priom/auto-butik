@@ -17,7 +17,7 @@ function CurrencyFormat(props: Props) {
     return (
         <React.Fragment>
             {currency.symbol}
-            {(value * currency.rate).toFixed(2)}
+            {((value / 100) * currency.rate).toFixed(2)}
         </React.Fragment>
     );
 }
