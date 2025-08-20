@@ -9,7 +9,10 @@ import { useDetachableForm } from '~/services/hooks';
 import { validateEmail } from '~/services/validators';
 
 export interface IRegisterForm {
+    firstName: string;
+    lastName: string;
     email: string;
+    phone: string;
     password: string;
     confirmPassword: string;
 }
@@ -22,7 +25,10 @@ interface Props {
 
 export function getRegisterFormDefaultValue(initialData: IRegisterForm | null = null): IRegisterForm {
     return {
+        firstName: '',
+        lastName: '',
         email: '',
+        phone: '',
         password: '',
         confirmPassword: '',
         ...initialData,
@@ -43,6 +49,48 @@ function RegisterForm(props: Props) {
     return (
         <React.Fragment>
             <div className="form-group">
+                <label htmlFor={`${fieldId}first-name`}>
+                    <FormattedMessage id="INPUT_FIRST_NAME_LABEL" />
+                </label>
+                <input
+                    type="text"
+                    id={`${fieldId}first-name`}
+                    className={classNames('form-control', {
+                        'is-invalid': errors?.firstName,
+                    })}
+                    disabled={disabled}
+                    placeholder={intl.formatMessage({ id: 'INPUT_FIRST_NAME_PLACEHOLDER' })}
+                    {...register(`${ns}firstName`, { required: true })}
+                />
+                <div className="invalid-feedback">
+                    {errors?.firstName?.type === 'required' && (
+                        <FormattedMessage id="ERROR_FORM_REQUIRED" />
+                    )}
+                </div>
+            </div>
+
+            <div className="form-group">
+                <label htmlFor={`${fieldId}last-name`}>
+                    <FormattedMessage id="INPUT_LAST_NAME_LABEL" />
+                </label>
+                <input
+                    type="text"
+                    id={`${fieldId}last-name`}
+                    className={classNames('form-control', {
+                        'is-invalid': errors?.lastName,
+                    })}
+                    disabled={disabled}
+                    placeholder={intl.formatMessage({ id: 'INPUT_LAST_NAME_PLACEHOLDER' })}
+                    {...register(`${ns}lastName`, { required: true })}
+                />
+                <div className="invalid-feedback">
+                    {errors?.lastName?.type === 'required' && (
+                        <FormattedMessage id="ERROR_FORM_REQUIRED" />
+                    )}
+                </div>
+            </div>
+
+            <div className="form-group">
                 <label htmlFor={`${fieldId}email`}>
                     <FormattedMessage id="INPUT_EMAIL_ADDRESS_LABEL" />
                 </label>
@@ -62,6 +110,27 @@ function RegisterForm(props: Props) {
                     )}
                     {errors?.email?.type === 'email' && (
                         <FormattedMessage id="ERROR_FORM_INCORRECT_EMAIL" />
+                    )}
+                </div>
+            </div>
+
+            <div className="form-group">
+                <label htmlFor={`${fieldId}phone`}>
+                    <FormattedMessage id="INPUT_PHONE_LABEL" />
+                </label>
+                <input
+                    type="tel"
+                    id={`${fieldId}phone`}
+                    className={classNames('form-control', {
+                        'is-invalid': errors?.phone,
+                    })}
+                    disabled={disabled}
+                    placeholder={intl.formatMessage({ id: 'INPUT_PHONE_PLACEHOLDER' })}
+                    {...register(`${ns}phone`, { required: true })}
+                />
+                <div className="invalid-feedback">
+                    {errors?.phone?.type === 'required' && (
+                        <FormattedMessage id="ERROR_FORM_REQUIRED" />
                     )}
                 </div>
             </div>

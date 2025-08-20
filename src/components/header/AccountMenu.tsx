@@ -118,18 +118,6 @@ function AccountMenu(props: Props) {
                             <FormattedMessage id="BUTTON_LOGIN" />
                         </button>
                     </div>
-                    <div className="account-menu__form-button">
-                        <button
-                            type="button"
-                            className={classNames('btn', 'btn-secondary', 'btn-sm', {
-                                'btn-loading': isLoggingOut,
-                            })}
-                            onClick={onLogOutButtonClick}
-                            disabled={isLoggingOut}
-                        >
-                            <FormattedMessage id="BUTTON_LOGOUT" />
-                        </button>
-                    </div>
                     <div className="account-menu__form-link">
                         <AppLink href={url.signUp()} onClick={onCloseMenu}>
                             <FormattedMessage id="LINK_CREATE_ACCOUNT" />
@@ -178,14 +166,6 @@ function AccountMenu(props: Props) {
                             <AppLink href={url.accountAddresses()} onClick={onCloseMenu}>
                                 <FormattedMessage id="LINK_ACCOUNT_ADDRESSES" />
                             </AppLink>
-                        </li>
-                    </ul>
-                    <div className="account-menu__divider" />
-                    <ul className="account-menu__links">
-                        <li>
-                            <button type="button" onClick={onLogOutButtonClick}>
-                                <FormattedMessage id="LINK_ACCOUNT_LOGOUT" />
-                            </button>
                         </li>
                     </ul>
                 </React.Fragment>

@@ -21,6 +21,7 @@ function Page() {
     const [address, setAddress] = useState<IAddress | null>(null);
     const [orders, setOrders] = useState<IOrder[]>([]);
 
+
     useEffect(() => {
         if (user) {
             accountApi.getDefaultAddress().then(setAddress);
@@ -47,7 +48,9 @@ function Page() {
                         <AppImage src={user.avatar} />
                     </div>
                     <div className="profile-card__name">
-                        {`${user.firstName} ${user.lastName}`}
+                        {user.firstName && user.lastName 
+                            ? `${user.firstName} ${user.lastName}` 
+                            : user.email || 'User'}
                     </div>
                     <div className="profile-card__email">{user.email}</div>
                     <div className="profile-card__edit">

@@ -2,6 +2,8 @@
 import { useMemo, useState, useCallback } from 'react';
 // third-party
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
+import { useIntl } from 'react-intl';
 // application
 import { useAsyncAction } from '~/store/hooks';
 import { useUserSignUp } from '~/store/user/userHooks';
@@ -11,20 +13,27 @@ interface ISignUpFormOptions {
 }
 
 export interface ISignUpForm {
+    firstName: string;
+    lastName: string;
     email: string;
+    phone: string;
     password: string;
     confirmPassword: string;
 }
 
 export function useSignUpForm(options: ISignUpFormOptions = {}) {
     const signUp = useUserSignUp();
+    const intl = useIntl();
     const { onSuccess } = options;
     const [serverError, setServerError] = useState<string | null>(null);
     const methods = useForm<ISignUpForm>({
         defaultValues: {
-            email: 'user@example.com',
-            password: '123456',
-            confirmPassword: '123456',
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            password: '',
+            confirmPassword: '',
         },
     });
     const { handleSubmit } = methods;
@@ -38,7 +47,7 @@ export function useSignUpForm(options: ISignUpFormOptions = {}) {
         }
 
         try {
-            await signUp(data.email, data.password);
+            await signUp(data.email, data.password, data.firstName, data.lastName, data.phone);
             if (onSuccess) {
                 onSuccess();
             }
@@ -62,6 +71,8 @@ export function useSignUpForm(options: ISignUpFormOptions = {}) {
             }
             
             setServerError(errorMessage);
+            // Show error toast
+            toast.error(intl.formatMessage({ id: errorMessage }), { theme: 'colored' });
             throw error; // Re-throw to let the form handle it
         }
     }, [signUp, onSuccess]);

@@ -40,6 +40,17 @@ export const load = () => {
         if (state && state.version !== version) {
             state = undefined;
         }
+
+        // Also check for user authentication token and restore user state
+        if (state && !state.user?.current) {
+            const token = localStorage.getItem('customerToken');
+            if (token) {
+                // Initialize user state as loading to prevent redirect to login
+                state.user = {
+                    current: { id: 'loading', email: '', firstName: '', lastName: '' },
+                };
+            }
+        }
     } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);

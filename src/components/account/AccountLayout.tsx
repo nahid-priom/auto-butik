@@ -1,19 +1,19 @@
 // react
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren } from "react";
 // third-party
-import classNames from 'classnames';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { useRouter } from 'next/router';
+import classNames from "classnames";
+import { FormattedMessage, useIntl } from "react-intl";
+import { useRouter } from "next/router";
 // application
-import AppLink from '~/components/shared/AppLink';
-import BlockSpace from '~/components/blocks/BlockSpace';
-import Redirect from '~/components/shared/Redirect';
-import url from '~/services/url';
-import { ILink } from '~/interfaces/link';
-import { useAsyncAction } from '~/store/hooks';
-import { useUser, useUserSignOut } from '~/store/user/userHooks';
+import AppLink from "~/components/shared/AppLink";
+import BlockSpace from "~/components/blocks/BlockSpace";
+import Redirect from "~/components/shared/Redirect";
+import url from "~/services/url";
+import { ILink } from "~/interfaces/link";
+import { useAsyncAction } from "~/store/hooks";
+import { useUser, useUserSignOut } from "~/store/user/userHooks";
 
-interface Props extends PropsWithChildren<{}> { }
+interface Props extends PropsWithChildren<{}> {}
 
 function AccountLayout(props: Props) {
     const { children } = props;
@@ -24,12 +24,12 @@ function AccountLayout(props: Props) {
     const [onSignOutClick] = useAsyncAction(() => userSignOut(), [userSignOut]);
 
     const navigation: ILink[] = [
-        { title: intl.formatMessage({ id: 'LINK_ACCOUNT_DASHBOARD' }), url: url.accountDashboard() },
-        { title: intl.formatMessage({ id: 'LINK_ACCOUNT_GARAGE' }), url: url.accountGarage() },
-        { title: intl.formatMessage({ id: 'LINK_ACCOUNT_PROFILE' }), url: url.accountProfile() },
-        { title: intl.formatMessage({ id: 'LINK_ACCOUNT_ORDERS' }), url: url.accountOrders() },
-        { title: intl.formatMessage({ id: 'LINK_ACCOUNT_ADDRESSES' }), url: url.accountAddresses() },
-        { title: intl.formatMessage({ id: 'LINK_ACCOUNT_PASSWORD' }), url: url.accountPassword() },
+        { title: intl.formatMessage({ id: "LINK_ACCOUNT_DASHBOARD" }), url: url.accountDashboard() },
+        { title: intl.formatMessage({ id: "LINK_ACCOUNT_GARAGE" }), url: url.accountGarage() },
+        { title: intl.formatMessage({ id: "LINK_ACCOUNT_PROFILE" }), url: url.accountProfile() },
+        { title: intl.formatMessage({ id: "LINK_ACCOUNT_ORDERS" }), url: url.accountOrders() },
+        { title: intl.formatMessage({ id: "LINK_ACCOUNT_ADDRESSES" }), url: url.accountAddresses() },
+        { title: intl.formatMessage({ id: "LINK_ACCOUNT_PASSWORD" }), url: url.accountPassword() },
     ];
 
     if (!user) {
@@ -52,13 +52,11 @@ function AccountLayout(props: Props) {
                                     {navigation.map((item, index) => (
                                         <li
                                             key={index}
-                                            className={classNames('account-nav__item', {
-                                                'account-nav__item--active': router.pathname === item.url,
+                                            className={classNames("account-nav__item", {
+                                                "account-nav__item--active": router.pathname === item.url,
                                             })}
                                         >
-                                            <AppLink href={item.url}>
-                                                {item.title}
-                                            </AppLink>
+                                            <AppLink href={item.url}>{item.title}</AppLink>
                                         </li>
                                     ))}
                                     <li className="account-nav__divider" role="presentation" />
@@ -71,9 +69,7 @@ function AccountLayout(props: Props) {
                                 </ul>
                             </div>
                         </div>
-                        <div className="col-12 col-lg-9 mt-4 mt-lg-0">
-                            {children}
-                        </div>
+                        <div className="col-12 col-lg-9 mt-4 mt-lg-0">{children}</div>
                     </div>
                 </div>
             </div>
