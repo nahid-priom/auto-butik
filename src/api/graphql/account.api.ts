@@ -1,6 +1,10 @@
 import { ApolloClient, InMemoryCache, createHttpLink, gql, ApolloError } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { IUser, IAuthResponse } from '~/interfaces/user';
+import { IAddress } from '~/interfaces/user';
+import { IOrder } from '~/interfaces/order';
+import { IListOptions, IOrdersList } from '~/interfaces/list';
+import { IEditAddressData } from '~/api/base';
 
 // Define GraphQL response types
 interface CurrentUser {
@@ -157,6 +161,120 @@ export const UPDATE_CUSTOMER_MUTATION = gql`
   }
 `;
 
+// Address mutations
+export const CREATE_CUSTOMER_ADDRESS = gql`
+  mutation CreateCustomerAddress($input: CreateAddressInput!) {
+    createCustomerAddress(input: $input) {
+      id
+      fullName
+      company
+      streetLine1
+      streetLine2
+      city
+      province
+      postalCode
+      country { code name }
+      phoneNumber
+      defaultShippingAddress
+      defaultBillingAddress
+    }
+  }
+`;
+
+export const UPDATE_CUSTOMER_ADDRESS = gql`
+  mutation UpdateCustomerAddress($input: UpdateAddressInput!) {
+    updateCustomerAddress(input: $input) {
+      id
+      fullName
+      company
+      streetLine1
+      streetLine2
+      city
+      province
+      postalCode
+      country { code name }
+      phoneNumber
+      defaultShippingAddress
+      defaultBillingAddress
+    }
+  }
+`;
+
+export const DELETE_CUSTOMER_ADDRESS = gql`
+  mutation DeleteCustomerAddress($id: ID!) {
+    deleteCustomerAddress(id: $id) {
+      success
+    }
+  }
+`;
+
+// Orders queries
+export const GET_CUSTOMER_ORDERS = gql`
+  query GetCustomerOrders($options: OrderListOptions) {
+    activeCustomer {
+      id
+      orders(options: $options) {
+        totalItems
+        items {
+          id
+          code
+          state
+          orderPlacedAt
+          totalWithTax
+          totalQuantity
+        }
+      }
+    }
+  }
+`;
+
+export const GET_ORDER_BY_CODE = gql`
+  query GetOrderByCode($code: String!) {
+    orderByCode(code: $code) {
+      id
+      code
+      state
+      orderPlacedAt
+      totalWithTax
+      totalQuantity
+      lines {
+        id
+        quantity
+        unitPriceWithTax
+        linePriceWithTax
+        productVariant {
+          id
+          name
+          sku
+          product { name }
+        }
+      }
+      shippingAddress {
+        fullName
+        company
+        streetLine1
+        streetLine2
+        city
+        province
+        postalCode
+        country { name }
+        phoneNumber
+      }
+      billingAddress {
+        fullName
+        company
+        streetLine1
+        streetLine2
+        city
+        province
+        postalCode
+        country { name }
+        phoneNumber
+      }
+    }
+  }
+`;
+
 // API methods
 export const customerApi = {
   async signIn(email: string, password: string): Promise<IUser> {
@@ -223,6 +341,192 @@ export const customerApi = {
       }
       throw new Error('An unexpected error occurred during login');
     }
+  },
+
+  // Address helpers (mapping Vendure <-> app types)
+  mapVendureAddressToApp(address: any): IAddress {
+    const [firstName = '', ...rest] = (address.fullName || '').trim().split(' ');
+    const lastName = rest.join(' ');
+    return {
+      id: Number(address.id),
+      firstName,
+      lastName,
+      company: address.company || '',
+      country: address.country?.code || '',
+      address1: address.streetLine1 || '',
+      address2: address.streetLine2 || '',
+      city: address.city || '',
+      state: address.province || '',
+      postcode: address.postalCode || '',
+      email: '',
+      phone: address.phoneNumber || '',
+      default: Boolean(address.defaultShippingAddress || address.defaultBillingAddress),
+    };
+  },
+
+  buildCreateAddressInput(data: IEditAddressData) {
+    return {
+      fullName: `${data.firstName} ${data.lastName}`.trim(),
+      company: data.company || undefined,
+      streetLine1: data.address1,
+      streetLine2: data.address2 || undefined,
+      city: data.city,
+      province: data.state,
+      postalCode: data.postcode,
+      // Vendure expects a valid countryCode; ensure uppercase
+      countryCode: (data.country || '').toUpperCase(),
+      phoneNumber: data.phone || undefined,
+      defaultShippingAddress: data.default,
+      defaultBillingAddress: data.default,
+    };
+  },
+
+  // Orders mapping
+  mapOrderListItem(o: any): Partial<IOrder> & { id: number } {
+    return {
+      id: Number(o.id),
+      token: o.code,
+      number: o.code,
+      createdAt: o.orderPlacedAt,
+      status: o.state,
+      total: o.totalWithTax,
+      quantity: o.totalQuantity,
+    } as any;
+  },
+
+  mapOrderDetail(o: any): IOrder {
+    const items = (o.lines || []).map((l: any) => ({
+      product: { name: l.productVariant?.product?.name || l.productVariant?.name || '' } as any,
+      options: [],
+      price: l.unitPriceWithTax,
+      quantity: l.quantity,
+      total: l.linePriceWithTax,
+    }));
+
+    const mapAddr = (a: any) => ({
+      firstName: (a?.fullName || '').split(' ')[0] || '',
+      lastName: (a?.fullName || '').split(' ').slice(1).join(' ') || '',
+      company: a?.company || '',
+      country: a?.country?.name || '',
+      address1: a?.streetLine1 || '',
+      address2: a?.streetLine2 || '',
+      city: a?.city || '',
+      state: a?.province || '',
+      postcode: a?.postalCode || '',
+      email: '',
+      phone: a?.phoneNumber || '',
+    });
+
+    return {
+      id: Number(o.id),
+      token: o.code,
+      number: o.code,
+      createdAt: o.orderPlacedAt,
+      payment: '',
+      status: o.state,
+      items,
+      quantity: o.totalQuantity,
+      subtotal: items.reduce((s: number) => s, 0),
+      totals: [],
+      total: o.totalWithTax,
+      shippingAddress: mapAddr(o.shippingAddress),
+      billingAddress: mapAddr(o.billingAddress),
+    } as IOrder;
+  },
+
+  async getAddresses(): Promise<IAddress[]> {
+    const current = await this.getCurrentUser();
+    const raw = (current as any)?.addresses || [];
+    return raw.map((a: any) => this.mapVendureAddressToApp(a));
+  },
+
+  async getAddress(addressId: number): Promise<IAddress> {
+    const list = await this.getAddresses();
+    const found = list.find((a) => a.id === addressId);
+    if (!found) throw new Error('Address not found');
+    return found;
+  },
+
+  async getDefaultAddress(): Promise<IAddress | null> {
+    const list = await this.getAddresses();
+    return list.find((a) => a.default) || null;
+  },
+
+  async addAddress(data: IEditAddressData): Promise<IAddress> {
+    const { data: resp } = await graphqlClient.mutate<{ createCustomerAddress: any }>({
+      mutation: CREATE_CUSTOMER_ADDRESS,
+      variables: { input: this.buildCreateAddressInput(data) },
+    });
+    if (!resp?.createCustomerAddress) throw new Error('Failed to create address');
+    return this.mapVendureAddressToApp(resp.createCustomerAddress);
+  },
+
+  async editAddress(addressId: number, data: IEditAddressData): Promise<IAddress> {
+    const { data: resp } = await graphqlClient.mutate<{ updateCustomerAddress: any }>({
+      mutation: UPDATE_CUSTOMER_ADDRESS,
+      variables: {
+        input: {
+          id: String(addressId),
+          ...this.buildCreateAddressInput(data),
+        },
+      },
+    });
+    if (!resp?.updateCustomerAddress) throw new Error('Failed to update address');
+    return this.mapVendureAddressToApp(resp.updateCustomerAddress);
+  },
+
+  async delAddress(addressId: number): Promise<void> {
+    const { data: resp } = await graphqlClient.mutate<{ deleteCustomerAddress: { success: boolean } }>({
+      mutation: DELETE_CUSTOMER_ADDRESS,
+      variables: { id: String(addressId) },
+    });
+    if (!resp?.deleteCustomerAddress?.success) {
+      throw new Error('Failed to delete address');
+    }
+  },
+
+  // Orders API
+  async getOrdersList(options?: IListOptions): Promise<IOrdersList> {
+    const take = options?.limit ?? 5;
+    const { data } = await graphqlClient.query<{ activeCustomer: { orders: { totalItems: number; items: any[] } } | null }>({
+      query: GET_CUSTOMER_ORDERS,
+      variables: { options: { take, sort: { orderPlacedAt: 'DESC' } } },
+      fetchPolicy: 'network-only',
+    });
+    const list = data.activeCustomer?.orders || { totalItems: 0, items: [] };
+    const items = list.items.map((o) => this.mapOrderListItem(o)) as IOrder[] as any;
+    return {
+      items: items as any,
+      navigation: {
+        type: 'page',
+        page: 1,
+        limit: take,
+        total: list.totalItems,
+        pages: Math.max(1, Math.ceil(list.totalItems / take)),
+        from: 1,
+        to: Math.min(take, list.totalItems),
+      },
+      sort: 'orderPlacedAt:DESC',
+    } as unknown as IOrdersList;
+  },
+
+  async getOrderById(id: number): Promise<IOrder> {
+    // Fetch a page of orders and find by id (Shop API lacks direct query by id)
+    const result = await this.getOrdersList({ limit: 50 });
+    const match = (result.items as any[]).find((o) => o.id === id);
+    if (!match) throw new Error('Order not found');
+    // Retrieve full details by code
+    return this.getOrderByToken(match.token);
+  },
+
+  async getOrderByToken(token: string): Promise<IOrder> {
+    const { data } = await graphqlClient.query<{ orderByCode: any }>({
+      query: GET_ORDER_BY_CODE,
+      variables: { code: token },
+      fetchPolicy: 'network-only',
+    });
+    if (!data.orderByCode) throw new Error('Order not found');
+    return this.mapOrderDetail(data.orderByCode);
   },
 
   async signUp(email: string, password: string, firstName: string, lastName: string, phone?: string): Promise<{ success: boolean }> {
