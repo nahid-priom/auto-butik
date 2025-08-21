@@ -58,18 +58,7 @@ export function userEditProfile(
     data: { firstName: string; lastName: string; email: string; phone?: string },
 ): UserThunkAction<Promise<void>> {
     return async (dispatch, getState) => {
-        // In a real implementation, you would update the user's profile via GraphQL
-        // For now, we'll just update the local state
-        const currentUser = getState().user.current;
-        if (currentUser) {
-            const updatedUser = {
-                ...currentUser,
-                firstName: data.firstName,
-                lastName: data.lastName,
-                email: data.email,
-                phone: data.phone || currentUser.phone,
-            };
-            dispatch(userSetCurrent(updatedUser));
-        }
+        const updated = await customerApi.updateProfile(data);
+        dispatch(userSetCurrent(updated));
     };
 }

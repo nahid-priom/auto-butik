@@ -19,33 +19,36 @@ interface ErrorResult {
 type LoginResponse = CurrentUser | ErrorResult;
 type RegisterResponse = { __typename: 'Success'; success: boolean } | ErrorResult;
 
-// Create HTTP link to Vendure Shop API
-const getApiUrl = () => {
-  // On server-side, use BASE_PATH directly, on client-side use NEXT_PUBLIC_API_URL
-  if (typeof window === 'undefined') {
-    // Server-side: use BASE_PATH environment variable
-    return `${process.env.BASE_PATH || 'http://localhost:3000'}/shop-api`;
-  } else {
-    // Client-side: use NEXT_PUBLIC_API_URL
-    return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/shop-api`;
-  }
-};
+// Create HTTP link to Vendure Shop API via same-origin proxy (Next.js rewrites)
+const getApiUrl = () => '/shop-api';
 
 const httpLink = createHttpLink({
   uri: getApiUrl(),
+  // Include cookies so the Vendure session is persisted across requests
+  credentials: 'include',
 });
 
 // Auth middleware to add token to requests
 const authLink = setContext((_, { headers = {} }) => {
-  // Get the token from localStorage (only in browser)
-  const token = typeof window !== 'undefined' ? localStorage.getItem('customerToken') : null;
-  
-  // Return the headers with the token if it exists
+  // Get tokens from localStorage (only in browser)
+  const channelToken = typeof window !== 'undefined' ? localStorage.getItem('customerToken') : null;
+  const bearerToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+  const extraHeaders: Record<string, string> = {};
+  if (channelToken) {
+    // Vendure expects the channel token in the `vendure-token` header
+    extraHeaders['vendure-token'] = channelToken;
+  }
+  if (bearerToken) {
+    // Optional: support bearer-token sessions if backend is configured that way
+    extraHeaders['authorization'] = `Bearer ${bearerToken}`;
+  }
+
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : "",
-    }
+      ...extraHeaders,
+    },
   };
 });
 
@@ -137,6 +140,19 @@ export const GET_ACTIVE_CUSTOMER = gql`
         defaultShippingAddress
         defaultBillingAddress
       }
+    }
+  }
+`;
+
+export const UPDATE_CUSTOMER_MUTATION = gql`
+  mutation UpdateCustomer($input: UpdateCustomerInput!) {
+    updateCustomer(input: $input) {
+      id
+      title
+      firstName
+      lastName
+      emailAddress
+      phoneNumber
     }
   }
 `;
@@ -272,6 +288,54 @@ export const customerApi = {
       // Handle network or other errors
       console.error('Error in getCurrentUser:', error);
       return null;
+    }
+  },
+
+  async updateProfile(data: {
+    firstName: string;
+    lastName: string;
+    email: string; // Note: Shop API does not update email here
+    phone?: string;
+    title?: string;
+  }): Promise<IUser> {
+    try {
+      const { data: resp } = await graphqlClient.mutate<{
+        updateCustomer: {
+          id: string;
+          title?: string | null;
+          firstName?: string | null;
+          lastName?: string | null;
+          emailAddress?: string | null;
+          phoneNumber?: string | null;
+        } | null;
+      }>({
+        mutation: UPDATE_CUSTOMER_MUTATION,
+        variables: {
+          input: {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            phoneNumber: data.phone,
+            title: data.title,
+          },
+        },
+      });
+
+      if (!resp?.updateCustomer) {
+        throw new Error('Failed to update profile');
+      }
+
+      const updated = resp.updateCustomer;
+      return {
+        id: updated.id,
+        email: updated.emailAddress || '',
+        firstName: updated.firstName || '',
+        lastName: updated.lastName || '',
+        phone: updated.phoneNumber || '',
+        title: updated.title || '',
+        identifier: updated.emailAddress || '',
+      };
+    } catch (error) {
+      throw new Error('Profile update failed');
     }
   },
 
