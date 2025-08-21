@@ -22,6 +22,8 @@ import { load, save, wrapper } from '~/store/store';
 import { optionsSetAll } from '~/store/options/optionsActions';
 import { useApplyClientState } from '~/store/client';
 import { useLoadUserVehicles } from '~/store/garage/garageHooks';
+import { userSetCurrent } from '~/store/user/userAction';
+import { customerApi } from '~/api/graphql/account.api';
 // styles
 import '../scss/index.scss';
 import '../scss/style.header-spaceship-variant-one.scss';
@@ -61,6 +63,28 @@ function App(props: Props) {
             });
         }
     }, [store, applyClientState]);
+
+    // Initialize user authentication state
+    useEffect(() => {
+        const initializeAuth = async () => {
+            const token = localStorage.getItem('customerToken');
+            if (token) {
+                try {
+                    const userData = await customerApi.getCurrentUser();
+                    if (userData) {
+                        store.dispatch(userSetCurrent(userData));
+                    }
+                } catch (error) {
+                    console.error('Failed to restore user session:', error);
+                    localStorage.removeItem('customerToken');
+                }
+            }
+        };
+
+        if (process.browser) {
+            initializeAuth();
+        }
+    }, [store]);
 
     // Load user vehicles
     useEffect(() => {

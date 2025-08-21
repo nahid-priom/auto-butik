@@ -13,10 +13,12 @@ import { useUser, useUserEditProfile } from '~/store/user/userHooks';
 import { validateEmail } from '~/services/validators';
 
 interface IForm {
+    title: string;
     firstName: string;
     lastName: string;
     email: string;
     phone: string;
+    dateOfBirth: string;
 }
 
 function Page() {
@@ -31,10 +33,12 @@ function Page() {
         formState: { errors },
     } = useForm<IForm>({
         defaultValues: {
+            title: '',
             firstName: '',
             lastName: '',
             email: '',
             phone: '',
+            dateOfBirth: '',
         },
     });
 
@@ -46,10 +50,12 @@ function Page() {
 
     useEffect(() => {
         reset({
+            title: user?.title || '',
             firstName: user?.firstName || '',
             lastName: user?.lastName || '',
             email: user?.email || '',
             phone: user?.phone || '',
+            dateOfBirth: user?.dateOfBirth || '',
         });
     }, [user, reset]);
 
@@ -66,6 +72,29 @@ function Page() {
                 <div className="row no-gutters">
                     <div className="col-12 col-lg-7 col-xl-6">
                         <form onSubmit={handleSubmit(submit)}>
+                            <div className="form-group">
+                                <label htmlFor="profile-title">
+                                    <FormattedMessage id="INPUT_TITLE_LABEL" />
+                                </label>
+                                <select
+                                    id="profile-title"
+                                    className={classNames('form-control', {
+                                        'is-invalid': errors.title,
+                                    })}
+                                    {...register('title')}
+                                >
+                                    <option value="">{intl.formatMessage({ id: 'INPUT_TITLE_PLACEHOLDER' })}</option>
+                                    <option value="Mr">Mr</option>
+                                    <option value="Mrs">Mrs</option>
+                                    <option value="Ms">Ms</option>
+                                    <option value="Dr">Dr</option>
+                                </select>
+                                <div className="invalid-feedback">
+                                    {errors.title?.type === 'required' && (
+                                        <FormattedMessage id="ERROR_FORM_REQUIRED" />
+                                    )}
+                                </div>
+                            </div>
                             <div className="form-group">
                                 <label htmlFor="profile-first-name">
                                     <FormattedMessage id="INPUT_FIRST_NAME_LABEL" />
@@ -134,7 +163,7 @@ function Page() {
                                     <FormattedMessage id="INPUT_PHONE_NUMBER_LABEL" />
                                 </label>
                                 <input
-                                    type="text"
+                                    type="tel"
                                     id="profile-phone"
                                     className={classNames('form-control', {
                                         'is-invalid': errors.phone,

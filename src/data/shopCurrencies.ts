@@ -3,32 +3,26 @@ import { ICurrency } from '~/interfaces/currency';
 
 const dataShopCurrencies: ICurrency[] = [
     {
-        code: 'EUR',
-        symbol: '€',
-        name: 'Euro',
-        rate: 0.92,
-    },
-    {
-        code: 'GBP',
-        symbol: '£',
-        name: 'Pound Sterling',
-        rate: 0.78,
+        code: 'SEK',
+        symbol: 'kr',
+        name: 'Swedish Krona',
+        rate: 1,
     },
     {
         code: 'USD',
         symbol: '$',
         name: 'US Dollar',
-        rate: 1,
+        rate: 0.095,
     },
     {
-        code: 'RUB',
-        symbol: '₽',
-        name: 'Russian Ruble',
-        rate: 64,
+        code: 'EUR',
+        symbol: '€',
+        name: 'Euro',
+        rate: 0.087,
     },
 ];
 
-const dataShopDefaultCurrencyCode = 'USD';
+const dataShopDefaultCurrencyCode = 'SEK';
 
 export const dataShopDefaultCurrency: ICurrency = dataShopCurrencies.find((x) => (
     x.code === dataShopDefaultCurrencyCode

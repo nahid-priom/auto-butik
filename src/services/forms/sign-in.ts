@@ -2,6 +2,8 @@
 import { useMemo, useState, useCallback } from 'react';
 // third-party
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
+import { useIntl } from 'react-intl';
 // application
 import { useAsyncAction } from '~/store/hooks';
 import { useUserSignIn } from '~/store/user/userHooks';
@@ -18,6 +20,7 @@ export interface ISignInForm {
 
 export function useSignInForm(options: ISignInFormOptions = {}) {
     const signIn = useUserSignIn();
+    const intl = useIntl();
     const { onSuccess } = options;
     const [serverError, setServerError] = useState<string | null>(null);
     const methods = useForm<ISignInForm>({
@@ -62,7 +65,9 @@ export function useSignInForm(options: ISignInFormOptions = {}) {
             }
             
             setServerError(errorMessage);
-            throw error; // Re-throw to let the form handle it
+            // Show error toast instead of throwing error to prevent runtime error display
+            toast.error(intl.formatMessage({ id: errorMessage }), { theme: 'colored' });
+            // Don't re-throw the error to prevent the runtime error interface
         }
     }, [signIn, onSuccess]);
 

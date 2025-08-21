@@ -4,8 +4,17 @@ module.exports = {
         // Replace with your actual API URL
         NEXT_PUBLIC_API_URL: process.env.BASE_PATH || 'https://fa2b9fd9b3e1.ngrok-free.app',
     },
+    async rewrites() {
+        return [
+            {
+                source: '/shop-api/:path*',
+                destination: `${process.env.NEXT_PUBLIC_API_URL || process.env.BASE_PATH || 'http://localhost:3000'}/shop-api/:path*`,
+            },
+        ];
+    },
     i18n: {
-        locales: ['en', 'ru', 'ar'],
-        defaultLocale: 'en',
+        locales: ['swe', 'en'],
+        defaultLocale: 'swe',
+        localeDetection: false,
     },
 };
