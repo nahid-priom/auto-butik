@@ -167,6 +167,17 @@ function AccountMenu(props: Props) {
                                 <FormattedMessage id="LINK_ACCOUNT_ADDRESSES" />
                             </AppLink>
                         </li>
+                        <li className="account-menu__divider" />
+                        <li>
+                            <button 
+                                type="button" 
+                                className="account-menu__logout-btn"
+                                onClick={onLogOutButtonClick}
+                                disabled={isLoggingOut}
+                            >
+                                <FormattedMessage id="LINK_ACCOUNT_LOGOUT" />
+                            </button>
+                        </li>
                     </ul>
                 </React.Fragment>
             )}

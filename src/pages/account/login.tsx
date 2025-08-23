@@ -98,7 +98,7 @@ function Page() {
                                                 className={classNames('form-control', {
                                                     'is-invalid': signInForm.errors.email,
                                                 })}
-                                                placeholder="customer@example.com"
+                                                placeholder={intl.formatMessage({ id: 'INPUT_EMAIL_ADDRESS_PLACEHOLDER' })}
                                                 {...signInForm.register('email', {
                                                     required: true,
                                                     validate: { email: validateEmail },

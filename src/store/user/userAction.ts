@@ -34,12 +34,20 @@ export function userSignUp(
 ): UserThunkAction<Promise<void>> {
     return async (dispatch) => {
         try {
-            // Register the user
-            await customerApi.signUp(email, password, firstName, lastName, phone);
+            // Register the user first and wait for completion
+            const registrationResult = await customerApi.signUp(email, password, firstName, lastName, phone);
             
-            // Automatically sign in the user after successful registration
-            const user = await customerApi.signIn(email, password);
-            dispatch(userSetCurrent(user));
+            // Only proceed with login if registration was successful
+            if (registrationResult.success) {
+                // Add a small delay to ensure the user is fully created in the database
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Automatically sign in the user after successful registration
+                const user = await customerApi.signIn(email, password);
+                dispatch(userSetCurrent(user));
+            } else {
+                throw new Error('Registration failed');
+            }
         } catch (error) {
             console.error('Sign up failed:', error);
             throw error;

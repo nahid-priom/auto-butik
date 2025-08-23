@@ -62,7 +62,8 @@
   "ERROR_FORM_INCORRECT_EMAIL": "Vänligen ange en giltig e-postadress.",
   "ERROR_FORM_PASSWORD_DOES_NOT_MATCH": "Lösenorden måste matcha.",
   "ERROR_FORM_REQUIRED": "Obligatoriskt fält.",
-
+  "ERROR_API_UNKNOWN": "Ett oväntat fel uppstod. Vänligen försök igen.",
+  "PASSWORD_VALIDATION_ERROR": "Lösenordet uppfyller inte kraven. Använd minst 4 tecken med bokstäver och siffror.",
   "FORMAT_DATE_MEDIUM": "{date, date, medium}",
   "FORMAT_ORDER_NUMBER": "#{number}",
 
@@ -147,6 +148,7 @@
   "INPUT_PASSWORD_PLACEHOLDER": "Hemligt ord",
   "INPUT_PASSWORD_REPEAT_LABEL": "Upprepa lösenord",
   "INPUT_PASSWORD_REPEAT_PLACEHOLDER": " ",
+  "INPUT_PHONE_LABEL": "Telefonnummer",
   "INPUT_PHONE_NUMBER_LABEL": "Telefonnummer",
   "INPUT_PHONE_NUMBER_PLACEHOLDER": "+46 8 123 456 78",
   "INPUT_POSTCODE_LABEL": "Postnummer",

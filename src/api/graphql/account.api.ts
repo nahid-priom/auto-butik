@@ -21,7 +21,7 @@ interface ErrorResult {
 }
 
 type LoginResponse = CurrentUser | ErrorResult;
-type RegisterResponse = { __typename: 'Success'; success: boolean } | ErrorResult;
+type RegisterResponse = { __typename: 'Success'; success: boolean } | ErrorResult | { __typename: 'PasswordValidationError'; errorCode: string; message: string };
 
 // Create HTTP link to Vendure Shop API via same-origin proxy (Next.js rewrites)
 const getApiUrl = () => '/shop-api';
@@ -531,6 +531,8 @@ export const customerApi = {
 
   async signUp(email: string, password: string, firstName: string, lastName: string, phone?: string): Promise<{ success: boolean }> {
     try {
+      console.log('Attempting registration with:', { email, firstName, lastName, phone });
+      
       const { data } = await graphqlClient.mutate<{ registerCustomerAccount: RegisterResponse }>({
         mutation: REGISTER_MUTATION,
         variables: {
@@ -544,20 +546,38 @@ export const customerApi = {
         },
       });
 
+      console.log('Registration response:', data);
+
       if (!data?.registerCustomerAccount) {
+        console.error('No response from server');
         throw new Error('No response from server');
       }
 
       if (data.registerCustomerAccount.__typename === 'Success') {
+        console.log('Registration successful');
         return { success: true };
       }
 
+      // Handle specific error types
+      if (data.registerCustomerAccount.__typename === 'PasswordValidationError') {
+        console.error('Password validation error:', data.registerCustomerAccount);
+        throw new Error('PASSWORD_VALIDATION_ERROR');
+      }
+
+      const errorResult = data.registerCustomerAccount as ErrorResult;
+      console.error('Registration failed with error:', errorResult);
       throw new Error(
-        (data.registerCustomerAccount as ErrorResult).message || 'Registration failed'
+        errorResult.errorCode || errorResult.message || 'Registration failed'
       );
     } catch (error) {
+      console.error('Registration error details:', error);
       if (error instanceof ApolloError) {
+        console.error('Apollo error:', error.graphQLErrors, error.networkError);
         throw new Error(error.message);
+      }
+      // Re-throw the error if it's already been processed above
+      if (error instanceof Error) {
+        throw error;
       }
       throw new Error('An unexpected error occurred during registration');
     }
