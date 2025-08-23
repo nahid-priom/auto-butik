@@ -23,8 +23,15 @@ interface ErrorResult {
 type LoginResponse = CurrentUser | ErrorResult;
 type RegisterResponse = { __typename: 'Success'; success: boolean } | ErrorResult | { __typename: 'PasswordValidationError'; errorCode: string; message: string };
 
-// Create HTTP link to Vendure Shop API via same-origin proxy (Next.js rewrites)
-const getApiUrl = () => '/shop-api';
+// Create HTTP link to Vendure Shop API
+const getApiUrl = () => {
+  // In browser, use the environment variable or fallback to localhost
+  if (typeof window !== 'undefined') {
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}/shop-api`;
+  }
+  // On server side, use the BASE_PATH or fallback
+  return `${process.env.BASE_PATH || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}/shop-api`;
+};
 
 const httpLink = createHttpLink({
   uri: getApiUrl(),
