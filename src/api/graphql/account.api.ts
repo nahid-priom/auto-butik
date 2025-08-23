@@ -25,12 +25,13 @@ type RegisterResponse = { __typename: 'Success'; success: boolean } | ErrorResul
 
 // Create HTTP link to Vendure Shop API
 const getApiUrl = () => {
-  // In browser, use the environment variable or fallback to localhost
+  // In the browser, always use same-origin so Next.js rewrites can proxy and cookies persist on the frontend domain
   if (typeof window !== 'undefined') {
-    return `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}/shop-api`;
+    return '/shop-api';
   }
-  // On server side, use the BASE_PATH or fallback
-  return `${process.env.BASE_PATH || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}/shop-api`;
+  // On the server side (SSR), call the actual backend URL
+  const base = process.env.NEXT_PUBLIC_API_URL || process.env.BASE_PATH || 'http://localhost:3000';
+  return `${base}/shop-api`;
 };
 
 const httpLink = createHttpLink({
