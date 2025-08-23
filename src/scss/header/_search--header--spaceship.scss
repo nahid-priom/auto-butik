@@ -266,6 +266,30 @@
                 }
             }
         }
+        // Make the start button use the primary (red) scheme
+        .search__button--start {
+            color: map_get($theme-scheme, opposite);
+
+            &:after {
+                background: map_get($theme-scheme, main);
+            }
+        }
+        .search__button--start:hover,
+        .search__button--start.search__button--hover {
+            color: map_get($dark-scheme, opposite);
+
+            &:after {
+                background: map_get($dark-scheme, main);
+            }
+        }
+        .search__button--start:active,
+        .search__button--start.search__button--hover:active {
+            color: map_get($dark-scheme, opposite);
+
+            &:after {
+                background: lighten(map_get($dark-scheme, main), 10%);
+            }
+        }
         .search__shadow {
             position: absolute;
             bottom: 100%;

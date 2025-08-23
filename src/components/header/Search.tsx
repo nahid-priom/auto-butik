@@ -54,41 +54,18 @@ export function Search() {
     const searchCancelFnRef = useRef(() => {});
     const rootRef = useRef<HTMLDivElement>(null);
 
-    // Format Swedish registration number (ABC 123)
-    const formatSwedishRegistration = (value: string): string => {
-        // Remove all non-alphanumeric characters and convert to uppercase
-        const cleaned = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-        
-        let formatted = '';
-        
-        // Process each character sequentially
-        for (let i = 0; i < cleaned.length && i < 6; i++) {
-            const char = cleaned[i];
-            
-            if (i < 3) {
-                // First 3 positions: only letters allowed
-                if (/[A-Z]/.test(char)) {
-                    formatted += char;
-                }
-            } else {
-                // Positions 4-6: only numbers allowed
-                if (/[0-9]/.test(char)) {
-                    if (i === 3) {
-                        // Add space before first number
-                        formatted += ' ';
-                    }
-                    formatted += char;
-                }
-            }
+    // Format to XXX XXX: keep only A-Z,0-9, uppercase, max 6 chars with a space after 3rd
+    const formatAlphanumericSix = (value: string): string => {
+        const cleaned = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 6);
+        if (cleaned.length <= 3) {
+            return cleaned;
         }
-        
-        return formatted;
+        return `${cleaned.slice(0, 3)} ${cleaned.slice(3)}`;
     };
 
-    // Check if Swedish registration format is complete (ABC 123)
-    const isSwedishRegistrationComplete = (value: string): boolean => {
-        const pattern = /^[A-Z]{3} [0-9]{3}$/;
-        return pattern.test(value);
+    // Check if exactly 3 alphanumerics, space, 3 alphanumerics
+    const isAlphanumericSixComplete = (value: string): boolean => {
+        return /^[A-Z0-9]{3} [A-Z0-9]{3}$/.test(value);
     };
 
     // Fetch car data by registration number
@@ -186,22 +163,18 @@ export function Search() {
         const input = event.currentTarget;
         const rawValue = input.value;
         
-        // Format the input according to Swedish registration format
-        const formattedValue = formatSwedishRegistration(rawValue);
+        // Keep only alphanumerics, uppercase, limit to 6
+        const formattedValue = formatAlphanumericSix(rawValue);
         
-        // Update the input value with formatted text
+        // Update the input value
         setQuery(formattedValue);
         
-        // Check if the format is complete and trigger automatic search
-        if (isSwedishRegistrationComplete(formattedValue)) {
-            // Close suggestions dropdown
+        // If exactly 6 chars, trigger fetch and navigate
+        if (isAlphanumericSixComplete(formattedValue)) {
             setSuggestionsIsOpen(false);
             setVehiclePickerIsOpen(false);
             
-            // Fetch car data
-            const carFetched = await fetchCarData(formattedValue);
-            
-            // Navigate to products page
+            await fetchCarData(formattedValue);
             navigateToProducts();
         } else {
             // For incomplete input, still show suggestions
@@ -216,8 +189,8 @@ export function Search() {
     const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         
-        // If the format is complete, fetch car data and navigate to products
-        if (isSwedishRegistrationComplete(query)) {
+        // If the input is complete (6 alphanumerics), fetch car data and navigate
+        if (isAlphanumericSixComplete(query)) {
             setSuggestionsIsOpen(false);
             setVehiclePickerIsOpen(false);
             
