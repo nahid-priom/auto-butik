@@ -138,6 +138,22 @@
                 @include local-define-button-scheme(active);
             }
         }
+        // Make the start button use the primary (red) scheme
+        .search__button--start {
+            background-color: map_get($theme-scheme, main);
+            color: map_get($theme-scheme, opposite);
+            .search__button-icon { fill: map_get($theme-scheme, icon-color); }
+        }
+        .search__button--start:hover {
+            background-color: map_get($dark-scheme, main);
+            color: map_get($dark-scheme, opposite);
+            .search__button-icon { fill: map_get($dark-scheme, icon-color); }
+        }
+        .search__button--start:active {
+            background-color: lighten(map_get($dark-scheme, main), 10%);
+            color: map_get($dark-scheme, opposite);
+            .search__button-icon { fill: map_get($dark-scheme, icon-color); }
+        }
         .search__button--end {
             transition: color .2s;
             position: absolute;

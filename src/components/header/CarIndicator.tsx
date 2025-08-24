@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import Indicator, { IIndicatorController } from '~/components/header/Indicator';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
-import { Car20Svg } from '~/svg';
+import { Car32Svg } from '~/svg';
 
 interface CarDropdownProps {
     onCloseMenu: () => void;
@@ -94,7 +94,7 @@ export default function CarIndicator() {
 
     return (
         <Indicator
-            icon={<Car20Svg />}
+            icon={<Car32Svg />}
             label={carIndicatorLabel}
             value={carIndicatorValue}
             trigger="click"

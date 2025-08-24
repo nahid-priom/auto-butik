@@ -66,6 +66,7 @@
   "ERROR_ACCOUNT_LOCKED": "Your account has been locked. Please contact support.",
   "ERROR_TOO_MANY_ATTEMPTS": "Too many login attempts. Please try again later.",
   "ERROR_API_UNKNOWN": "An unexpected error occurred. Please try again.",
+  "PASSWORD_VALIDATION_ERROR": "Password does not meet requirements. Please use at least 4 characters with letters and numbers.",
 
   "FORMAT_DATE_MEDIUM": "{date, date, medium}",
   "FORMAT_ORDER_NUMBER": "#{number}",
@@ -364,7 +365,8 @@
   "TEXT_TOAST_PRODUCT_ADDED_TO_WISHLIST": "Product \"{productName}\" added to wish list!",
   "TEXT_TOAST_PROFILE_SAVED": "Your account information was saved successfully.",
   "TEXT_TOAST_REGISTRATION_SUCCESS": "Registration successful! Welcome to our platform.",
-  "TEXT_TOAST_REVIEW_ADDED": "Thank you, your review has been published!",
+  "TEXT_TOAST_REVIEW_ADDED": "Review added!",
+  "TEXT_LOGIN_TO_WRITE_REVIEW": "Please log in to write a review.",
   "TEXT_TOPBAR_COMPARE": "Compare",
   "TEXT_TOPBAR_CURRENCY": "Currency",
   "TEXT_TOPBAR_LANGUAGE": "Language",

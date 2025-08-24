@@ -19,6 +19,9 @@ function DropdownCurrency() {
 
     const handleItemClick = (item: Item) => {
         currencyChange(item.currency);
+        if (typeof window !== 'undefined') {
+            window.location.reload();
+        }
     };
 
     const items: Item[] = useMemo(() => (

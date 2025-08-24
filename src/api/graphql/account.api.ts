@@ -21,10 +21,18 @@ interface ErrorResult {
 }
 
 type LoginResponse = CurrentUser | ErrorResult;
-type RegisterResponse = { __typename: 'Success'; success: boolean } | ErrorResult;
+type RegisterResponse = { __typename: 'Success'; success: boolean } | ErrorResult | { __typename: 'PasswordValidationError'; errorCode: string; message: string };
 
-// Create HTTP link to Vendure Shop API via same-origin proxy (Next.js rewrites)
-const getApiUrl = () => '/shop-api';
+// Create HTTP link to Vendure Shop API
+const getApiUrl = () => {
+  // In the browser, always use same-origin so Next.js rewrites can proxy and cookies persist on the frontend domain
+  if (typeof window !== 'undefined') {
+    return '/shop-api';
+  }
+  // On the server side (SSR), call the actual backend URL
+  const base = process.env.NEXT_PUBLIC_API_URL || process.env.BASE_PATH || 'http://localhost:3000';
+  return `${base}/shop-api`;
+};
 
 const httpLink = createHttpLink({
   uri: getApiUrl(),
@@ -531,6 +539,8 @@ export const customerApi = {
 
   async signUp(email: string, password: string, firstName: string, lastName: string, phone?: string): Promise<{ success: boolean }> {
     try {
+      console.log('Attempting registration with:', { email, firstName, lastName, phone });
+      
       const { data } = await graphqlClient.mutate<{ registerCustomerAccount: RegisterResponse }>({
         mutation: REGISTER_MUTATION,
         variables: {
@@ -544,20 +554,38 @@ export const customerApi = {
         },
       });
 
+      console.log('Registration response:', data);
+
       if (!data?.registerCustomerAccount) {
+        console.error('No response from server');
         throw new Error('No response from server');
       }
 
       if (data.registerCustomerAccount.__typename === 'Success') {
+        console.log('Registration successful');
         return { success: true };
       }
 
+      // Handle specific error types
+      if (data.registerCustomerAccount.__typename === 'PasswordValidationError') {
+        console.error('Password validation error:', data.registerCustomerAccount);
+        throw new Error('PASSWORD_VALIDATION_ERROR');
+      }
+
+      const errorResult = data.registerCustomerAccount as ErrorResult;
+      console.error('Registration failed with error:', errorResult);
       throw new Error(
-        (data.registerCustomerAccount as ErrorResult).message || 'Registration failed'
+        errorResult.errorCode || errorResult.message || 'Registration failed'
       );
     } catch (error) {
+      console.error('Registration error details:', error);
       if (error instanceof ApolloError) {
+        console.error('Apollo error:', error.graphQLErrors, error.networkError);
         throw new Error(error.message);
+      }
+      // Re-throw the error if it's already been processed above
+      if (error instanceof Error) {
+        throw error;
       }
       throw new Error('An unexpected error occurred during registration');
     }

@@ -45,6 +45,7 @@ function MobileMenuSettings() {
         }
 
         mobileMenuClose();
+        // Do not reload here; LanguageProvider will reload after routing
     }, [setLocale, mobileMenuClose]);
 
     const onCurrencyItemClick = useCallback((item: IMobileMenuLink) => {
@@ -53,6 +54,9 @@ function MobileMenuSettings() {
         }
 
         mobileMenuClose();
+        if (typeof window !== 'undefined') {
+            window.location.reload();
+        }
     }, [currencyChange, mobileMenuClose]);
 
     return (

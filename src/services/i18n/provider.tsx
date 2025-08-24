@@ -55,7 +55,11 @@ function LanguageProvider(props: PropsWithChildren<ILanguageProviderProps>) {
 
     const setLocale = useCallback((newLocale: string) => {
         setTimeout(() => {
-            router.push(router.asPath, undefined, { locale: newLocale }).then();
+            router.push(router.asPath, undefined, { locale: newLocale }).then(() => {
+                if (typeof window !== 'undefined') {
+                    window.location.reload();
+                }
+            });
         }, 0);
     }, [router]);
 
