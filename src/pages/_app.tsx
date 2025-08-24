@@ -9,6 +9,7 @@ import { ApolloProvider } from '@apollo/client';
 // application
 import { AuthProvider } from '~/contexts/AuthContext';
 import { CarProvider } from '~/contexts/CarContext';
+import { GarageProvider } from '~/contexts/GarageContext';
 import { graphqlClient } from '~/api/graphql/account.api';
 // application
 import config from '~/config';
@@ -128,12 +129,14 @@ function App(props: Props) {
                 <LanguageProvider {...languageInitialProps}>
                     <AuthProvider>
                         <CarProvider>
-                            <CurrentVehicleGarageProvider>
-                                <Layout>
-                                    <PageTitle />
-                                    {page}
-                                </Layout>
-                            </CurrentVehicleGarageProvider>
+                            <GarageProvider>
+                                <CurrentVehicleGarageProvider>
+                                    <Layout>
+                                        <PageTitle />
+                                        {page}
+                                    </Layout>
+                                </CurrentVehicleGarageProvider>
+                            </GarageProvider>
                         </CarProvider>
                     </AuthProvider>
                 </LanguageProvider>

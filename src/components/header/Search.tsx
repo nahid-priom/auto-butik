@@ -12,22 +12,17 @@ import CurrencyFormat from '~/components/shared/CurrencyFormat';
 import RadioButton from '~/components/shared/RadioButton';
 import Rating from '~/components/shared/Rating';
 import url from '~/services/url';
-import VehicleForm from '~/components/shared/VehicleForm';
+import CarLookupForm from '~/components/shared/CarLookupForm';
 import { Car20Svg, RecycleBin16Svg, Search20Svg } from '~/svg';
 import { IProduct } from '~/interfaces/product';
 import { IShopCategory } from '~/interfaces/category';
 import { IVehicle } from '~/interfaces/vehicle';
+import { ICarData, IWheelData } from '~/interfaces/car';
 import { shopApi } from '~/api';
 import { carApi } from '~/api/car.api';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
 import { useGlobalMousedown } from '~/services/hooks';
-import {
-    useGarageAddItem,
-    useGarageCurrent,
-    useGarageRemoveItem,
-    useGarageSetCurrent,
-    useUserVehicles,
-} from '~/store/garage/garageHooks';
+import { useGarage } from '~/contexts/GarageContext';
 
 export function Search() {
     const intl = useIntl();
@@ -40,16 +35,14 @@ export function Search() {
     const [categories, setCategories] = useState<IShopCategory[]>([]);
     const [vehiclePickerIsOpen, setVehiclePickerIsOpen] = useState(false);
     const [vehiclePanel, setVehiclePanel] = useState('list');
-    const [addVehicle, setAddVehicle] = useState<IVehicle | null>(null);
-    const vehicles = useUserVehicles();
-    const garageAddItem = useGarageAddItem();
-    const garageRemoveItem = useGarageRemoveItem();
+    const [selectedCar, setSelectedCar] = useState<ICarData | IWheelData | null>(null);
+    const { vehicles, addVehicle } = useGarage();
     const hasVehicles = vehicles.length > 0;
     const selectVehicleButtonRef = useRef<HTMLButtonElement>(null);
     const vehiclePickerDropdownRef = useRef<HTMLDivElement>(null);
 
-    const currentVehicle = useGarageCurrent();
-    const garageSetCurrent = useGarageSetCurrent();
+    const currentVehicle = null;
+    const garageSetCurrent = () => {};
 
     const searchCancelFnRef = useRef(() => {});
     const rootRef = useRef<HTMLDivElement>(null);
@@ -202,13 +195,11 @@ export function Search() {
     };
 
     const handleChangeCurrentVehicle = (event: React.FormEvent<HTMLInputElement>) => {
-        const vehicleId = event.currentTarget.value === '' ? null : parseFloat(event.currentTarget.value);
-
-        garageSetCurrent(vehicleId);
+        // no-op; selection of current vehicle is not used with local garage
     };
 
     const handleVehicleChange = (vehicle: IVehicle | null) => {
-        setAddVehicle(vehicle);
+        // no-op for legacy API; using CarLookupForm instead
     };
 
     const handleRootBlur = () => {
@@ -250,9 +241,7 @@ export function Search() {
         }
     }, [rootRef, suggestionsIsOpen, setHasSuggestions]);
 
-    const searchPlaceholder = currentVehicle
-        ? intl.formatMessage({ id: 'INPUT_SEARCH_PLACEHOLDER_VEHICLE' }, { ...currentVehicle })
-        : intl.formatMessage({ id: 'INPUT_SEARCH_PLACEHOLDER' });
+    const searchPlaceholder = intl.formatMessage({ id: 'INPUT_SEARCH_PLACEHOLDER' });
 
     return (
         <div className="search" ref={rootRef} onBlur={handleRootBlur}>
@@ -432,7 +421,7 @@ export function Search() {
                         })}
                     >
                         <div className="vehicle-picker__panel-body">
-                            <VehicleForm location="search" onVehicleChange={handleVehicleChange} />
+                            <CarLookupForm onCarSelected={setSelectedCar} />
                             <div className="vehicle-picker__actions">
                                 {hasVehicles && (
                                     <div className="search__car-selector-link">
@@ -449,22 +438,29 @@ export function Search() {
                                         </AppLink>
                                     </div>
                                 )}
-
-                                <AsyncAction
-                                    action={() => (addVehicle ? garageAddItem(addVehicle.id) : Promise.resolve())}
-                                    render={({ run, loading }) => (
-                                        <button
-                                            type="button"
-                                            className={classNames('btn', 'btn-primary', 'btn-sm', {
-                                                'btn-loading': loading,
-                                            })}
-                                            disabled={addVehicle === null}
-                                            onClick={run}
-                                        >
-                                            <FormattedMessage id="BUTTON_ADD_VEHICLE" />
-                                        </button>
-                                    )}
-                                />
+                                {selectedCar && (
+                                    <div className="mt-2 p-2 border rounded small text-muted">
+                                        <div><strong>Brand:</strong> {(selectedCar as any).C_merke}</div>
+                                        <div><strong>Model:</strong> {(selectedCar as any).C_modell}</div>
+                                        <div><strong>Type:</strong> {(selectedCar as any).C_typ}</div>
+                                        <div><strong>Wheel ID:</strong> {(selectedCar as any).WHEELID}</div>
+                                    </div>
+                                )}
+                                <button
+                                    type="button"
+                                    className={classNames('btn', 'btn-primary', 'btn-sm')}
+                                    disabled={!selectedCar}
+                                    onClick={() => {
+                                        if (selectedCar) {
+                                            addVehicle(selectedCar);
+                                            setSelectedCar(null);
+                                            setVehiclePanel('list');
+                                            setVehiclePickerIsOpen(false);
+                                        }
+                                    }}
+                                >
+                                    <FormattedMessage id="BUTTON_ADD_VEHICLE" />
+                                </button>
                             </div>
                         </div>
                     </div>

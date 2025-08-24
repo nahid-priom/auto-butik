@@ -52,3 +52,33 @@ export interface ICurrentActiveCar {
     data: ICarData;
     fetchedAt: number; // timestamp
 }
+
+// Dropdown types
+export interface ITypesMap {
+    [modelId: string]: string; // e.g., "133249": "320 d SEDAN [G20] (140 kW)"
+}
+
+export interface IWheelData {
+    WHEELID?: string;
+    C_merke?: string;
+    C_modell?: string;
+    C_typ?: string;
+    C_kw?: string;
+    C_chassi?: string;
+    Ar_fran?: string;
+    Ar_till?: string;
+    Min_Tum?: string;
+    Max_Tum?: string;
+    BULTCIRKEL?: string;
+    BULTDIMETER?: string;
+    NAVHAL?: string;
+    ET?: string;
+    dack_dim_fram?: string;
+    dack_dim_bak?: string;
+    Bredd_Fram?: string;
+    Bredd_Bak?: string;
+    ET_fram_tollerans?: string;
+    ET_bak_tollerans?: string;
+    DK_Anmarkning?: string;
+    type?: string;
+}
