@@ -1,4 +1,4 @@
-import { ICarApiResponse } from '~/interfaces/car';
+import { ICarApiResponse, ITypesMap, IWheelData } from '~/interfaces/car';
 
 // Get API base URL
 const getApiUrl = () => {
@@ -49,6 +49,90 @@ export class CarApi {
       console.error('Error fetching car data:', error);
       throw error;
     }
+  }
+
+  // Dropdown endpoints
+  async getBrands(): Promise<string[]> {
+    const baseUrl = getApiUrl();
+    const url = `${baseUrl}/car/dropdown/brands`;
+    console.log('Car API - Brands URL:', url);
+    const res = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error('Failed to load brands');
+    return data.data as string[];
+  }
+
+  async getYears(brand: string): Promise<(number|string)[]> {
+    const baseUrl = getApiUrl();
+    const url = `${baseUrl}/car/dropdown/years`;
+    console.log('Car API - Years URL:', url, 'Body:', { merke: brand });
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: JSON.stringify({ merke: brand }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error('Failed to load years');
+    return data.data as (number|string)[];
+  }
+
+  async getModels(brand: string, year: string | number): Promise<string[]> {
+    const baseUrl = getApiUrl();
+    const url = `${baseUrl}/car/dropdown/models`;
+    console.log('Car API - Models URL:', url, 'Body:', { merke: brand, year: String(year) });
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: JSON.stringify({ merke: brand, year: String(year) }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error('Failed to load models');
+    return data.data as string[];
+  }
+
+  async getEngines(brand: string, year: string | number, model: string): Promise<ITypesMap> {
+    const baseUrl = getApiUrl();
+    const url = `${baseUrl}/car/dropdown/types`;
+    console.log('Car API - Engines URL:', url, 'Body:', { merke: brand, year: String(year), modell: model });
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: JSON.stringify({ merke: brand, year: String(year), modell: model }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error('Failed to load engines');
+    return data.data as ITypesMap;
+  }
+
+  async getWheelDataByModelId(modelId: string): Promise<IWheelData> {
+    const baseUrl = getApiUrl();
+    const url = `${baseUrl}/car/dropdown/wheel-id`;
+    console.log('Car API - Wheel URL:', url, 'Body:', { mid: modelId });
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: JSON.stringify({ mid: modelId }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error('Failed to load wheel data');
+    return data.data as IWheelData;
   }
 }
 

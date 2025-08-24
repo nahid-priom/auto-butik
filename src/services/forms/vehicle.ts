@@ -72,30 +72,45 @@ export default function useVehicleForm(options: IOptions = {}) {
     const cancelPrevRequestRef = useRef(() => {});
     const [items, setItems] = useState(makeItems([
         {
-            key: 'year',
-            label: intl.formatMessage({ id: 'INPUT_VEHICLE_YEAR_LABEL' }),
-            placeholder: intl.formatMessage({ id: 'INPUT_VEHICLE_YEAR_PLACEHOLDER' }),
-            optionsSource: vehicleApi.getYears.bind(vehicleApi),
-            serializeOptionFn: (option: number) => option.toString(),
-            deserializeOptionFn: (option: string) => parseFloat(option),
-        },
-        {
             key: 'brand',
             label: intl.formatMessage({ id: 'INPUT_VEHICLE_BRAND_LABEL' }),
             placeholder: intl.formatMessage({ id: 'INPUT_VEHICLE_BRAND_PLACEHOLDER' }),
-            optionsSource: vehicleApi.getMakes.bind(vehicleApi),
+            optionsSource: async (): Promise<string[]> => {
+                const years = await vehicleApi.getYears();
+                const makesPerYear = await Promise.all(years.map((year) => vehicleApi.getMakes(year)));
+                const uniqueMakes = new Set<string>();
+                makesPerYear.forEach((makes) => makes.forEach((make) => uniqueMakes.add(make)));
+                return Array.from(uniqueMakes).sort();
+            },
+        },
+        {
+            key: 'year',
+            label: intl.formatMessage({ id: 'INPUT_VEHICLE_YEAR_LABEL' }),
+            placeholder: intl.formatMessage({ id: 'INPUT_VEHICLE_YEAR_PLACEHOLDER' }),
+            optionsSource: async (make: string): Promise<number[]> => {
+                const years = await vehicleApi.getYears();
+                const yearMatches = await Promise.all(years.map(async (year) => {
+                    const makes = await vehicleApi.getMakes(year);
+                    return makes.indexOf(make) !== -1 ? year : null;
+                }));
+                return yearMatches.filter((y): y is number => y !== null).sort((a, b) => a - b);
+            },
+            serializeOptionFn: (option: number) => option.toString(),
+            deserializeOptionFn: (option: string) => parseFloat(option),
         },
         {
             key: 'model',
             label: intl.formatMessage({ id: 'INPUT_VEHICLE_MODEL_LABEL' }),
             placeholder: intl.formatMessage({ id: 'INPUT_VEHICLE_MODEL_PLACEHOLDER' }),
-            optionsSource: vehicleApi.getModels.bind(vehicleApi),
+            optionsSource: (make: string, year: number): Promise<string[]> => vehicleApi.getModels(year, make),
         },
         {
             key: 'engine',
             label: intl.formatMessage({ id: 'INPUT_VEHICLE_ENGINE_LABEL' }),
             placeholder: intl.formatMessage({ id: 'INPUT_VEHICLE_ENGINE_PLACEHOLDER' }),
-            optionsSource: vehicleApi.getVehicles.bind(vehicleApi),
+            optionsSource: (make: string, year: number, model: string): Promise<IVehicle[]> => (
+                vehicleApi.getVehicles(year, make, model)
+            ),
             serializeOptionFn: (option: IVehicle) => option.engine,
             deserializeOptionFn: (option: string, item: VehicleSelectItem<IVehicle>) => (
                 item.options.find((x) => x.engine === option)!
