@@ -4,7 +4,12 @@ import { INavigation } from '~/interfaces/list';
 
 export function baseUrl(url: string): string {
     if (/^\/([^/]|$)/.test(url)) {
-        return `${process.env.basePath}${url}`;
+        // Next.js exposes basePath to the app via process.env.basePath when configured.
+        // Avoid using generic envs like BASE_PATH which may point to an API host.
+        const basePath = process.env.basePath || '';
+        const fullPath = `${basePath}${url}`;
+        // Encode spaces and other unsafe characters while preserving URL structure
+        return encodeURI(fullPath);
     }
 
     return url;
