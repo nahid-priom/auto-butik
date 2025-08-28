@@ -134,7 +134,7 @@ const dataHeaderMainMenu: IMainMenuLink[] = [
     },
     {
         title: 'Blog',
-        url: '/demo/blog/classic-right-sidebar',
+        url: '/blog',
         submenu: {
             type: 'menu',
             links: [
