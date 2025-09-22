@@ -46,7 +46,7 @@ function BlockSlideshow(props: Props) {
                                         'block-slideshow__item-image--desktop',
                                         'reflect-rtl',
                                     )}
-                                    style={{ backgroundImage: `url(${baseUrl(slide.desktopImage)})` }}
+                                    style={{ backgroundImage: `url("${baseUrl(slide.desktopImage)}")` }}
                                 />
                                 <span
                                     className={classNames(
@@ -54,7 +54,7 @@ function BlockSlideshow(props: Props) {
                                         'block-slideshow__item-image--mobile',
                                         'reflect-rtl',
                                     )}
-                                    style={{ backgroundImage: `url(${baseUrl(slide.mobileImage)})` }}
+                                    style={{ backgroundImage: `url("${baseUrl(slide.mobileImage)}")` }}
                                 />
                                 {slide.offer && (
                                     <span className="block-slideshow__item-offer">{slide.offer}</span>

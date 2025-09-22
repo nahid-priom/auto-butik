@@ -64,7 +64,7 @@ const dataMobileMenuLinks: IMobileMenuLink[] = [
     },
     {
         title: 'Blog',
-        url: '/demo/blog/classic-right-sidebar',
+        url: '/blog',
         submenu: [
             {
                 title: 'Blog Classic',

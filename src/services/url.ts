@@ -50,7 +50,7 @@ const url = {
     trackOrder: () => '/track-order',
 
     // blog pages
-    blog: () => '/demo/blog/classic-right-sidebar',
+    blog: () => '/blog',
     post: (post: IPost) => '/demo/blog/post-full-width',
 
     // auth pages

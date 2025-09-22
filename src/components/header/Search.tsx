@@ -1,5 +1,5 @@
 // react
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 // third-party
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useRouter } from 'next/router';
@@ -36,6 +36,7 @@ export function Search() {
     const [vehiclePickerIsOpen, setVehiclePickerIsOpen] = useState(false);
     const [vehiclePanel, setVehiclePanel] = useState('list');
     const [selectedCar, setSelectedCar] = useState<ICarData | IWheelData | null>(null);
+    const [addedNotice, setAddedNotice] = useState<string | null>(null);
     const { vehicles, addVehicle } = useGarage();
     const hasVehicles = vehicles.length > 0;
     const selectVehicleButtonRef = useRef<HTMLButtonElement>(null);
@@ -65,7 +66,8 @@ export function Search() {
     const fetchCarData = async (regNumber: string) => {
         try {
             setIsLoading(true);
-            const response = await carApi.getCarByRegistration(regNumber);
+            const compact = regNumber.replace(/\s+/g, '');
+            const response = await carApi.getCarByRegistration(compact);
             
             if (response.success && response.data) {
                 const currentActiveCar = {
@@ -75,6 +77,10 @@ export function Search() {
                 };
                 
                 setCurrentActiveCar(currentActiveCar);
+                // Also add to local garage and show notice
+                addVehicle(response.data);
+                setAddedNotice(`${response.data.C_merke} ${response.data.C_modell} ${response.data.C_typ} added to garage`);
+                setTimeout(() => setAddedNotice(null), 2500);
                 return true;
             }
             return false;
@@ -201,6 +207,16 @@ export function Search() {
     const handleVehicleChange = (vehicle: IVehicle | null) => {
         // no-op for legacy API; using CarLookupForm instead
     };
+
+    // Auto-add when a full car is selected via CarLookupForm (dropdowns or reg search)
+    useEffect(() => {
+        if (selectedCar) {
+            addVehicle(selectedCar);
+            setAddedNotice(`${(selectedCar as any).C_merke} ${(selectedCar as any).C_modell} ${(selectedCar as any).C_typ} added to garage`);
+            setSelectedCar(null);
+            setTimeout(() => setAddedNotice(null), 2500);
+        }
+    }, [selectedCar, addVehicle]);
 
     const handleRootBlur = () => {
         setTimeout(() => {
@@ -438,29 +454,9 @@ export function Search() {
                                         </AppLink>
                                     </div>
                                 )}
-                                {selectedCar && (
-                                    <div className="mt-2 p-2 border rounded small text-muted">
-                                        <div><strong>Brand:</strong> {(selectedCar as any).C_merke}</div>
-                                        <div><strong>Model:</strong> {(selectedCar as any).C_modell}</div>
-                                        <div><strong>Type:</strong> {(selectedCar as any).C_typ}</div>
-                                        <div><strong>Wheel ID:</strong> {(selectedCar as any).WHEELID}</div>
-                                    </div>
+                                {addedNotice && (
+                                    <div className="alert alert-sm alert-success my-2">{addedNotice}</div>
                                 )}
-                                <button
-                                    type="button"
-                                    className={classNames('btn', 'btn-primary', 'btn-sm')}
-                                    disabled={!selectedCar}
-                                    onClick={() => {
-                                        if (selectedCar) {
-                                            addVehicle(selectedCar);
-                                            setSelectedCar(null);
-                                            setVehiclePanel('list');
-                                            setVehiclePickerIsOpen(false);
-                                        }
-                                    }}
-                                >
-                                    <FormattedMessage id="BUTTON_ADD_VEHICLE" />
-                                </button>
                             </div>
                         </div>
                     </div>

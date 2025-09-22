@@ -9,12 +9,14 @@ import { useForm } from 'react-hook-form';
 import AppLink from '~/components/shared/AppLink';
 import ReviewsList from '~/components/shop/ReviewsList';
 import { IProductPageLayout } from '~/interfaces/pages';
-import { shopApi } from '~/api';
+// import { shopApi } from '~/api';
 import { useAsyncAction, useIsUnmountedRef } from '~/store/hooks';
 import { useList } from '~/services/hooks';
 import { useUser } from '~/store/user/userHooks';
 import { validateEmail } from '~/services/validators';
 import url from '~/services/url';
+import { fetchProductReviews, fetchProductReviewStats, submitProductReview } from '~/api/graphql/reviews.api';
+import { useEffect, useState } from 'react';
 
 interface IForm {
     rating: string;
@@ -41,17 +43,34 @@ function ReviewsView(props: Props) {
         formState: { errors },
         reset,
     } = formMethods;
+    const defaultLimit = 8;
     const {
         list,
         options,
         load,
         onNavigate,
-    } = useList((options) => shopApi.getProductReviews(productId, { limit: 8, ...options }), [productId]);
+    } = useList((opts) => {
+        const limit = opts.limit ?? defaultLimit;
+        const page = opts.page ?? 1;
+        const skip = (page - 1) * limit;
+        return fetchProductReviews(productId, { take: limit, skip, sort: { createdAt: 'DESC' } });
+    }, [productId]);
+
+    const [stats, setStats] = useState<{ averageRating: number; totalReviews: number } | null>(null);
+    useEffect(() => {
+        let canceled = false;
+        fetchProductReviewStats(productId).then((s) => {
+            if (!canceled) setStats(s);
+        });
+        return () => {
+            canceled = true;
+        };
+    }, [productId]);
 
     const [submit, submitInProgress] = useAsyncAction(async (data: IForm) => {
-        await shopApi.addProductReview(productId, {
-            ...data,
+        await submitProductReview(productId, {
             rating: parseFloat(data.rating),
+            review: data.content,
         });
 
         // Reload the list with options reset.
@@ -68,6 +87,12 @@ function ReviewsView(props: Props) {
 
     return (
         <div className="reviews-view">
+            {stats && (
+                <div className="mb-3">
+                    <strong><FormattedMessage id="TEXT_TAB_REVIEWS" />:</strong>
+                    {' '}{stats.averageRating?.toFixed(1) || 0}/5 · {stats.totalReviews || 0} reviews
+                </div>
+            )}
             {list && (
                 <div className="reviews-view__list">
                     <ReviewsList
