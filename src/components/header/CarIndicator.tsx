@@ -3,7 +3,8 @@ import { FormattedMessage } from 'react-intl';
 import Indicator, { IIndicatorController } from '~/components/header/Indicator';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
 import { useGarage } from '~/contexts/GarageContext';
-import { Car32Svg, ArrowRoundedRight7x11Svg } from '~/svg';
+import { ArrowRightIcon } from '@heroicons/react/24/outline';
+import { ArrowRoundedRight7x11Svg } from '~/svg';
 import AppLink from '~/components/shared/AppLink';
 import url from '~/services/url';
 
@@ -115,7 +116,7 @@ function CarDropdown({ onCloseMenu }: CarDropdownProps) {
 
             {hasVehicles ? (
                 <>
-                    <div className="dropcart__body" style={{ padding: 0 }}>
+                    <div className="dropcart__body" style={{ padding: '0 0 8px 0' }}>
                         <div className="vehicles-list">
                             {vehicles.map((vehicle) => (
                                 <div
@@ -177,7 +178,7 @@ function CarDropdown({ onCloseMenu }: CarDropdownProps) {
                 <div className="dropcart__body">
                     <div className="dropcart__empty">
                         <div className="dropcart__empty-icon">
-                            <Car32Svg />
+                            <img src="/images/vehicle-garage.svg" alt="Car" style={{ width: '40px', height: '40px' }} />
                         </div>
                         <div className="dropcart__empty-title">
                             <FormattedMessage id="TEXT_GARAGE_EMPTY" defaultMessage="Your garage is empty" />
@@ -232,7 +233,7 @@ export default function CarIndicator() {
 
     return (
         <Indicator
-            icon={<Car32Svg />}
+            icon={<img src="/images/vehicle-garage.svg" alt="Garage" style={{ width: '28px', height: '28px' }} />}
             label={carIndicatorLabel}
             value={carIndicatorValue}
             counter={vehicles.length}

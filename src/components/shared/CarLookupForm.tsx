@@ -10,11 +10,12 @@ import { addCarSearchToHistory } from '~/services/car-search-history';
 
 interface Props {
     onCarSelected?: (car: ICarData | IWheelData | null) => void;
-    vinOnly?: boolean; // When true, only show product name search, hide 4-data dropdowns
+    vinOnly?: boolean; // When true, only show string search input, hide 4-data dropdowns
+    enableVinSearch?: boolean; // When true, string search is VIN search (adds to garage). When false, it's product search
 }
 
 function CarLookupForm(props: Props) {
-    const { onCarSelected, vinOnly = false } = props;
+    const { onCarSelected, vinOnly = false, enableVinSearch = false } = props;
     const intl = useIntl();
     const router = useRouter();
 
@@ -33,6 +34,46 @@ function CarLookupForm(props: Props) {
 
     const [searchQuery, setSearchQuery] = useState('');
 
+    const performVinSearchWithValue = async (cleanedRegNumber: string) => {
+        if (!cleanedRegNumber) {
+            setError(intl.formatMessage({ id: 'ERROR_FORM_REQUIRED' }));
+            return;
+        }
+
+        // Swedish registration format: must be 6 characters (3 letters + 3 digits/letters)
+        if (cleanedRegNumber.length !== 6) {
+            setError(intl.formatMessage({ id: 'ERROR_INVALID_VIN_LENGTH' }));
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await carApi.getCarByRegistration(cleanedRegNumber);
+            
+            // Extract the car data from the response
+            const carData = response.data;
+            
+            // Save to browsing history
+            addCarSearchToHistory(carData, 'registration', { registrationNumber: cleanedRegNumber });
+            
+            if (onCarSelected) onCarSelected(carData);
+            
+            // Clear the input after successful search
+            setSearchQuery('');
+        } catch (e: any) {
+            setError(e?.message || intl.formatMessage({ id: 'ERROR_VIN_NOT_FOUND' }));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const performVinSearch = async () => {
+        // Remove spaces for API call
+        const cleanedRegNumber = searchQuery.replace(/\s+/g, '').toUpperCase();
+        await performVinSearchWithValue(cleanedRegNumber);
+    };
+
     const performProductSearch = () => {
         const trimmed = searchQuery.trim();
         if (!trimmed) {
@@ -45,9 +86,47 @@ function CarLookupForm(props: Props) {
     };
 
     const handleSearchChange = (valueRaw: string) => {
-        setSearchQuery(valueRaw);
+        if (!enableVinSearch) {
+            // Product search mode - no formatting
+            setSearchQuery(valueRaw);
+            if (error) setError(null);
+            return;
+        }
+
+        // VIN/Registration mode - format as XXX XXX
+        // Convert to uppercase
+        let formatted = valueRaw.toUpperCase();
+        
+        // Remove all spaces
+        formatted = formatted.replace(/\s+/g, '');
+        
+        // Limit to 6 characters
+        formatted = formatted.substring(0, 6);
+        
+        // Add space after 3rd character
+        if (formatted.length > 3) {
+            formatted = formatted.substring(0, 3) + ' ' + formatted.substring(3);
+        }
+        
+        setSearchQuery(formatted);
+        
         // Clear any previous errors when user types
         if (error) setError(null);
+        
+        // Auto-search when 6 characters are entered (excluding space)
+        const cleanedValue = formatted.replace(/\s+/g, '');
+        if (cleanedValue.length === 6) {
+            // Trigger search immediately with the cleaned value
+            performVinSearchWithValue(cleanedValue);
+        }
+    };
+
+    const handleStringSearch = () => {
+        if (enableVinSearch) {
+            performVinSearch();
+        } else {
+            performProductSearch();
+        }
     };
 
     useEffect(() => {
@@ -174,8 +253,49 @@ function CarLookupForm(props: Props) {
 
     return (
         <div className="vehicle-form vehicle-form--layout--modal">
+            {/* String search FIRST */}
+            <div className="vehicle-form__item">
+                <div className="vehicle-form__item-input">
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder={intl.formatMessage({ 
+                            id: enableVinSearch ? 'INPUT_VIN_PLACEHOLDER' : 'INPUT_PRODUCT_SEARCH_PLACEHOLDER' 
+                        })}
+                        value={searchQuery}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        disabled={loading}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleStringSearch();
+                            }
+                        }}
+                    />
+                </div>
+                {vinOnly && (
+                    <button
+                        type="button"
+                        className="btn btn-primary btn-block mt-3"
+                        onClick={handleStringSearch}
+                        disabled={loading}
+                    >
+                        <FormattedMessage id={enableVinSearch ? 'BUTTON_SEARCH_VIN' : 'BUTTON_SEARCH_PRODUCTS'} />
+                    </button>
+                )}
+                {error && (
+                    <div className="alert alert-sm alert-danger my-2">{error}</div>
+                )}
+            </div>
+
+            {/* OR divider */}
             {!vinOnly && (
                 <>
+                    <div className="vehicle-form__divider">
+                        <FormattedMessage id="TEXT_OR" />
+                    </div>
+
+                    {/* 4-data search SECOND */}
                     <div className="vehicle-form__item vehicle-form__item--select">
                         <select
                             className="form-control"
@@ -247,44 +367,8 @@ function CarLookupForm(props: Props) {
                         </select>
                         <div className="vehicle-form__loader" />
                     </div>
-
-                    <div className="vehicle-form__divider">
-                        <FormattedMessage id="TEXT_OR" />
-                    </div>
                 </>
             )}
-
-            <div className="vehicle-form__item">
-                <div className="vehicle-form__item-input">
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder={intl.formatMessage({ id: 'INPUT_PRODUCT_SEARCH_PLACEHOLDER' })}
-                        value={searchQuery}
-                        onChange={(e) => handleSearchChange(e.target.value)}
-                        disabled={loading}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                e.preventDefault();
-                                performProductSearch();
-                            }
-                        }}
-                    />
-                </div>
-                {vinOnly && (
-                    <button
-                        type="button"
-                        className="btn btn-primary btn-block mt-3"
-                        onClick={performProductSearch}
-                        disabled={loading}
-                    >
-                        <FormattedMessage id="BUTTON_SEARCH_PRODUCTS" />
-                    </button>
-                )}
-                {error && (
-                    <div className="alert alert-sm alert-danger my-2">{error}</div>
-                )}
-            </div>
         </div>
     );
 }

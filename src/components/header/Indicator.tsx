@@ -71,7 +71,7 @@ function Indicator(props: Props) {
         <React.Fragment>
             <span className="indicator__icon">
                 {icon}
-                {showCounter && <span className="indicator__counter">{counter}</span>}
+                {showCounter && counter > 0 && <span className="indicator__counter">{counter}</span>}
             </span>
 
             {hasLabel && <span className="indicator__title">{label}</span>}

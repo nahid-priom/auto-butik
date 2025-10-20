@@ -57,7 +57,7 @@ function BlockVehicleSearchHero() {
                         </p>
                         
                         <div className="block-vehicle-search-hero__form">
-                            <CarLookupForm onCarSelected={handleCarSelected} vinOnly={false} />
+                            <CarLookupForm onCarSelected={handleCarSelected} vinOnly={false} enableVinSearch={true} />
                         </div>
                     </div>
                 </div>

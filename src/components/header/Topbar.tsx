@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 // application
 import AppLink from '~/components/shared/AppLink';
-import DropdownCurrency from '~/components/header/DropdownCurrency';
 import DropdownLanguage from '~/components/header/DropdownLanguage';
 import url from '~/services/url';
 import { useCompare } from '~/store/compare/compareHooks';
@@ -48,23 +47,23 @@ function Topbar(props: Props) {
             {layout === 'classic' && (
                 <React.Fragment>
                     <div className="topbar__item-text">
-                        <AppLink href={url.pageAboutUs()} className="topbar__link">
-                            <FormattedMessage id="LINK_ABOUT_US" />
+                        <AppLink href="/shipping-delivery" className="topbar__link">
+                            <FormattedMessage id="LINK_SHIPPING_DELIVERY" />
                         </AppLink>
                     </div>
                     <div className="topbar__item-text">
                         <AppLink href={url.pageContactUs()} className="topbar__link">
-                            <FormattedMessage id="LINK_CONTACTS" />
+                            <FormattedMessage id="LINK_CONTACT_US" />
                         </AppLink>
                     </div>
                     <div className="topbar__item-text">
-                        <AppLink href={url.pageStoreLocation()} className="topbar__link">
-                            <FormattedMessage id="LINK_STORE_LOCATION" />
+                        <AppLink href="/returns-refunds" className="topbar__link">
+                            <FormattedMessage id="LINK_RETURNS_REFUNDS" />
                         </AppLink>
                     </div>
                     <div className="topbar__item-text">
-                        <AppLink href={url.trackOrder()} className="topbar__link">
-                            <FormattedMessage id="LINK_TRACK_ORDER" />
+                        <AppLink href={url.pageAboutUs()} className="topbar__link">
+                            <FormattedMessage id="LINK_ABOUT_AUTOBUTIK" />
                         </AppLink>
                     </div>
                     <div className="topbar__item-text">
@@ -86,8 +85,6 @@ function Topbar(props: Props) {
                             <span className="topbar__button-title">{compare.items.length}</span>
                         </AppLink>
                     </div>
-
-                    <DropdownCurrency />
 
                     <DropdownLanguage />
                 </React.Fragment>

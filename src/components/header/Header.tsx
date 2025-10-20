@@ -15,7 +15,7 @@ import MainMenu from '~/components/header/MainMenu';
 import Search from '~/components/header/Search';
 import Topbar from '~/components/header/Topbar';
 import url from '~/services/url';
-import { Heart32Svg, Person32Svg, Cart32Svg } from '~/svg';
+import { HeartIcon, UserCircleIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { useCart } from '~/store/cart/cartHooks';
 import { useOptions } from '~/store/options/optionsHooks';
 import { useUser } from '~/store/user/userHooks';
@@ -65,38 +65,22 @@ function Header() {
                 </React.Fragment>
             )}
 
-            <div className="header__navbar">
-                <div className="header__navbar-departments">
-                    <Departments label={departmentsLabel} />
-                </div>
-                <div className=" header__navbar-menu">
-                    <MainMenu />
-                </div>
-                {desktopLayout === 'classic' && (
-                    <div className="header__navbar-phone phone">
-                        <AppLink href={url.pageContactUs()} className="phone__body">
-                            <div className="phone__title">
-                                <FormattedMessage id="TEXT_CALL_US" />
-                            </div>
-                            <div className="phone__number">800 060-0730</div>
-                        </AppLink>
-                    </div>
-                )}
-            </div>
             <Logo className="header__logo" />
+            
             <div className="header__search">
                 <Search />
             </div>
+
             <div className="header__indicators">
                 <Indicator
                     href={url.wishlist()}
-                    icon={<Heart32Svg />}
+                    icon={<HeartIcon />}
                     counter={wishlist.items.length}
                 />
 
                 <Indicator
                     href={url.accountDashboard()}
-                    icon={<Person32Svg />}
+                    icon={<UserCircleIcon />}
                     label={accountIndicatorLabel}
                     value={accountIndicatorValue}
                     trigger="click"
@@ -109,7 +93,7 @@ function Header() {
 
                 <Indicator
                     href={url.cart()}
-                    icon={<Cart32Svg />}
+                    icon={<ShoppingCartIcon />}
                     label={cartIndicatorLabel}
                     value={<CurrencyFormat value={cart.total} />}
                     counter={cart.quantity}
@@ -118,6 +102,22 @@ function Header() {
                 >
                     <Dropcart onCloseMenu={() => cartIndicatorCtrl.current?.close()} />
                 </Indicator>
+            </div>
+
+            <div className="header__navbar">
+                <div className="header__navbar-departments">
+                    <Departments label={departmentsLabel} />
+                </div>
+                <div className="header__navbar-menu">
+                    <MainMenu />
+                </div>
+                {desktopLayout === 'classic' && (
+                    <div className="header__navbar-contact">
+                        <AppLink href={url.pageContactUs()} className="contact-button">
+                            <FormattedMessage id="BUTTON_CONTACT_US" />
+                        </AppLink>
+                    </div>
+                )}
             </div>
         </div>
     );
