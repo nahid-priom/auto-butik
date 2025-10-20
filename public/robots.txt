@@ -1,0 +1,11 @@
+# robots.txt for Autobutik
+User-agent: *
+Allow: /
+
+# Disallow admin and account pages
+Disallow: /account/
+Disallow: /demo/
+
+# Sitemap location
+Sitemap: https://autobutik.com/sitemap.xml
+

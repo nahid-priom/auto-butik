@@ -1,26 +1,41 @@
 // react
 import React from 'react';
+// third-party
+import { FormattedMessage, useIntl } from 'react-intl';
 // application
 import BlockHeader from '~/components/blocks/BlockHeader';
 import BlockMap from '~/components/blocks/BlockMap';
 import BlockSpace from '~/components/blocks/BlockSpace';
 import PageTitle from '~/components/shared/PageTitle';
+import SEO from '~/components/shared/SEO';
 // data
 import theme from '~/data/theme';
+import { getContactPageStructuredData } from '~/services/seo/structured-data';
 
 function Page() {
+    const intl = useIntl();
+
     return (
         <React.Fragment>
-            <PageTitle>Contact Us</PageTitle>
+            <PageTitle>
+                <FormattedMessage id="LINK_CONTACT_US" />
+            </PageTitle>
+            <SEO
+                title={intl.formatMessage({ id: 'HEADER_CONTACT_US' })}
+                description="Get in touch with Autobutik for any questions about auto parts, orders, or support. We're here to help you find the right parts for your vehicle."
+                keywords="contact autobutik, customer service, auto parts support, car parts help"
+                type="website"
+                structuredData={getContactPageStructuredData()}
+            />
 
             <BlockMap />
 
             <BlockHeader
-                pageTitle="Contact Us"
+                pageTitle={intl.formatMessage({ id: 'LINK_CONTACT_US' })}
                 breadcrumb={[
-                    { title: 'Home', url: '' },
-                    { title: 'Breadcrumb', url: '' },
-                    { title: 'Current Page', url: '' },
+                    { title: intl.formatMessage({ id: 'TEXT_HOME' }), url: '' },
+                    { title: intl.formatMessage({ id: 'TEXT_BREADCRUMB' }), url: '' },
+                    { title: intl.formatMessage({ id: 'TEXT_CURRENT_PAGE' }), url: '' },
                 ]}
                 afterHeader={false}
             />
@@ -32,35 +47,37 @@ function Page() {
                             <div className="row">
                                 <div className="col-12 col-lg-6 pb-4 pb-lg-0">
                                     <div className="mr-1">
-                                        <h4 className="contact-us__header card-title">Our Address</h4>
+                                        <h4 className="contact-us__header card-title">
+                                            <FormattedMessage id="HEADER_CONTACT_OUR_ADDRESS" />
+                                        </h4>
 
                                         <div className="contact-us__address">
                                             <p>
-                                                715 Fake Ave, Apt. 34, New York, NY 10021 USA
+                                                <FormattedMessage id="TEXT_CONTACT_ADDRESS_PLACEHOLDER" />
                                                 <br />
                                                 {`Email: ${theme.contacts.email[0]}`}
                                                 <br />
-                                                Phone Number: +1 754 000-00-00
+                                                <FormattedMessage id="TEXT_CONTACT_PHONE_LABEL" />
                                             </p>
 
                                             <p>
-                                                <strong>Opening Hours</strong>
+                                                <strong>
+                                                    <FormattedMessage id="HEADER_OPENING_HOURS" />
+                                                </strong>
                                                 <br />
-                                                Monday to Friday: 8am-8pm
+                                                <FormattedMessage id="TEXT_MONDAY_TO_FRIDAY" />
                                                 <br />
-                                                Saturday: 8am-6pm
+                                                <FormattedMessage id="TEXT_SATURDAY" />
                                                 <br />
-                                                Sunday: 10am-4pm
+                                                <FormattedMessage id="TEXT_SUNDAY" />
                                             </p>
 
                                             <p>
-
-                                                <strong>Comment</strong>
+                                                <strong>
+                                                    <FormattedMessage id="TEXT_COMMENT" />
+                                                </strong>
                                                 <br />
-                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur
-                                                suscipit suscipit mi, non
-                                                tempor nulla finibus eget. Lorem ipsum dolor sit amet, consectetur
-                                                adipiscing elit.
+                                                <FormattedMessage id="TEXT_LOREM_PLACEHOLDER" />
                                             </p>
                                         </div>
                                     </div>
@@ -68,47 +85,59 @@ function Page() {
 
                                 <div className="col-12 col-lg-6">
                                     <div className="ml-1">
-                                        <h4 className="contact-us__header card-title">Leave us a Message</h4>
+                                        <h4 className="contact-us__header card-title">
+                                            <FormattedMessage id="HEADER_CONTACT_LEAVE_MESSAGE" />
+                                        </h4>
 
                                         <form>
                                             <div className="form-row">
                                                 <div className="form-group col-md-6">
-                                                    <label htmlFor="form-name">Your Name</label>
+                                                    <label htmlFor="form-name">
+                                                        <FormattedMessage id="INPUT_YOUR_NAME_LABEL" />
+                                                    </label>
                                                     <input
                                                         type="text"
                                                         id="form-name"
                                                         className="form-control"
-                                                        placeholder="Your Name"
+                                                        placeholder={intl.formatMessage({ id: 'INPUT_YOUR_NAME_PLACEHOLDER' })}
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-6">
-                                                    <label htmlFor="form-email">Email</label>
+                                                    <label htmlFor="form-email">
+                                                        <FormattedMessage id="INPUT_EMAIL_ADDRESS_LABEL" />
+                                                    </label>
                                                     <input
                                                         type="email"
                                                         id="form-email"
                                                         className="form-control"
-                                                        placeholder="Email Address"
+                                                        placeholder={intl.formatMessage({ id: 'INPUT_EMAIL_ADDRESS_PLACEHOLDER' })}
                                                     />
                                                 </div>
                                             </div>
                                             <div className="form-group">
-                                                <label htmlFor="form-subject">Subject</label>
+                                                <label htmlFor="form-subject">
+                                                    <FormattedMessage id="INPUT_SUBJECT_LABEL" />
+                                                </label>
                                                 <input
                                                     type="text"
                                                     id="form-subject"
                                                     className="form-control"
-                                                    placeholder="Subject"
+                                                    placeholder={intl.formatMessage({ id: 'INPUT_SUBJECT_PLACEHOLDER' })}
                                                 />
                                             </div>
                                             <div className="form-group">
-                                                <label htmlFor="form-message">Message</label>
+                                                <label htmlFor="form-message">
+                                                    <FormattedMessage id="INPUT_MESSAGE_LABEL" />
+                                                </label>
                                                 <textarea
                                                     id="form-message"
                                                     className="form-control"
                                                     rows={4}
                                                 />
                                             </div>
-                                            <button type="submit" className="btn btn-primary">Send Message</button>
+                                            <button type="submit" className="btn btn-primary">
+                                                <FormattedMessage id="BUTTON_SEND_MESSAGE" />
+                                            </button>
                                         </form>
                                     </div>
                                 </div>

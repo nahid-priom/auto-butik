@@ -27,6 +27,12 @@ $local-transition-duration: .15s;
 
 
 .block-brands {}
+.block-brands__wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
 .block-brands__list {
     list-style: none;
     padding: 0;
@@ -34,6 +40,71 @@ $local-transition-duration: .15s;
     display: flex;
     flex-wrap: wrap;
     border: 1px solid $block-brands-divider;
+    flex: 1;
+}
+.block-brands__arrow {
+    background: #fff;
+    border: 2px solid $block-brands-divider;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    flex-shrink: 0;
+    
+    svg {
+        fill: #333;
+        transition: fill 0.3s;
+    }
+    
+    &:hover:not(:disabled) {
+        background: $link-color;
+        border-color: $link-color;
+        
+        svg {
+            fill: #fff;
+        }
+    }
+    
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+}
+.block-brands__arrow--prev {
+    order: -1;
+}
+.block-brands__arrow--next {
+    order: 1;
+}
+.block-brands__pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+.block-brands__pagination-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ddd;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 0;
+    
+    &:hover {
+        background: #ff6b6b;
+    }
+    
+    &.active {
+        background: #dc3545;
+        width: 32px;
+        border-radius: 6px;
+    }
 }
 .block-brands__item {
     text-align: center;
@@ -63,11 +134,12 @@ $local-transition-duration: .15s;
     img {
         max-width: 100%;
         max-height: 72px;
-        filter: grayscale(1);
-        opacity: .7;
+        filter: grayscale(0);
+        opacity: 1;
         transition:
             filter $local-transition-duration,
-            opacity $local-transition-duration;
+            opacity $local-transition-duration,
+            transform $local-transition-duration;
     }
 }
 .block-brands__item-name {
@@ -86,8 +158,7 @@ $local-transition-duration: .15s;
         opacity: 1;
     }
     img {
-        filter: grayscale(0);
-        opacity: 1;
+        transform: scale(1.05);
     }
     .block-brands__item-name {
         color: $block-brands-item-hover-font-color;
@@ -136,4 +207,38 @@ $local-transition-duration: .15s;
 }
 @media (max-width: 419px) {
     @include local-layout(2);
+}
+
+// Responsive adjustments for navigation arrows
+@include media-breakpoint-down(md) {
+    .block-brands__arrow {
+        width: 40px;
+        height: 40px;
+    }
+    .block-brands__wrapper {
+        gap: 12px;
+    }
+}
+
+@include media-breakpoint-down(sm) {
+    .block-brands__arrow {
+        width: 36px;
+        height: 36px;
+        
+        svg {
+            width: 10px;
+            height: 14px;
+        }
+    }
+    .block-brands__wrapper {
+        gap: 8px;
+    }
+    .block-brands__pagination-dot {
+        width: 10px;
+        height: 10px;
+        
+        &.active {
+            width: 24px;
+        }
+    }
 }

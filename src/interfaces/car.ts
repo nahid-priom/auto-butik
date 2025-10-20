@@ -81,4 +81,5 @@ export interface IWheelData {
     ET_bak_tollerans?: string;
     DK_Anmarkning?: string;
     type?: string;
+    engineDescription?: string; // Enhanced field: engine description from dropdown
 }

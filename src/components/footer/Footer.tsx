@@ -13,6 +13,8 @@ import FooterNewsletter from '~/components/footer/FooterNewsletter';
 import theme from '~/data/theme';
 
 export function Footer() {
+    const currentYear = new Date().getFullYear();
+    
     return (
         <div className="site-footer">
             <Decor className="site-footer__decor" type="bottom" />
@@ -63,14 +65,7 @@ export function Footer() {
                     <div className="site-footer__bottom-row">
                         <div className="site-footer__copyright">
                             {/* copyright */}
-                            {'Powered by '}
-                            <AppLink href="https://reactjs.org/" target="_blank" rel="noreferrer">React</AppLink>
-                            {' / '}
-                            <AppLink href="https://nextjs.org/" target="_blank" rel="noreferrer">Next.js</AppLink>
-                            {' — Designed by '}
-                            <AppLink href={theme.author.profile_url} target="_blank" rel="noreferrer">
-                                {theme.author.name}
-                            </AppLink>
+                            <FormattedMessage id="TEXT_COPYRIGHT" values={{ year: currentYear }} />
                             {/* copyright / end */}
                         </div>
                         <div className="site-footer__payments">

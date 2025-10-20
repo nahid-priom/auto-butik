@@ -3,15 +3,19 @@ import React from 'react';
 // application
 import BlockHeader from '~/components/blocks/BlockHeader';
 import BlockSpace from '~/components/blocks/BlockSpace';
+import SEO from '~/components/shared/SEO';
 import GraphQLProductsView from '~/components/shop/GraphQLProductsView';
 import ShopSidebar from '~/components/shop/ShopSidebar';
 import url from '~/services/url';
 import { CurrentVehicleScopeProvider } from '~/services/current-vehicle';
 import { SidebarProvider } from '~/services/sidebar';
 import { useIntl } from 'react-intl';
+import { useRouter } from 'next/router';
 
 function Page() {
     const intl = useIntl();
+    const router = useRouter();
+    const searchQuery = typeof router.query.search === 'string' ? router.query.search : '';
 
     const pageHeader = (
         <BlockHeader 
@@ -27,8 +31,23 @@ function Page() {
         <ShopSidebar offcanvas="mobile" />
     );
 
+    // Dynamic title and description based on search
+    const pageTitle = searchQuery
+        ? `Search Results for "${searchQuery}"`
+        : intl.formatMessage({ id: 'HEADER_SHOP' });
+    
+    const pageDescription = searchQuery
+        ? `Browse auto parts matching "${searchQuery}". Quality products with fast delivery.`
+        : 'Shop quality auto parts for all makes and models. Browse our extensive catalog of brake pads, filters, engine parts, and more.';
+
     return (
         <React.Fragment>
+            <SEO
+                title={pageTitle}
+                description={pageDescription}
+                keywords="auto parts catalog, car parts shop, vehicle parts, automotive parts, brake pads, filters, engine parts"
+                type="website"
+            />
             <SidebarProvider>
                 <CurrentVehicleScopeProvider>
                     {pageHeader}

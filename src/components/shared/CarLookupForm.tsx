@@ -1,15 +1,22 @@
 // react
 import React, { useEffect, useState } from 'react';
+// third-party
+import { useIntl, FormattedMessage } from 'react-intl';
+import { useRouter } from 'next/router';
 // application
 import { carApi } from '~/api/car.api';
 import { ICarData, IWheelData, ITypesMap } from '~/interfaces/car';
+import { addCarSearchToHistory } from '~/services/car-search-history';
 
 interface Props {
     onCarSelected?: (car: ICarData | IWheelData | null) => void;
+    vinOnly?: boolean; // When true, only show product name search, hide 4-data dropdowns
 }
 
 function CarLookupForm(props: Props) {
-    const { onCarSelected } = props;
+    const { onCarSelected, vinOnly = false } = props;
+    const intl = useIntl();
+    const router = useRouter();
 
     const [brands, setBrands] = useState<string[]>([]);
     const [years, setYears] = useState<(number | string)[]>([]);
@@ -24,50 +31,29 @@ function CarLookupForm(props: Props) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const [regNr, setRegNr] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
-    const performRegistrationSearch = async (sanitized: string) => {
-        const regPattern = /^[A-Z]{3}[0-9]{2}[0-9A-Z]$/;
-        if (!regPattern.test(sanitized)) {
-            setError('Invalid format. Use ABC123 or ABC12D');
+    const performProductSearch = () => {
+        const trimmed = searchQuery.trim();
+        if (!trimmed) {
+            setError(intl.formatMessage({ id: 'ERROR_FORM_REQUIRED' }));
             return;
         }
-        try {
-            setLoading(true);
-            setError(null);
-            const res = await carApi.getCarByRegistration(sanitized);
-            if (res.success && res.data) {
-                if (onCarSelected) onCarSelected(res.data);
-            }
-        } catch (e: any) {
-            setError(e?.message || 'Error searching');
-            if (onCarSelected) onCarSelected(null);
-        } finally {
-            setLoading(false);
-        }
+        
+        // Navigate to products page with search query
+        router.push(`/catalog/products?search=${encodeURIComponent(trimmed)}`);
     };
 
-    const handleRegChange = (valueRaw: string) => {
-        let v = valueRaw.toUpperCase();
-        // Allow only letters, digits, and space
-        v = v.replace(/[^A-Z0-9 ]/g, '');
-        // Remove all spaces to control placement
-        v = v.replace(/\s+/g, '');
-        // Limit to max 6 significant chars
-        if (v.length > 6) v = v.slice(0, 6);
-        // Insert a space after third char for UX: ABC 123 / ABC 12D
-        if (v.length > 3) {
-            v = `${v.slice(0, 3)} ${v.slice(3)}`;
-        }
-        setRegNr(v);
-
-        const sanitized = v.replace(/\s+/g, '');
-        if (sanitized.length === 6) {
-            void performRegistrationSearch(sanitized);
-        }
+    const handleSearchChange = (valueRaw: string) => {
+        setSearchQuery(valueRaw);
+        // Clear any previous errors when user types
+        if (error) setError(null);
     };
 
     useEffect(() => {
+        // Skip loading brands if only VIN search is needed
+        if (vinOnly) return;
+        
         let mounted = true;
         (async () => {
             try {
@@ -83,7 +69,7 @@ function CarLookupForm(props: Props) {
         return () => {
             mounted = false;
         };
-    }, []);
+    }, [vinOnly]);
 
     const handleBrandChange = async (brand: string) => {
         setSelectedBrand(brand);
@@ -153,7 +139,31 @@ function CarLookupForm(props: Props) {
         try {
             setLoading(true);
             const wheel = await carApi.getWheelDataByModelId(engineId);
-            if (onCarSelected) onCarSelected(wheel);
+            
+            // Get the engine description from the engines map
+            const engineDescription = engines[engineId] || '';
+            
+            // Parse engine description to extract additional details
+            // Format: "TYPE (POWER kW)" or "TYPE (POWER kW/HP PS)" etc.
+            const enhancedWheel = {
+                ...wheel,
+                engineDescription, // Store the full description
+            };
+            
+            // Save to browsing history with engine description
+            addCarSearchToHistory(
+                enhancedWheel,
+                'manual',
+                {
+                    brand: selectedBrand,
+                    year: selectedYear,
+                    model: selectedModel,
+                    engineId,
+                    engineDescription,
+                },
+            );
+            
+            if (onCarSelected) onCarSelected(enhancedWheel);
         } catch (e: any) {
             setError(e?.message || 'Failed to load vehicle data');
         } finally {
@@ -161,102 +171,116 @@ function CarLookupForm(props: Props) {
         }
     };
 
-    const searchByRegistration = async () => {
-        const value = regNr.trim().toUpperCase();
-        const sanitized = value.replace(/\s+/g, '');
-        if (!value) {
-            setError('Please enter a registration number');
-            return;
-        }
-        await performRegistrationSearch(sanitized);
-    };
 
     return (
         <div className="vehicle-form vehicle-form--layout--modal">
-            <div className="vehicle-form__item vehicle-form__item--select">
-                <select
-                    className="form-control"
-                    aria-label="Brand"
-                    value={selectedBrand}
-                    disabled={loading}
-                    onChange={(e) => handleBrandChange(e.target.value)}
-                >
-                    <option value="">Select Brand</option>
-                    {brands.map((b) => (
-                        <option key={b} value={b}>{b}</option>
-                    ))}
-                </select>
-                <div className="vehicle-form__loader" />
-            </div>
+            {!vinOnly && (
+                <>
+                    <div className="vehicle-form__item vehicle-form__item--select">
+                        <select
+                            className="form-control"
+                            aria-label={intl.formatMessage({ id: 'INPUT_VEHICLE_BRAND_LABEL' })}
+                            value={selectedBrand}
+                            disabled={loading}
+                            onChange={(e) => handleBrandChange(e.target.value)}
+                        >
+                            <option value="">
+                                {intl.formatMessage({ id: 'INPUT_VEHICLE_BRAND_PLACEHOLDER' })}
+                            </option>
+                            {brands.map((b) => (
+                                <option key={b} value={b}>{b}</option>
+                            ))}
+                        </select>
+                        <div className="vehicle-form__loader" />
+                    </div>
 
-            <div className="vehicle-form__item vehicle-form__item--select">
-                <select
-                    className="form-control"
-                    aria-label="Year"
-                    value={selectedYear}
-                    disabled={loading || !selectedBrand}
-                    onChange={(e) => handleYearChange(e.target.value)}
-                >
-                    <option value="">Select Year</option>
-                    {years.map((y) => (
-                        <option key={y as any} value={y as any}>{y as any}</option>
-                    ))}
-                </select>
-                <div className="vehicle-form__loader" />
-            </div>
+                    <div className="vehicle-form__item vehicle-form__item--select">
+                        <select
+                            className="form-control"
+                            aria-label={intl.formatMessage({ id: 'INPUT_VEHICLE_YEAR_LABEL' })}
+                            value={selectedYear}
+                            disabled={loading || !selectedBrand}
+                            onChange={(e) => handleYearChange(e.target.value)}
+                        >
+                            <option value="">
+                                {intl.formatMessage({ id: 'INPUT_VEHICLE_YEAR_PLACEHOLDER' })}
+                            </option>
+                            {years.map((y) => (
+                                <option key={y as any} value={y as any}>{y as any}</option>
+                            ))}
+                        </select>
+                        <div className="vehicle-form__loader" />
+                    </div>
 
-            <div className="vehicle-form__item vehicle-form__item--select">
-                <select
-                    className="form-control"
-                    aria-label="Model"
-                    value={selectedModel}
-                    disabled={loading || !selectedYear}
-                    onChange={(e) => handleModelChange(e.target.value)}
-                >
-                    <option value="">Select Model</option>
-                    {models.map((m) => (
-                        <option key={m} value={m}>{m}</option>
-                    ))}
-                </select>
-                <div className="vehicle-form__loader" />
-            </div>
+                    <div className="vehicle-form__item vehicle-form__item--select">
+                        <select
+                            className="form-control"
+                            aria-label={intl.formatMessage({ id: 'INPUT_VEHICLE_MODEL_LABEL' })}
+                            value={selectedModel}
+                            disabled={loading || !selectedYear}
+                            onChange={(e) => handleModelChange(e.target.value)}
+                        >
+                            <option value="">
+                                {intl.formatMessage({ id: 'INPUT_VEHICLE_MODEL_PLACEHOLDER' })}
+                            </option>
+                            {models.map((m) => (
+                                <option key={m} value={m}>{m}</option>
+                            ))}
+                        </select>
+                        <div className="vehicle-form__loader" />
+                    </div>
 
-            <div className="vehicle-form__item vehicle-form__item--select">
-                <select
-                    className="form-control"
-                    aria-label="Engine"
-                    value={selectedEngineId}
-                    disabled={loading || !selectedModel}
-                    onChange={(e) => handleEngineChange(e.target.value)}
-                >
-                    <option value="">Select Engine</option>
-                    {Object.entries(engines).map(([id, desc]) => (
-                        <option key={id} value={id}>{desc}</option>
-                    ))}
-                </select>
-                <div className="vehicle-form__loader" />
-            </div>
+                    <div className="vehicle-form__item vehicle-form__item--select">
+                        <select
+                            className="form-control"
+                            aria-label={intl.formatMessage({ id: 'INPUT_VEHICLE_ENGINE_LABEL' })}
+                            value={selectedEngineId}
+                            disabled={loading || !selectedModel}
+                            onChange={(e) => handleEngineChange(e.target.value)}
+                        >
+                            <option value="">
+                                {intl.formatMessage({ id: 'INPUT_VEHICLE_ENGINE_PLACEHOLDER' })}
+                            </option>
+                            {Object.entries(engines).map(([id, desc]) => (
+                                <option key={id} value={id}>{desc}</option>
+                            ))}
+                        </select>
+                        <div className="vehicle-form__loader" />
+                    </div>
 
-            <div className="vehicle-form__divider">OR</div>
+                    <div className="vehicle-form__divider">
+                        <FormattedMessage id="TEXT_OR" />
+                    </div>
+                </>
+            )}
 
             <div className="vehicle-form__item">
                 <div className="vehicle-form__item-input">
                     <input
                         type="text"
                         className="form-control"
-                        placeholder="REGISTRERINGSNUMMER / VIN"
-                        value={regNr}
-                        onChange={(e) => handleRegChange(e.target.value)}
-                        maxLength={7}
+                        placeholder={intl.formatMessage({ id: 'INPUT_PRODUCT_SEARCH_PLACEHOLDER' })}
+                        value={searchQuery}
+                        onChange={(e) => handleSearchChange(e.target.value)}
                         disabled={loading}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                                 e.preventDefault();
-                                searchByRegistration();
+                                performProductSearch();
                             }
                         }}
                     />
                 </div>
+                {vinOnly && (
+                    <button
+                        type="button"
+                        className="btn btn-primary btn-block mt-3"
+                        onClick={performProductSearch}
+                        disabled={loading}
+                    >
+                        <FormattedMessage id="BUTTON_SEARCH_PRODUCTS" />
+                    </button>
+                )}
                 {error && (
                     <div className="alert alert-sm alert-danger my-2">{error}</div>
                 )}

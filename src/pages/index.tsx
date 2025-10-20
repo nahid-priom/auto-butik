@@ -13,12 +13,15 @@ import BlockProductsColumns from '~/components/blocks/BlockProductsColumns';
 import BlockSale from '~/components/blocks/BlockSale';
 import BlockSlideshow from '~/components/blocks/BlockSlideshow';
 import BlockSpace from '~/components/blocks/BlockSpace';
+import BlockVehicleSearchHero from '~/components/blocks/BlockVehicleSearchHero';
+import SEO from '~/components/shared/SEO';
 import url from '~/services/url';
 import { AppDispatch } from '~/store/types';
 import { optionsSetAll } from '~/store/options/optionsActions';
 import { shopApi, blogApi } from '~/api';
 import { useDeferredData, useProductColumns, useProductTabs } from '~/services/hooks';
 import { wrapper } from '~/store/store';
+import { getOrganizationStructuredData, getWebsiteStructuredData } from '~/services/seo/structured-data';
 
 export const getServerSideProps = wrapper.getServerSideProps((store) => async () => {
     const dispatch = store.dispatch as AppDispatch;
@@ -39,37 +42,37 @@ function Page() {
             url: '/catalog/products',
             desktopImage: '/images/banner web/banner1.png',
             mobileImage: '/images/banner app/1.png',
-            title: 'Quality Auto Parts <br>For Every Vehicle',
-            details: 'Top brands and great prices. <br>Fast shipping and easy returns.',
-            buttonLabel: 'Shop Now',
+            title: intl.formatMessage({ id: 'SLIDE_1_TITLE' }),
+            details: intl.formatMessage({ id: 'SLIDE_1_DETAILS' }),
+            buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
         },
         {
             url: '/catalog/products',
             desktopImage: '/images/banner web/banner2.png',
             mobileImage: '/images/banner app/2.png',
-            title: 'Find The Right Parts <br>With Our Fit Guide',
-            details: 'Search by vehicle and get <br>exact matches instantly.',
-            buttonLabel: 'Shop Now',
+            title: intl.formatMessage({ id: 'SLIDE_2_TITLE' }),
+            details: intl.formatMessage({ id: 'SLIDE_2_DETAILS' }),
+            buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
         },
         {
             url: '/catalog/products',
             desktopImage: '/images/banner web/banner3.png',
             mobileImage: '/images/banner app/3.png',
-            title: 'Weekly Deals <br>Save More Today',
-            details: 'Don\'t miss limited-time offers <br>across popular categories.',
-            buttonLabel: 'Shop Now',
+            title: intl.formatMessage({ id: 'SLIDE_3_TITLE' }),
+            details: intl.formatMessage({ id: 'SLIDE_3_DETAILS' }),
+            buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
         },
         {
             url: '/catalog/products',
             desktopImage: '/images/banner web/banner4.png',
             mobileImage: '/images/banner app/4.png',
-            title: 'Trusted Parts <br>Backed By Warranty',
-            details: 'Confidence in every purchase <br>with reliable warranties.',
-            buttonLabel: 'Shop Now',
+            title: intl.formatMessage({ id: 'SLIDE_4_TITLE' }),
+            details: intl.formatMessage({ id: 'SLIDE_4_DETAILS' }),
+            buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
         },
-    ], []);
+    ], [intl]);
 
-    const brands = useDeferredData(() => shopApi.getBrands({ limit: 16 }), []);
+    const brands = useDeferredData(() => shopApi.getBrands({ limit: 48 }), []);
 
     const popularCategories = useDeferredData(() => shopApi.getCategories({
         slugs: [
@@ -88,11 +91,11 @@ function Page() {
      */
     const featuredProducts = useProductTabs(
         useMemo(() => [
-            { id: 1, name: 'All', categorySlug: null },
-            { id: 2, name: 'Power Tools', categorySlug: 'power-tools' },
-            { id: 3, name: 'Hand Tools', categorySlug: 'hand-tools' },
-            { id: 4, name: 'Plumbing', categorySlug: 'plumbing' },
-        ], []),
+            { id: 1, name: intl.formatMessage({ id: 'TAB_ALL' }), categorySlug: null },
+            { id: 2, name: intl.formatMessage({ id: 'TAB_POWER_TOOLS' }), categorySlug: 'power-tools' },
+            { id: 3, name: intl.formatMessage({ id: 'TAB_HAND_TOOLS' }), categorySlug: 'hand-tools' },
+            { id: 4, name: intl.formatMessage({ id: 'TAB_PLUMBING' }), categorySlug: 'plumbing' },
+        ], [intl]),
         (tab) => shopApi.getFeaturedProducts(tab.categorySlug, 8),
     );
 
@@ -100,10 +103,10 @@ function Page() {
 
     const latestPosts = useDeferredData(() => blogApi.getLatestPosts(8), []);
     const latestPostsLinks = useMemo(() => [
-        { title: 'Special Offers', url: url.blog() },
-        { title: 'New Arrivals', url: url.blog() },
-        { title: 'Reviews', url: url.blog() },
-    ], []);
+        { title: intl.formatMessage({ id: 'LINK_SPECIAL_OFFERS' }), url: url.blog() },
+        { title: intl.formatMessage({ id: 'LINK_NEW_ARRIVALS' }), url: url.blog() },
+        { title: intl.formatMessage({ id: 'LINK_REVIEWS' }), url: url.blog() },
+    ], [intl]);
 
     /**
      * Product columns.
@@ -111,22 +114,39 @@ function Page() {
     const columns = useProductColumns(
         useMemo(() => [
             {
-                title: 'Top Rated Products',
+                title: intl.formatMessage({ id: 'HEADER_TOP_RATED_PRODUCTS' }),
                 source: () => shopApi.getTopRatedProducts(null, 3),
             },
             {
-                title: 'Special Offers',
+                title: intl.formatMessage({ id: 'LINK_SPECIAL_OFFERS' }),
                 source: () => shopApi.getSpecialOffers(3),
             },
             {
-                title: 'Bestsellers',
+                title: intl.formatMessage({ id: 'HEADER_BESTSELLERS' }),
                 source: () => shopApi.getPopularProducts(null, 3),
             },
-        ], []),
+        ], [intl]),
     );
+
+    // Structured data for homepage
+    const structuredData = {
+        '@context': 'https://schema.org',
+        '@graph': [
+            getOrganizationStructuredData(),
+            getWebsiteStructuredData(),
+        ],
+    };
 
     return (
         <React.Fragment>
+            <SEO
+                title="Quality Auto Parts For Every Vehicle"
+                description="Find quality auto parts for all vehicle makes and models. Fast delivery, competitive prices, and expert service. Shop brake pads, filters, engine parts, and more."
+                keywords="auto parts, car parts, vehicle parts, automotive parts, spare parts, car accessories, brake pads, filters, engine parts, suspension parts, online auto shop Sweden"
+                type="website"
+                structuredData={structuredData}
+            />
+            <BlockVehicleSearchHero />
             <BlockSpace layout="divider-xs" />
             <BlockSlideshow slides={slides} />
             <BlockSpace layout="divider-nl" />

@@ -14,6 +14,7 @@ import CompatibilityStatusBadge from '~/components/shared/CompatibilityStatusBad
 import CurrencyFormat from '~/components/shared/CurrencyFormat';
 import InputNumber from '~/components/shared/InputNumber';
 import PageTitle from '~/components/shared/PageTitle';
+import SEO from '~/components/shared/SEO';
 import ProductForm from '~/components/shop/ProductForm';
 import ProductGallery, { IProductGalleryLayout } from '~/components/shop/ProductGallery';
 import ProductSidebar from '~/components/shop/ProductSidebar';
@@ -29,6 +30,7 @@ import { shopApi } from '~/api';
 import { useCompareAddItem } from '~/store/compare/compareHooks';
 import { useProductForm } from '~/services/forms/product';
 import { useWishlistAddItem } from '~/store/wishlist/wishlistHooks';
+import { getProductStructuredData, getBreadcrumbStructuredData } from '~/services/seo/structured-data';
 import {
     Compare16Svg,
     Fi24Hours48Svg,
@@ -311,9 +313,39 @@ function ShopPageProduct(props: Props) {
         </div>
     );
 
+    // Prepare structured data
+    const productStructuredData = getProductStructuredData(product);
+    const breadcrumbStructuredData = getBreadcrumbStructuredData(
+        breadcrumb.map(item => ({ name: item.title, url: item.url }))
+    );
+
+    const combinedStructuredData = {
+        '@context': 'https://schema.org',
+        '@graph': [productStructuredData, breadcrumbStructuredData],
+    };
+
+    // Get availability string
+    const availability = product.stock === 'in-stock'
+        ? 'in stock'
+        : product.stock === 'out-of-stock'
+            ? 'out of stock'
+            : 'preorder';
+
     return (
         <React.Fragment>
             <PageTitle>{product.name}</PageTitle>
+            <SEO
+                title={product.name}
+                description={product.description || product.excerpt || `Buy ${product.name} - Quality auto part with fast delivery`}
+                keywords={`${product.name}, ${product.sku}, ${product.partNumber}, auto parts, car parts`}
+                image={product.images && product.images.length > 0 ? product.images[0] : undefined}
+                type="product"
+                price={product.price}
+                currency="SEK"
+                availability={availability}
+                brand={product.brand?.name}
+                structuredData={combinedStructuredData}
+            />
 
             <BlockHeader
                 breadcrumb={breadcrumb}

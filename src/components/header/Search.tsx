@@ -1,5 +1,5 @@
 // react
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 // third-party
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useRouter } from 'next/router';
@@ -7,95 +7,26 @@ import classNames from 'classnames';
 // application
 import AppImage from '~/components/shared/AppImage';
 import AppLink from '~/components/shared/AppLink';
-import AsyncAction from '~/components/shared/AsyncAction';
 import CurrencyFormat from '~/components/shared/CurrencyFormat';
-import RadioButton from '~/components/shared/RadioButton';
 import Rating from '~/components/shared/Rating';
 import url from '~/services/url';
-import CarLookupForm from '~/components/shared/CarLookupForm';
-import { Car20Svg, RecycleBin16Svg, Search20Svg } from '~/svg';
+import { Search20Svg } from '~/svg';
 import { IProduct } from '~/interfaces/product';
 import { IShopCategory } from '~/interfaces/category';
-import { IVehicle } from '~/interfaces/vehicle';
-import { ICarData, IWheelData } from '~/interfaces/car';
 import { shopApi } from '~/api';
-import { carApi } from '~/api/car.api';
-import { useCurrentActiveCar } from '~/contexts/CarContext';
 import { useGlobalMousedown } from '~/services/hooks';
-import { useGarage } from '~/contexts/GarageContext';
 
 export function Search() {
     const intl = useIntl();
     const router = useRouter();
     const [query, setQuery] = useState('');
-    const { setCurrentActiveCar, setIsLoading } = useCurrentActiveCar();
     const [suggestionsIsOpen, setSuggestionsIsOpen] = useState(false);
     const [hasSuggestions, setHasSuggestions] = useState(false);
     const [products, setProducts] = useState<IProduct[]>([]);
     const [categories, setCategories] = useState<IShopCategory[]>([]);
-    const [vehiclePickerIsOpen, setVehiclePickerIsOpen] = useState(false);
-    const [vehiclePanel, setVehiclePanel] = useState('list');
-    const [selectedCar, setSelectedCar] = useState<ICarData | IWheelData | null>(null);
-    const [addedNotice, setAddedNotice] = useState<string | null>(null);
-    const { vehicles, addVehicle } = useGarage();
-    const hasVehicles = vehicles.length > 0;
-    const selectVehicleButtonRef = useRef<HTMLButtonElement>(null);
-    const vehiclePickerDropdownRef = useRef<HTMLDivElement>(null);
-
-    const currentVehicle = null;
-    const garageSetCurrent = () => {};
 
     const searchCancelFnRef = useRef(() => {});
     const rootRef = useRef<HTMLDivElement>(null);
-
-    // Format to XXX XXX: keep only A-Z,0-9, uppercase, max 6 chars with a space after 3rd
-    const formatAlphanumericSix = (value: string): string => {
-        const cleaned = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 6);
-        if (cleaned.length <= 3) {
-            return cleaned;
-        }
-        return `${cleaned.slice(0, 3)} ${cleaned.slice(3)}`;
-    };
-
-    // Check if exactly 3 alphanumerics, space, 3 alphanumerics
-    const isAlphanumericSixComplete = (value: string): boolean => {
-        return /^[A-Z0-9]{3} [A-Z0-9]{3}$/.test(value);
-    };
-
-    // Fetch car data by registration number
-    const fetchCarData = async (regNumber: string) => {
-        try {
-            setIsLoading(true);
-            const compact = regNumber.replace(/\s+/g, '');
-            const response = await carApi.getCarByRegistration(compact);
-            
-            if (response.success && response.data) {
-                const currentActiveCar = {
-                    regNr: response.regNr,
-                    data: response.data,
-                    fetchedAt: Date.now(),
-                };
-                
-                setCurrentActiveCar(currentActiveCar);
-                // Also add to local garage and show notice
-                addVehicle(response.data);
-                setAddedNotice(`${response.data.C_merke} ${response.data.C_modell} ${response.data.C_typ} added to garage`);
-                setTimeout(() => setAddedNotice(null), 2500);
-                return true;
-            }
-            return false;
-        } catch (error) {
-            console.error('Failed to fetch car data:', error);
-            return false;
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Navigate to products page without search query
-    const navigateToProducts = () => {
-        router.push('/catalog/products');
-    };
 
     const search = (value: string) => {
         searchCancelFnRef.current();
@@ -129,25 +60,7 @@ export function Search() {
 
     const toggleSuggestions = (force?: boolean) => {
         setSuggestionsIsOpen((prevState) => {
-            const newState = force !== undefined ? force : !prevState;
-
-            if (newState) {
-                setVehiclePickerIsOpen(false);
-            }
-
-            return newState;
-        });
-    };
-
-    const toggleVehiclePicker = (force?: boolean): void => {
-        setVehiclePickerIsOpen((prevState) => {
-            const newState = force !== undefined ? force : !prevState;
-
-            if (newState) {
-                setSuggestionsIsOpen(false);
-            }
-
-            return newState;
+            return force !== undefined ? force : !prevState;
         });
     };
 
@@ -158,65 +71,20 @@ export function Search() {
         search(input.value);
     };
 
-    const handleInputChange = async (event: React.FormEvent<HTMLInputElement>) => {
+    const handleInputChange = (event: React.FormEvent<HTMLInputElement>) => {
         const input = event.currentTarget;
-        const rawValue = input.value;
-        
-        // Keep only alphanumerics, uppercase, limit to 6
-        const formattedValue = formatAlphanumericSix(rawValue);
-        
-        // Update the input value
-        setQuery(formattedValue);
-        
-        // If exactly 6 chars, trigger fetch and navigate
-        if (isAlphanumericSixComplete(formattedValue)) {
-            setSuggestionsIsOpen(false);
-            setVehiclePickerIsOpen(false);
-            
-            await fetchCarData(formattedValue);
-            navigateToProducts();
-        } else {
-            // For incomplete input, still show suggestions
-            search(formattedValue);
-        }
+        search(input.value);
     };
 
-    const handleButtonClick = () => {
-        toggleVehiclePicker();
-    };
-
-    const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        toggleSuggestions(false);
         
-        // If the input is complete (6 alphanumerics), fetch car data and navigate
-        if (isAlphanumericSixComplete(query)) {
-            setSuggestionsIsOpen(false);
-            setVehiclePickerIsOpen(false);
-            
-            // Fetch car data
-            const carFetched = await fetchCarData(query);
-            
-            navigateToProducts();
+        // Navigate to products page with search query
+        if (query.trim()) {
+            router.push(`/catalog/products?search=${encodeURIComponent(query.trim())}`);
         }
     };
-
-    const handleChangeCurrentVehicle = (event: React.FormEvent<HTMLInputElement>) => {
-        // no-op; selection of current vehicle is not used with local garage
-    };
-
-    const handleVehicleChange = (vehicle: IVehicle | null) => {
-        // no-op for legacy API; using CarLookupForm instead
-    };
-
-    // Auto-add when a full car is selected via CarLookupForm (dropdowns or reg search)
-    useEffect(() => {
-        if (selectedCar) {
-            addVehicle(selectedCar);
-            setAddedNotice(`${(selectedCar as any).C_merke} ${(selectedCar as any).C_modell} ${(selectedCar as any).C_typ} added to garage`);
-            setSelectedCar(null);
-            setTimeout(() => setAddedNotice(null), 2500);
-        }
-    }, [selectedCar, addVehicle]);
 
     const handleRootBlur = () => {
         setTimeout(() => {
@@ -230,21 +98,6 @@ export function Search() {
             }
         }, 10);
     };
-
-    useGlobalMousedown((event) => {
-        const outsideButton = (
-            selectVehicleButtonRef.current
-            && !selectVehicleButtonRef.current.contains(event.target as HTMLElement)
-        );
-        const outsideDropdown = (
-            vehiclePickerDropdownRef.current
-            && !vehiclePickerDropdownRef.current.contains(event.target as HTMLElement)
-        );
-
-        if (outsideButton && outsideDropdown) {
-            setVehiclePickerIsOpen(false);
-        }
-    }, [setVehiclePickerIsOpen, selectVehicleButtonRef]);
 
     useGlobalMousedown((event) => {
         const outside = (
@@ -282,21 +135,6 @@ export function Search() {
                     onChange={handleInputChange}
                 />
 
-                <button
-                    type="button"
-                    className={classNames('search__button search__button--start', {
-                        'search__button--hover': vehiclePickerIsOpen,
-                    })}
-                    onClick={handleButtonClick}
-                    ref={selectVehicleButtonRef}
-                >
-                    <span className="search__button-icon">
-                        <Car20Svg />
-                    </span>
-                    <span className="search__button-title">
-                        <FormattedMessage id="BUTTON_SEARCH_SELECT_VEHICLE_DESKTOP" />
-                    </span>
-                </button>
 
                 <button className="search__button search__button--end" type="submit">
                     <span className="search__button-icon">
@@ -380,87 +218,6 @@ export function Search() {
                     )}
                 </div>
 
-                <div
-                    className={classNames('search__dropdown', 'search__dropdown--vehicle-picker', 'vehicle-picker', {
-                        'search__dropdown--open': vehiclePickerIsOpen,
-                    })}
-                    ref={vehiclePickerDropdownRef}
-                >
-                    <div className="search__dropdown-arrow" />
-
-                    <div
-                        className={classNames('vehicle-picker__panel', {
-                            'vehicle-picker__panel--active': vehiclePanel === 'list' && hasVehicles,
-                        })}
-                    >
-                        <div className="vehicle-picker__panel-body">
-                            <div className="vehicle-picker__text">
-                                <FormattedMessage id="TEXT_SELECT_VEHICLE_TO_FIND_EXACT_FIT_PARTS" />
-                            </div>
-
-                            <div className="vehicles-list">
-                                <div className="vehicles-list__body">
-                                    {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                                    <label className="vehicles-list__item">
-                                        <RadioButton
-                                            className="vehicles-list__item-radio"
-                                            name="header-current-vehicle"
-                                            defaultValue=""
-                                            checked={currentVehicle === null}
-                                            onChange={handleChangeCurrentVehicle}
-                                        />
-                                        <span className=" vehicles-list__item-info">
-                                            <span className=" vehicles-list__item-name">
-                                                <FormattedMessage id="TEXT_ALL_VEHICLES" />
-                                            </span>
-                                        </span>
-                                    </label>
-
-                                </div>
-                            </div>
-
-                            <div className="vehicle-picker__actions">
-                                <button
-                                    type="button"
-                                    className="btn btn-primary btn-sm"
-                                    onClick={() => setVehiclePanel('form')}
-                                >
-                                    <FormattedMessage id="BUTTON_ADD_VEHICLE" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div
-                        className={classNames('vehicle-picker__panel', {
-                            'vehicle-picker__panel--active': vehiclePanel === 'form' || !hasVehicles,
-                        })}
-                    >
-                        <div className="vehicle-picker__panel-body">
-                            <CarLookupForm onCarSelected={setSelectedCar} />
-                            <div className="vehicle-picker__actions">
-                                {hasVehicles && (
-                                    <div className="search__car-selector-link">
-                                        {/* eslint-disable-next-line */}
-                                        <AppLink
-                                            anchor
-                                            onClick={(event) => {
-                                                event.preventDefault();
-
-                                                setVehiclePanel('list');
-                                            }}
-                                        >
-                                            <FormattedMessage id="BUTTON_BACK_TO_LIST" />
-                                        </AppLink>
-                                    </div>
-                                )}
-                                {addedNotice && (
-                                    <div className="alert alert-sm alert-success my-2">{addedNotice}</div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </form>
         </div>
     );
