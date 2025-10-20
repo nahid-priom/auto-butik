@@ -17,17 +17,56 @@
 
     .dropcart {
         display: block;
-        width: 320px;
+        width: 420px;
         background-color: map_get($menu-scheme, main);
-        box-shadow: map_get($menu-scheme, shadow);
-        border-radius: 1.5px;
-        padding: $local-padding;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08);
+        border-radius: 16px;
+        padding: 20px;
         color: map_get($menu-scheme, opposite);
+        border: 1px solid rgba(0,0,0,0.06);
     }
+    .dropcart__header {
+        padding: 0 0 16px 0;
+        border-bottom: 2px solid rgba(220, 53, 69, 0.15);
+        margin-bottom: 12px;
+    }
+    
+    .dropcart__title {
+        font-size: 18px;
+        font-weight: 700;
+        color: map_get($menu-scheme, opposite);
+        margin: 0;
+        letter-spacing: 0.3px;
+    }
+    
     .dropcart__empty {
         text-align: center;
-        font-size: 15px;
-        padding: 20px 0;
+        font-size: 14px;
+        padding: 32px 20px;
+        color: map_get($menu-scheme, muted);
+    }
+    
+    .dropcart__empty-icon {
+        margin-bottom: 12px;
+        opacity: 0.4;
+        fill: currentColor;
+        
+        svg {
+            width: 48px;
+            height: 48px;
+        }
+    }
+    
+    .dropcart__empty-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: map_get($menu-scheme, opposite);
+    }
+    
+    .dropcart__empty-subtitle {
+        font-size: 13px;
+        opacity: 0.7;
     }
     .dropcart__list {
         list-style: none;
@@ -212,6 +251,26 @@
             padding-top: 4px;
         }
     }
+    .dropcart__footer {
+        padding-top: 16px;
+        border-top: 1px solid rgba(0,0,0,0.06);
+        margin-top: 12px;
+        
+        .btn {
+            border-radius: 10px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            padding: 12px 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+            
+            &:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+            }
+        }
+    }
+    
     .dropcart__actions {
         display: flex;
 
@@ -235,46 +294,59 @@
         align-items: center;
         justify-content: space-between;
         border: none;
-        border-bottom: 1px solid map_get($menu-scheme, divider);
-        border-radius: 0;
-        padding: 12px 16px;
-        margin: 0;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin: 0 0 6px 0;
         width: 100%;
-        transition: background-color 0.15s;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        background: transparent;
 
         &:hover {
-            background-color: map_get($menu-scheme, hover);
+            background: linear-gradient(145deg, rgba(220, 53, 69, 0.04), rgba(220, 53, 69, 0.02));
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border-color: rgba(220, 53, 69, 0.15);
         }
 
         &:last-child {
-            border-bottom: none;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            margin-bottom: 0;
         }
 
         .vehicles-list__item-info {
             flex-grow: 1;
             margin: 0;
+            min-width: 0;
         }
 
         .vehicles-list__item-name {
             display: block;
-            font-size: 15px;
-            font-weight: $font-weight-medium;
+            font-size: 13px;
+            font-weight: 600;
             color: inherit;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .vehicles-list__item-details {
             display: block;
-            font-size: 13px;
+            font-size: 11px;
             color: map_get($menu-scheme, muted);
             margin-top: 2px;
+            letter-spacing: 0.2px;
+            opacity: 0.85;
         }
 
         .vehicles-list__item-actions {
             display: flex;
             align-items: center;
-            gap: 4px;
-            margin-left: 8px;
+            gap: 6px;
+            margin-left: 12px;
+            flex-shrink: 0;
         }
 
         .vehicles-list__item-remove {
@@ -282,26 +354,27 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 4px 8px;
+            padding: 6px 10px;
             border: none;
-            background: transparent;
-            border-radius: 2px;
-            font-size: 20px;
+            background: rgba(220, 53, 69, 0.08);
+            border-radius: 8px;
+            font-size: 18px;
             line-height: 1;
             cursor: pointer;
-            color: map_get($menu-scheme, muted);
-            transition: 
-                background-color 0.15s,
-                color 0.15s;
+            color: #dc3545;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             opacity: 0;
+            transform: scale(0.9);
 
             &:hover {
-                background-color: map_get($menu-scheme, divider);
-                color: map_get($menu-scheme, opposite);
+                background: rgba(220, 53, 69, 0.15);
+                color: #c82333;
+                transform: scale(1);
             }
 
             &:focus {
                 outline: none;
+                box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
             }
         }
 
@@ -310,15 +383,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 8px 10px;
+            padding: 9px 12px;
             border: none;
-            background: $link-color;
-            border-radius: 2px;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border-radius: 8px;
             cursor: pointer;
             fill: #fff;
-            transition: 
-                background-color 0.15s,
-                opacity 0.15s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.25);
 
             svg {
                 display: block;
@@ -327,16 +399,20 @@
             }
 
             &:hover {
-                opacity: 0.9;
+                background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+                transform: translateX(2px);
+                box-shadow: 0 3px 10px rgba(220, 53, 69, 0.35);
             }
 
             &:focus {
                 outline: none;
+                box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
             }
         }
 
         &:hover .vehicles-list__item-remove {
             opacity: 1;
+            transform: scale(1);
         }
     }
 }

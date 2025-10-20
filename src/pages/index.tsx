@@ -7,6 +7,7 @@ import BlockBanners from '~/components/blocks/BlockBanners';
 import BlockBrands from '~/components/blocks/BlockBrands';
 import BlockCategories from '~/components/blocks/BlockCategories';
 import BlockFeatures from '~/components/blocks/BlockFeatures';
+import BlockNewsletter from '~/components/blocks/BlockNewsletter';
 import BlockPosts from '~/components/blocks/BlockPosts';
 import BlockProductsCarousel from '~/components/blocks/BlockProductsCarousel';
 import BlockProductsColumns from '~/components/blocks/BlockProductsColumns';
@@ -40,32 +41,32 @@ function Page() {
     const slides = useMemo(() => [
         {
             url: '/catalog/products',
-            desktopImage: '/images/banner web/banner1.png',
-            mobileImage: '/images/banner app/1.png',
+            desktopImage: '/images/Hero1.png',
+            mobileImage: '/images/Hero1.png',
             title: intl.formatMessage({ id: 'SLIDE_1_TITLE' }),
             details: intl.formatMessage({ id: 'SLIDE_1_DETAILS' }),
             buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
         },
         {
             url: '/catalog/products',
-            desktopImage: '/images/banner web/banner2.png',
-            mobileImage: '/images/banner app/2.png',
+            desktopImage: '/images/Hero2.png',
+            mobileImage: '/images/Hero2.png',
             title: intl.formatMessage({ id: 'SLIDE_2_TITLE' }),
             details: intl.formatMessage({ id: 'SLIDE_2_DETAILS' }),
             buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
         },
         {
             url: '/catalog/products',
-            desktopImage: '/images/banner web/banner3.png',
-            mobileImage: '/images/banner app/3.png',
+            desktopImage: '/images/Hero3.png',
+            mobileImage: '/images/Hero3.png',
             title: intl.formatMessage({ id: 'SLIDE_3_TITLE' }),
             details: intl.formatMessage({ id: 'SLIDE_3_DETAILS' }),
             buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
         },
         {
             url: '/catalog/products',
-            desktopImage: '/images/banner web/banner4.png',
-            mobileImage: '/images/banner app/4.png',
+            desktopImage: '/images/Hero4.png',
+            mobileImage: '/images/Hero4.png',
             title: intl.formatMessage({ id: 'SLIDE_4_TITLE' }),
             details: intl.formatMessage({ id: 'SLIDE_4_DETAILS' }),
             buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
@@ -150,11 +151,6 @@ function Page() {
             <BlockSpace layout="divider-xs" />
             <BlockSlideshow slides={slides} />
             <BlockSpace layout="divider-nl" />
-            <BlockBrands
-                layout="columns-8-full"
-                brands={brands.data}
-            />
-            <BlockSpace layout="divider-nl" />
             <BlockCategories
                 blockTitle={intl.formatMessage({ id: 'HEADER_POPULAR_CATEGORIES' })}
                 categories={popularCategories.data}
@@ -186,6 +182,15 @@ function Page() {
             />
             <BlockSpace layout="divider-nl" className="d-xl-block d-none" />
             <BlockProductsColumns columns={columns} />
+            <BlockSpace layout="divider-nl" />
+            <BlockBrands
+                
+                blockTitle={intl.formatMessage({ id: 'HEADER_POPULAR_MANUFACTURERS' })}
+                layout="columns-8-full"
+                brands={brands.data}
+            />
+            <BlockSpace layout="divider-nl" />
+            <BlockNewsletter />
             <BlockSpace layout="divider-nl" />
             <BlockFeatures layout="bottom-strip" />
         </React.Fragment>

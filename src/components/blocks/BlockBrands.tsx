@@ -11,12 +11,13 @@ export type IBlockBrandsLayout = 'columns-8-full' | 'columns-7-sidebar';
 interface Props {
     layout: IBlockBrandsLayout;
     brands: IBrand[];
+    blockTitle?: string;
 }
 
 const BRANDS_PER_PAGE = 24; // 8 columns × 3 rows
 
 function BlockBrands(props: Props) {
-    const { layout, brands } = props;
+    const { layout, brands, blockTitle } = props;
     const [currentPage, setCurrentPage] = useState(0);
 
     // Calculate total pages
@@ -43,6 +44,11 @@ function BlockBrands(props: Props) {
     return (
         <div className={`block block-brands block-brands--layout--${layout}`}>
             <div className="container">
+                {blockTitle && (
+                    <div className="block-header">
+                        <h3 className="block-header__title">{blockTitle}</h3>
+                    </div>
+                )}
                 <div className="block-brands__wrapper">
                     {/* Navigation buttons */}
                     <button

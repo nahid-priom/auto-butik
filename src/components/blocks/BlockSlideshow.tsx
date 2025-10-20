@@ -23,7 +23,7 @@ interface Props {
 
 const slickSettings: ISlickProps = {
     dots: true,
-    arrows: false,
+    arrows: true,
     infinite: true,
     speed: 400,
     slidesToShow: 1,

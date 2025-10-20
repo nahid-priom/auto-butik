@@ -10,10 +10,10 @@ import { ArrowDownSm7x5Svg } from '~/svg';
 import { IMainMenuLink } from '~/interfaces/main-menu-link';
 import { useOptions } from '~/store/options/optionsHooks';
 // data
-import dataHeaderMainMenu from '~/data/headerMainMenu';
+import dataHeaderCategoryMenu from '~/data/headerCategoryMenu';
 
 function MainMenu() {
-    const items: IMainMenuLink[] = dataHeaderMainMenu;
+    const items: IMainMenuLink[] = dataHeaderCategoryMenu;
     const [currentItem, setCurrentItem] = useState<IMainMenuLink | null>(null);
     const options = useOptions();
     const desktopLayout = options.desktopHeaderLayout;

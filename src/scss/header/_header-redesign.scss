@@ -1,0 +1,118 @@
+// Custom styles for redesigned header layout
+@import '../variables';
+@import '../mixins/breakpoints';
+@import '../mixins/direction';
+
+// Contact Us Button Styling
+.header__navbar-contact {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    
+    .contact-button {
+        color: #dc3545 !important;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 8px 20px;
+        border: 2px solid #dc3545;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        text-decoration: none !important;
+        
+        &:hover {
+            background: #dc3545;
+            color: #ffffff !important;
+        }
+    }
+}
+
+// Larger Icons & Top-Right Counter Badges
+.header__indicators {
+    .indicator {
+        position: relative;
+    }
+    
+    .indicator__button {
+        padding: 8px 16px;
+        height: 64px;
+        min-width: 64px;
+        position: relative;
+        overflow: visible;
+    }
+    
+    .indicator__icon {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        
+        svg {
+            width: 40px !important;
+            height: 40px !important;
+            display: block !important;
+            
+            // Outline icons
+            &[stroke] {
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 1.8;
+            }
+            
+            // Solid icons (like RectangleGroupIcon for garage)
+            &[fill]:not([fill="none"]) {
+                fill: currentColor;
+                stroke: none;
+            }
+        }
+    }
+    
+    .indicator__title {
+        font-size: 11px;
+    }
+    
+    .indicator__value {
+        font-size: 14px;
+    }
+    
+    .indicator__counter {
+        position: absolute !important;
+        top: 0 !important;
+        right: 0 !important;
+        font-size: 11px !important;
+        min-width: 22px !important;
+        height: 22px !important;
+        line-height: 22px !important;
+        padding: 0 6px !important;
+        border-radius: 11px !important;
+        font-weight: 700 !important;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.5) !important;
+        z-index: 10 !important;
+        transform: translate(35%, -35%) !important;
+        
+        // Hide when count is 0
+        &:empty {
+            display: none !important;
+        }
+    }
+    
+    // Hide counter badge when it contains "0"
+    .indicator__counter:not(:empty) {
+        &[data-count="0"] {
+            display: none !important;
+        }
+    }
+}
+
+// Logo positioning - touch left edge
+@include desktop-header-variant-selector {
+    @if($header-layout == classic) {
+        .header__logo {
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+            min-width: 180px !important;
+        }
+    }
+}
+
