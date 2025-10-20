@@ -1,5 +1,7 @@
 // react
 import React from 'react';
+// third-party
+import { FormattedMessage } from 'react-intl';
 // application
 import AppImage from '~/components/shared/AppImage';
 import BlockSpace from '~/components/blocks/BlockSpace';
@@ -10,7 +12,7 @@ function Page() {
     return (
         <React.Fragment>
             <PageTitle>
-                Terms And Conditions
+                <FormattedMessage id="HEADER_TERMS_CONDITIONS" />
             </PageTitle>
 
             <BlockSpace layout="spaceship-ledge-height" />
@@ -19,8 +21,12 @@ function Page() {
                 <div className="container">
                     <div className="document">
                         <div className="document__header">
-                            <h1 className="document__title">Terms And Conditions</h1>
-                            <div className="document__subtitle">This Agreement was last modified on 27 May 2018.</div>
+                            <h1 className="document__title">
+                                <FormattedMessage id="HEADER_TERMS_CONDITIONS" />
+                            </h1>
+                            <div className="document__subtitle">
+                                <FormattedMessage id="TEXT_AGREEMENT_LAST_MODIFIED" />
+                            </div>
                         </div>
                         <div className="document__content card">
                             <div className="typography">

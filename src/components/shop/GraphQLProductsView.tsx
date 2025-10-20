@@ -8,6 +8,7 @@ import React, {
 // third-party
 import classNames from 'classnames';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useRouter } from 'next/router';
 // application
 import Navigation, { INavigationEvent } from '~/components/shared/Navigation';
 import ProductCard from '~/components/shared/ProductCard';
@@ -37,20 +38,56 @@ interface Props {
 function GraphQLProductsView(props: Props) {
     const { layout: layoutProps, gridLayout, offCanvasSidebar } = props;
     const intl = useIntl();
+    const router = useRouter();
     const [, setSidebarIsOpen] = useContext(SidebarContext);
     const [layout, setLayout] = useState(layoutProps);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(24);
     const [sort, setSort] = useState('name_asc');
 
-    // Fetch products using GraphQL (always show all products)
+    // Get search query from URL
+    const searchQuery = typeof router.query.search === 'string' ? router.query.search.toLowerCase() : '';
+
+    // Fetch ALL products (without search filter)
     const { products: productsList, loading: isLoading, error } = useProducts({
         page,
         limit,
         sort,
     });
 
-    const navigation = productsList?.navigation;
+    // Client-side filter products based on search query
+    const filteredProductsList = useMemo(() => {
+        if (!productsList || !searchQuery) {
+            return productsList;
+        }
+
+        const filteredItems = productsList.items.filter(product => 
+            product.name.toLowerCase().includes(searchQuery)
+        );
+
+        const totalFiltered = filteredItems.length;
+        const totalPages = Math.ceil(totalFiltered / limit);
+        const from = totalFiltered > 0 ? 1 : 0;
+        const to = Math.min(limit, totalFiltered);
+
+        return {
+            ...productsList,
+            items: filteredItems.slice(0, limit), // Only show first page of filtered results
+            total: totalFiltered,
+            pages: totalPages,
+            from,
+            to,
+            navigation: {
+                ...productsList.navigation,
+                total: totalFiltered,
+                pages: totalPages,
+                from,
+                to,
+            },
+        };
+    }, [productsList, searchQuery, limit]);
+
+    const navigation = filteredProductsList?.navigation;
 
     const handleSortChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
         setSort(event.target.value);
@@ -119,7 +156,7 @@ function GraphQLProductsView(props: Props) {
     }
 
     // Show loading state or empty state
-    if (isLoading || !productsList || !navigation) {
+    if (isLoading || !filteredProductsList || !navigation) {
         return (
             <div className={rootClasses}>
                 <div className="products-view__body">
@@ -266,7 +303,7 @@ function GraphQLProductsView(props: Props) {
                                 </div>
                             </div>
                             <div className="products-list__content">
-                                {productsList.items.map((product) => (
+                                {filteredProductsList.items.map((product) => (
                                     <div key={product.id} className="products-list__item">
                                         <ProductCard product={product} />
                                     </div>

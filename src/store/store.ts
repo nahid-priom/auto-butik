@@ -12,7 +12,7 @@ import rootReducer from '~/store/root/rootReducer';
 import version from '~/store/version';
 import { IRootState } from '~/store/root/rootTypes';
 
-const STORAGE_KEY = 'red-parts/react';
+const STORAGE_KEY = 'autobutik';
 
 export const save = (state: any) => {
     try {

@@ -13,7 +13,7 @@ function Page() {
     return (
         <React.Fragment>
             <PageTitle>
-                About Us
+                <FormattedMessage id="LINK_ABOUT_US" />
             </PageTitle>
 
             <div className="about">
@@ -29,14 +29,15 @@ function Page() {
                     </div>
 
                     <div className="about__card">
-                        <div className="about__card-title">About Us</div>
-                        <div className="about__card-text">
-                            RedParts is an international company with 30 years of history selling spare parts for cars,
-                            trucks and motorcycles.
-                            During our work we managed to create a unique service for the sale and delivery of spare
-                            parts around the world.
+                        <div className="about__card-title">
+                            <FormattedMessage id="HEADER_ABOUT_US" />
                         </div>
-                        <div className="about__card-author">Ryan Ford, CEO RedParts</div>
+                        <div className="about__card-text">
+                            <FormattedMessage id="TEXT_ABOUT_AUTOBUTIK_DESC" />
+                        </div>
+                        <div className="about__card-author">
+                            <FormattedMessage id="TEXT_ABOUT_CEO_SIGNATURE" />
+                        </div>
                         <div className="about__card-signature">
                             <AppImage src="/images/signature.jpg" width="160" height="55" />
                         </div>
@@ -46,15 +47,21 @@ function Page() {
                         <div className="about__indicators-body">
                             <div className="about__indicators-item">
                                 <div className="about__indicators-item-value">350</div>
-                                <div className="about__indicators-item-title">Stores around the world</div>
+                                <div className="about__indicators-item-title">
+                                    <FormattedMessage id="TEXT_STORES_AROUND_WORLD" />
+                                </div>
                             </div>
                             <div className="about__indicators-item">
                                 <div className="about__indicators-item-value">80 000</div>
-                                <div className="about__indicators-item-title">Original auto parts</div>
+                                <div className="about__indicators-item-title">
+                                    <FormattedMessage id="TEXT_ORIGINAL_AUTO_PARTS" />
+                                </div>
                             </div>
                             <div className="about__indicators-item">
                                 <div className="about__indicators-item-value">5 000</div>
-                                <div className="about__indicators-item-title">Satisfied customers</div>
+                                <div className="about__indicators-item-title">
+                                    <FormattedMessage id="TEXT_SATISFIED_CUSTOMERS" />
+                                </div>
                             </div>
                         </div>
                     </div>

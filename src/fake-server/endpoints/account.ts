@@ -4,12 +4,12 @@ import { IEditProfileData } from '~/api/base';
 import { IUser } from '~/interfaces/user';
 
 export function accountSignIn(email: string, password: string): Promise<IUser> {
-    if (email === 'red-parts@example.com' && password === '123456') {
+    if (email === 'info@autobutik.com' && password === '123456') {
         const user: IUser = {
-            email: 'red-parts@example.com',
-            phone: '38 972 588-42-36',
-            firstName: 'Ryan',
-            lastName: 'Ford',
+            email: 'info@autobutik.com',
+            phone: '+46 8 123 456 78',
+            firstName: 'Test',
+            lastName: 'User',
             avatar: '//www.gravatar.com/avatar/bde30b7dd579b3c9773f80132523b4c3?d=mp&s=88',
         };
 
@@ -24,7 +24,7 @@ export function accountSignUp(email: string, password: string): Promise<IUser> {
         return delayResponse(() => error('AUTH_INVALID_EMAIL'));
     }
 
-    if (email === 'red-parts@example.com') {
+    if (email === 'info@autobutik.com') {
         return delayResponse(() => error('AUTH_EMAIL_ALREADY_IN_USE'));
     }
 
@@ -34,9 +34,9 @@ export function accountSignUp(email: string, password: string): Promise<IUser> {
 
     const user: IUser = {
         email,
-        phone: '38 972 588-42-36',
-        firstName: 'Ryan',
-        lastName: 'Ford',
+        phone: '+46 8 123 456 78',
+        firstName: 'New',
+        lastName: 'User',
         avatar: '//www.gravatar.com/avatar/bde30b7dd579b3c9773f80132523b4c3?d=mp&s=88',
     };
 

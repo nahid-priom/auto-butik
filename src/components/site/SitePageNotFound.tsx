@@ -1,5 +1,7 @@
 // react
 import React from 'react';
+// third-party
+import { FormattedMessage, useIntl } from 'react-intl';
 // application
 import AppLink from '~/components/shared/AppLink';
 import BlockSpace from '~/components/blocks/BlockSpace';
@@ -7,10 +9,12 @@ import PageTitle from '~/components/shared/PageTitle';
 import url from '~/services/url';
 
 function SitePageNotFound() {
+    const intl = useIntl();
+
     return (
         <React.Fragment>
             <PageTitle>
-                Page Not Found
+                <FormattedMessage id="HEADER_PAGE_NOT_FOUND" />
             </PageTitle>
 
             <BlockSpace layout="spaceship-ledge-height" />
@@ -19,35 +23,37 @@ function SitePageNotFound() {
                 <div className="container">
                     <div className="not-found">
                         <div className="not-found__404">
-                            Oops! Error 404
+                            <FormattedMessage id="TEXT_ERROR_404" />
                         </div>
 
                         <div className="not-found__content">
-                            <h1 className="not-found__title">Page Not Found</h1>
+                            <h1 className="not-found__title">
+                                <FormattedMessage id="HEADER_PAGE_NOT_FOUND" />
+                            </h1>
 
                             <p className="not-found__text">
-                                {'We can\'t seem to find the page you\'re looking for.'}
+                                <FormattedMessage id="TEXT_PAGE_NOT_FOUND_DESC" />
                                 <br />
-                                Try to use the search.
+                                <FormattedMessage id="TEXT_TRY_USE_SEARCH" />
                             </p>
 
                             <form className="not-found__search">
                                 <input
                                     type="text"
                                     className="not-found__search-input form-control"
-                                    placeholder="Search Query..."
+                                    placeholder={intl.formatMessage({ id: 'INPUT_SEARCH_QUERY_PLACEHOLDER' })}
                                 />
                                 <button type="submit" className="not-found__search-button btn btn-primary">
-                                    Search
+                                    <FormattedMessage id="BUTTON_SEARCH" />
                                 </button>
                             </form>
 
                             <p className="not-found__text">
-                                Or go to the home page to start over.
+                                <FormattedMessage id="TEXT_GO_HOME_TO_START_OVER" />
                             </p>
 
                             <AppLink href={url.home()} className="btn btn-secondary btn-sm">
-                                Go To Home Page
+                                <FormattedMessage id="BUTTON_GO_TO_HOME_PAGE" />
                             </AppLink>
                         </div>
                     </div>

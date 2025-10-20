@@ -8,7 +8,7 @@ interface Props extends PropsWithChildren<{}> {}
 function PageTitle(props: Props) {
     const { children } = props;
     const title = children || '';
-    const fullTitle = title ? `${title} — RedParts` : 'RedParts';
+    const fullTitle = title ? `${title} — Autobutik` : 'Autobutik';
 
     return (
         <Head>
