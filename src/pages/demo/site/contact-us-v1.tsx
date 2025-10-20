@@ -7,8 +7,10 @@ import BlockHeader from '~/components/blocks/BlockHeader';
 import BlockMap from '~/components/blocks/BlockMap';
 import BlockSpace from '~/components/blocks/BlockSpace';
 import PageTitle from '~/components/shared/PageTitle';
+import SEO from '~/components/shared/SEO';
 // data
 import theme from '~/data/theme';
+import { getContactPageStructuredData } from '~/services/seo/structured-data';
 
 function Page() {
     const intl = useIntl();
@@ -18,6 +20,13 @@ function Page() {
             <PageTitle>
                 <FormattedMessage id="LINK_CONTACT_US" />
             </PageTitle>
+            <SEO
+                title={intl.formatMessage({ id: 'HEADER_CONTACT_US' })}
+                description="Get in touch with Autobutik for any questions about auto parts, orders, or support. We're here to help you find the right parts for your vehicle."
+                keywords="contact autobutik, customer service, auto parts support, car parts help"
+                type="website"
+                structuredData={getContactPageStructuredData()}
+            />
 
             <BlockMap />
 

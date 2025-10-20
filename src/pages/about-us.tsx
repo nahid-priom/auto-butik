@@ -1,5 +1,7 @@
 // react
 import React from 'react';
+// third-party
+import { FormattedMessage, useIntl } from 'react-intl';
 // application
 import AppImage from '~/components/shared/AppImage';
 import BlockReviews from '~/components/blocks/BlockReviews';
@@ -7,14 +9,23 @@ import BlockSpace from '~/components/blocks/BlockSpace';
 import BlockTeammates from '~/components/blocks/BlockTeammates';
 import Decor from '~/components/shared/Decor';
 import PageTitle from '~/components/shared/PageTitle';
+import SEO from '~/components/shared/SEO';
 import { baseUrl } from '~/services/utils';
 
 function Page() {
+    const intl = useIntl();
+
     return (
         <React.Fragment>
             <PageTitle>
                 <FormattedMessage id="LINK_ABOUT_US" />
             </PageTitle>
+            <SEO
+                title={intl.formatMessage({ id: 'HEADER_ABOUT_US' })}
+                description="Learn about Autobutik - your trusted source for quality auto parts. We provide fast delivery, competitive prices, and expert service for all your vehicle needs."
+                keywords="about autobutik, auto parts supplier, car parts company, automotive parts store"
+                type="website"
+            />
 
             <div className="about">
                 <div className="about__body">

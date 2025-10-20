@@ -6,6 +6,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import AppLink from '~/components/shared/AppLink';
 import BlockSpace from '~/components/blocks/BlockSpace';
 import PageTitle from '~/components/shared/PageTitle';
+import SEO from '~/components/shared/SEO';
 import url from '~/services/url';
 
 function SitePageNotFound() {
@@ -16,6 +17,11 @@ function SitePageNotFound() {
             <PageTitle>
                 <FormattedMessage id="HEADER_PAGE_NOT_FOUND" />
             </PageTitle>
+            <SEO
+                title={intl.formatMessage({ id: 'HEADER_PAGE_NOT_FOUND' })}
+                description="The page you are looking for could not be found. Browse our auto parts catalog or use the search to find what you need."
+                noindex={true}
+            />
 
             <BlockSpace layout="spaceship-ledge-height" />
 

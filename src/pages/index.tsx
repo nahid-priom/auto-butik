@@ -14,12 +14,14 @@ import BlockSale from '~/components/blocks/BlockSale';
 import BlockSlideshow from '~/components/blocks/BlockSlideshow';
 import BlockSpace from '~/components/blocks/BlockSpace';
 import BlockVehicleSearchHero from '~/components/blocks/BlockVehicleSearchHero';
+import SEO from '~/components/shared/SEO';
 import url from '~/services/url';
 import { AppDispatch } from '~/store/types';
 import { optionsSetAll } from '~/store/options/optionsActions';
 import { shopApi, blogApi } from '~/api';
 import { useDeferredData, useProductColumns, useProductTabs } from '~/services/hooks';
 import { wrapper } from '~/store/store';
+import { getOrganizationStructuredData, getWebsiteStructuredData } from '~/services/seo/structured-data';
 
 export const getServerSideProps = wrapper.getServerSideProps((store) => async () => {
     const dispatch = store.dispatch as AppDispatch;
@@ -126,8 +128,24 @@ function Page() {
         ], [intl]),
     );
 
+    // Structured data for homepage
+    const structuredData = {
+        '@context': 'https://schema.org',
+        '@graph': [
+            getOrganizationStructuredData(),
+            getWebsiteStructuredData(),
+        ],
+    };
+
     return (
         <React.Fragment>
+            <SEO
+                title="Quality Auto Parts For Every Vehicle"
+                description="Find quality auto parts for all vehicle makes and models. Fast delivery, competitive prices, and expert service. Shop brake pads, filters, engine parts, and more."
+                keywords="auto parts, car parts, vehicle parts, automotive parts, spare parts, car accessories, brake pads, filters, engine parts, suspension parts, online auto shop Sweden"
+                type="website"
+                structuredData={structuredData}
+            />
             <BlockVehicleSearchHero />
             <BlockSpace layout="divider-xs" />
             <BlockSlideshow slides={slides} />

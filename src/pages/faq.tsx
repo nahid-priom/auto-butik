@@ -1,19 +1,46 @@
 // react
 import React from 'react';
 // third-party
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 // application
 import AppLink from '~/components/shared/AppLink';
 import BlockSpace from '~/components/blocks/BlockSpace';
 import PageTitle from '~/components/shared/PageTitle';
+import SEO from '~/components/shared/SEO';
 import url from '~/services/url';
+import { getFAQStructuredData } from '~/services/seo/structured-data';
 
 function Page() {
+    const intl = useIntl();
+
+    // FAQ structured data (sample FAQs)
+    const faqs = [
+        {
+            question: 'What shipping methods do you offer?',
+            answer: 'We offer standard and express shipping options for all auto parts orders.',
+        },
+        {
+            question: 'How much does shipping cost?',
+            answer: 'Shipping costs vary based on location and order size. Free shipping available for orders over 500 SEK.',
+        },
+        {
+            question: 'How long does delivery take?',
+            answer: 'Standard delivery takes 2-5 business days. Express delivery is available for next-day service.',
+        },
+    ];
+
     return (
         <React.Fragment>
             <PageTitle>
                 <FormattedMessage id="HEADER_FAQ" />
             </PageTitle>
+            <SEO
+                title={intl.formatMessage({ id: 'HEADER_FAQ' })}
+                description="Find answers to frequently asked questions about ordering auto parts, shipping, returns, and more at Autobutik."
+                keywords="faq, frequently asked questions, auto parts help, shipping info, returns policy"
+                type="website"
+                structuredData={getFAQStructuredData(faqs)}
+            />
 
             <BlockSpace layout="spaceship-ledge-height" />
 
