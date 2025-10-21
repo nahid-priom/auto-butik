@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 // application
 import AppLink from '~/components/shared/AppLink';
+import { FormattedMessage } from 'react-intl';
 import Megamenu from '~/components/header/Megamenu';
 import Menu from '~/components/header/Menu';
 import { ArrowDownSm7x5Svg } from '~/svg';
@@ -61,7 +62,11 @@ function MainMenu() {
                                 onClick={handleItemClick}
                                 {...item.customFields?.anchorProps}
                             >
-                                {item.title}
+                                {typeof item.title === 'string' ? (
+                                    <FormattedMessage id={item.title} />
+                                ) : (
+                                    item.title
+                                )}
                                 {itemHasSubmenu && <ArrowDownSm7x5Svg />}
                             </AppLink>
 

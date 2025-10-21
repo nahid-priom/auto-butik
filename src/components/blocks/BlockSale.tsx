@@ -17,6 +17,7 @@ import { IProduct } from '~/interfaces/product';
 interface Props {
     products: IProduct[];
     loading?: boolean;
+    showHeader?: boolean; // when false, hide Deal Zone header/timer
 }
 
 const slickSettings: ISlickProps = {
@@ -35,7 +36,7 @@ const slickSettings: ISlickProps = {
 };
 
 function BlockSale(props: Props) {
-    const { products, loading = false } = props;
+    const { products, loading = false, showHeader = true } = props;
     const slickRef = useRef<Slick>(null);
 
     const handleNextClick = () => {
@@ -55,6 +56,7 @@ function BlockSale(props: Props) {
     return (
         <div className={rootClasses}>
             <div className="block-sale__content">
+                {showHeader && (
                 <div className="block-sale__header">
                     <div className="block-sale__title">
                         <FormattedMessage id="HEADER_DEAL_ZONE_TITLE" />
@@ -84,6 +86,7 @@ function BlockSale(props: Props) {
                         <Decor type="center" className="block-sale__header-decor" />
                     </div>
                 </div>
+                )}
                 <div className="block-sale__body">
                     <Decor type="bottom" className="block-sale__body-decor" />
                     <div

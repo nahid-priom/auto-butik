@@ -4,6 +4,7 @@ import React from 'react';
 import classNames from 'classnames';
 // application
 import AppLink from '~/components/shared/AppLink';
+import { FormattedMessage } from 'react-intl';
 import { ILink, INestedLink } from '~/interfaces/link';
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
@@ -42,7 +43,11 @@ function MegamenuLinks(props: Props) {
                             onClick={() => onItemClick && onItemClick(link)}
                             {...link.customFields?.anchorProps}
                         >
-                            {link.title}
+                            {typeof link.title === 'string' ? (
+                                <FormattedMessage id={link.title} />
+                            ) : (
+                                link.title
+                            )}
                         </AppLink>
                         {hasSubLinks && (
                             <MegamenuLinks links={subLinks} level={level + 1} />

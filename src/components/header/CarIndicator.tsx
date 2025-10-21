@@ -269,15 +269,22 @@ function CarDropdown({ onCloseMenu }: CarDropdownProps) {
 }
 
 export default function CarIndicator() {
-    const { vehicles } = useGarage();
+    const { vehicles, currentCarId } = useGarage();
     const carIndicatorCtrl = useRef<IIndicatorController | null>(null);
 
     const getLatestVehicleName = () => {
         if (vehicles.length === 0) return null;
         
-        // Get the most recently added vehicle (first in array)
-        const latestVehicle = vehicles[0];
-        const data = latestVehicle.data as any;
+        // Prioritize current car if it exists, otherwise show latest vehicle
+        let selectedVehicle = null;
+        if (currentCarId) {
+            selectedVehicle = vehicles.find(v => v.id === currentCarId);
+        }
+        if (!selectedVehicle) {
+            selectedVehicle = vehicles[0]; // Get the most recently added vehicle
+        }
+        
+        const data = selectedVehicle.data as any;
         
         const brand = data.C_merke || '';
         const model = data.C_modell || '';

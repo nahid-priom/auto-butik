@@ -8,11 +8,11 @@ import BlockBrands from '~/components/blocks/BlockBrands';
 import BlockCategories from '~/components/blocks/BlockCategories';
 import BlockFeatures from '~/components/blocks/BlockFeatures';
 import BlockBenefits from '~/components/blocks/BlockBenefits';
+import BlockSale from '~/components/blocks/BlockSale';
 import BlockNewsletter from '~/components/blocks/BlockNewsletter';
 import BlockPosts from '~/components/blocks/BlockPosts';
 import BlockProductsCarousel from '~/components/blocks/BlockProductsCarousel';
 import BlockProductsColumns from '~/components/blocks/BlockProductsColumns';
-import BlockSale from '~/components/blocks/BlockSale';
 import BlockSlideshow from '~/components/blocks/BlockSlideshow';
 import BlockSpace from '~/components/blocks/BlockSpace';
 import BlockVehicleSearchHero from '~/components/blocks/BlockVehicleSearchHero';
@@ -75,6 +75,7 @@ function Page() {
     ], [intl]);
 
     const brands = useDeferredData(() => shopApi.getBrands({ limit: 48 }), []);
+    const blockSale = useDeferredData(() => shopApi.getSpecialOffers(8), []);
 
     const popularCategories = useDeferredData(() => shopApi.getCategories({
         slugs: [
@@ -101,7 +102,6 @@ function Page() {
         (tab) => shopApi.getFeaturedProducts(tab.categorySlug, 8),
     );
 
-    const blockSale = useDeferredData(() => shopApi.getSpecialOffers(8), []);
 
     const latestPosts = useDeferredData(() => blogApi.getLatestPosts(8), []);
     const latestPostsLinks = useMemo(() => [
@@ -169,10 +169,9 @@ function Page() {
             <BlockSpace layout="divider-nl" />
             <BlockBanners />
             <BlockSpace layout="divider-nl" />
-            <BlockSale
-                products={blockSale.data}
-                loading={blockSale.isLoading}
-            />
+            <BlockSale products={blockSale.data} loading={blockSale.isLoading} showHeader={false} />
+            <BlockSpace layout="divider-nl" />
+            <BlockBenefits />
             <BlockSpace layout="divider-nl" />
             <BlockPosts
                 blockTitle={intl.formatMessage({ id: 'HEADER_LATEST_NEWS' })}
@@ -190,8 +189,6 @@ function Page() {
                 layout="columns-8-full"
                 brands={brands.data}
             />
-            <BlockSpace layout="divider-nl" />
-            <BlockBenefits />
             <BlockSpace layout="divider-nl" />
             <BlockNewsletter />
         </React.Fragment>

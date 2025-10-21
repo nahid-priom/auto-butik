@@ -4,6 +4,7 @@ import React from 'react';
 import classNames from 'classnames';
 // application
 import AppLink from '~/components/shared/AppLink';
+import { FormattedMessage } from 'react-intl';
 import { ArrowRoundedRight6x9Svg } from '~/svg';
 import { INestedLink } from '~/interfaces/link';
 
@@ -33,7 +34,11 @@ function Menu(props: Props) {
                                 onClick={onItemClick}
                                 {...item.customFields?.anchorProps}
                             >
-                                {item.title}
+                                {typeof item.title === 'string' ? (
+                                    <FormattedMessage id={item.title} />
+                                ) : (
+                                    item.title
+                                )}
                                 {hasSubmenu && (
                                     <span className="menu__arrow">
                                         <ArrowRoundedRight6x9Svg />
