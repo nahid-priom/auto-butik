@@ -9,18 +9,23 @@ export interface IGarageVehicle {
 
 interface IGarageContextValue {
     vehicles: IGarageVehicle[];
+    currentCarId: string | null;
     addVehicle: (data: ICarData | IWheelData) => void;
     removeVehicle: (id: string) => void;
     clearGarage: () => void;
+    setCurrentCar: (id: string | null) => void;
 }
 
 const GarageContext = createContext<IGarageContextValue | undefined>(undefined);
 
 const STORAGE_KEY = 'garageVehicles';
+const CURRENT_CAR_KEY = 'currentCarId';
 
 export function GarageProvider({ children }: { children: React.ReactNode }) {
     const [vehicles, setVehicles] = useState<IGarageVehicle[]>([]);
+    const [currentCarId, setCurrentCarId] = useState<string | null>(null);
 
+    // Load vehicles and current car from localStorage on mount
     useEffect(() => {
         if (typeof window === 'undefined') return;
         try {
@@ -29,12 +34,19 @@ export function GarageProvider({ children }: { children: React.ReactNode }) {
                 const parsed = JSON.parse(raw) as IGarageVehicle[];
                 setVehicles(parsed);
             }
+            
+            const currentId = localStorage.getItem(CURRENT_CAR_KEY);
+            if (currentId) {
+                setCurrentCarId(currentId);
+            }
         } catch (e) {
             console.error('Failed to load garage from localStorage', e);
             localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(CURRENT_CAR_KEY);
         }
     }, []);
 
+    // Save vehicles to localStorage
     useEffect(() => {
         if (typeof window === 'undefined') return;
         try {
@@ -44,6 +56,20 @@ export function GarageProvider({ children }: { children: React.ReactNode }) {
         }
     }, [vehicles]);
 
+    // Save current car to localStorage
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            if (currentCarId) {
+                localStorage.setItem(CURRENT_CAR_KEY, currentCarId);
+            } else {
+                localStorage.removeItem(CURRENT_CAR_KEY);
+            }
+        } catch (e) {
+            console.error('Failed to save current car to localStorage', e);
+        }
+    }, [currentCarId]);
+
     const addVehicle = (data: ICarData | IWheelData) => {
         const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
         setVehicles((prev) => [{ id, data, addedAt: Date.now() }, ...prev]);
@@ -51,11 +77,30 @@ export function GarageProvider({ children }: { children: React.ReactNode }) {
 
     const removeVehicle = (id: string) => {
         setVehicles((prev) => prev.filter((v) => v.id !== id));
+        // If removing current car, clear current car
+        if (currentCarId === id) {
+            setCurrentCarId(null);
+        }
     };
 
-    const clearGarage = () => setVehicles([]);
+    const clearGarage = () => {
+        setVehicles([]);
+        setCurrentCarId(null);
+    };
 
-    const value = useMemo<IGarageContextValue>(() => ({ vehicles, addVehicle, removeVehicle, clearGarage }), [vehicles]);
+    const setCurrentCar = (id: string | null) => {
+        // Verify the car exists in the garage
+        if (id && !vehicles.find(v => v.id === id)) {
+            console.warn('Attempted to set current car to non-existent vehicle:', id);
+            return;
+        }
+        setCurrentCarId(id);
+    };
+
+    const value = useMemo<IGarageContextValue>(
+        () => ({ vehicles, currentCarId, addVehicle, removeVehicle, clearGarage, setCurrentCar }), 
+        [vehicles, currentCarId]
+    );
 
     return (
         <GarageContext.Provider value={value}>

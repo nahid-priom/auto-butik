@@ -7,6 +7,7 @@ import BlockBanners from '~/components/blocks/BlockBanners';
 import BlockBrands from '~/components/blocks/BlockBrands';
 import BlockCategories from '~/components/blocks/BlockCategories';
 import BlockFeatures from '~/components/blocks/BlockFeatures';
+import BlockBenefits from '~/components/blocks/BlockBenefits';
 import BlockNewsletter from '~/components/blocks/BlockNewsletter';
 import BlockPosts from '~/components/blocks/BlockPosts';
 import BlockProductsCarousel from '~/components/blocks/BlockProductsCarousel';
@@ -190,9 +191,9 @@ function Page() {
                 brands={brands.data}
             />
             <BlockSpace layout="divider-nl" />
-            <BlockNewsletter />
+            <BlockBenefits />
             <BlockSpace layout="divider-nl" />
-            <BlockFeatures layout="bottom-strip" />
+            <BlockNewsletter />
         </React.Fragment>
     );
 }

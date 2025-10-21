@@ -20,6 +20,7 @@ import { baseUrl } from '~/services/utils';
 import { IProduct } from '~/interfaces/product';
 import { IShopCategory } from '~/interfaces/category';
 import { shopApi } from '~/api';
+import { getCategoryTranslationKey } from '~/services/category-translation';
 
 export interface IBlockZoneTab {
     name: string;
@@ -163,14 +164,20 @@ function BlockZone(props: Props) {
                                 <div className="category-card__info">
                                     <div className="category-card__name">
                                         <AppLink href={url.category(category)}>
-                                            {category.name}
+                                            <FormattedMessage 
+                                                id={getCategoryTranslationKey(category.slug)} 
+                                                defaultMessage={category.name}
+                                            />
                                         </AppLink>
                                     </div>
                                     <ul className="category-card__children">
                                         {subs.map((sub, subIdx) => (
                                             <li key={subIdx}>
                                                 <AppLink href={url.category(sub)}>
-                                                    {sub.name}
+                                                    <FormattedMessage 
+                                                        id={getCategoryTranslationKey(sub.slug)} 
+                                                        defaultMessage={sub.name}
+                                                    />
                                                 </AppLink>
                                             </li>
                                         ))}

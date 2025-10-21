@@ -2,6 +2,7 @@
 import React from 'react';
 // third-party
 import classNames from 'classnames';
+import { FormattedMessage } from 'react-intl';
 // application
 import AppImage from '~/components/shared/AppImage';
 import AppLink from '~/components/shared/AppLink';
@@ -40,7 +41,14 @@ function PostCard(props: Props) {
                 <div className="post-card__title">
                     <h2>
                         <AppLink href={url.post(post)}>
-                            {post.title}
+                            {post.titleKey ? (
+                                <FormattedMessage 
+                                    id={post.titleKey} 
+                                    defaultMessage={post.title}
+                                />
+                            ) : (
+                                post.title
+                            )}
                         </AppLink>
                     </h2>
                 </div>

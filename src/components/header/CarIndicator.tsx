@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
+import classNames from 'classnames';
 import Indicator, { IIndicatorController } from '~/components/header/Indicator';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
 import { useGarage } from '~/contexts/GarageContext';
@@ -14,11 +15,12 @@ interface CarDropdownProps {
 
 function CarDropdown({ onCloseMenu }: CarDropdownProps) {
     const { setCurrentActiveCar } = useCurrentActiveCar();
-    const { vehicles, removeVehicle } = useGarage();
+    const { vehicles, currentCarId, removeVehicle, setCurrentCar } = useGarage();
 
     const handleSelectVehicle = (vehicle: any) => {
         setCurrentActiveCar(vehicle.data);
-        onCloseMenu();
+        setCurrentCar(vehicle.id);
+        // Keep dropdown open after selecting current car
     };
 
     const handleRemoveVehicle = (e: React.MouseEvent, vehicleId: string) => {
@@ -105,6 +107,16 @@ function CarDropdown({ onCloseMenu }: CarDropdownProps) {
     };
 
     const hasVehicles = vehicles.length > 0;
+    
+    // Get current car
+    const currentCar = React.useMemo(() => {
+        return vehicles.find(v => v.id === currentCarId);
+    }, [vehicles, currentCarId]);
+    
+    // All vehicles sorted by addedAt for history
+    const sortedVehicles = React.useMemo(() => {
+        return [...vehicles].sort((a, b) => b.addedAt - a.addedAt);
+    }, [vehicles]);
 
     return (
         <div className="dropcart">
@@ -116,58 +128,118 @@ function CarDropdown({ onCloseMenu }: CarDropdownProps) {
 
             {hasVehicles ? (
                 <>
-                    <div className="dropcart__body" style={{ padding: '0 0 8px 0' }}>
-                        <div className="vehicles-list">
-                            {vehicles.map((vehicle) => (
-                                <div
-                                    key={vehicle.id}
-                                    className="vehicles-list__item"
-                                    style={{ 
-                                        cursor: 'pointer',
-                                        borderBottom: '1px solid #e5e5e5',
-                                        borderRadius: 0,
-                                        margin: 0,
-                                    }}
-                                    onClick={() => handleSelectVehicle(vehicle)}
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' || e.key === ' ') {
-                                            e.preventDefault();
-                                            handleSelectVehicle(vehicle);
-                                        }
-                                    }}
-                                >
-                                    <div className="vehicles-list__item-info">
-                                        <div className="vehicles-list__item-name">
-                                            {getVehicleTitle(vehicle.data)}
+                    {/* Current Car Section */}
+                    {currentCar && (
+                        <>
+                            <div className="dropcart__header" style={{ paddingTop: '8px', paddingBottom: '4px', borderBottom: '1px solid #e5e5e5' }}>
+                                <div className="dropcart__title" style={{ fontSize: '12px', textTransform: 'uppercase', fontWeight: 600 }}>
+                                    <FormattedMessage id="TEXT_CURRENT_CAR" />
+                                </div>
+                            </div>
+                            <div className="dropcart__body" style={{ padding: '0' }}>
+                                <div className="vehicles-list">
+                                    <div
+                                        className="vehicles-list__item vehicles-list__item--current"
+                                        style={{ 
+                                            cursor: 'default',
+                                            borderBottom: '1px solid #e5e5e5',
+                                            borderRadius: 0,
+                                            margin: 0,
+                                        }}
+                                    >
+                                        <div className="vehicles-list__item-info">
+                                            <div className="vehicles-list__item-name">
+                                                {getVehicleTitle(currentCar.data)}
+                                            </div>
+                                            <div className="vehicles-list__item-details">
+                                                {getVehicleDetails(currentCar.data)}
+                                            </div>
                                         </div>
-                                        <div className="vehicles-list__item-details">
-                                            {getVehicleDetails(vehicle.data)}
+                                        <div className="vehicles-list__item-actions">
+                                            <button
+                                                type="button"
+                                                className="vehicles-list__item-remove"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setCurrentCar(null);
+                                                }}
+                                                aria-label="Remove from current"
+                                                title="Remove from current"
+                                            >
+                                                ×
+                                            </button>
                                         </div>
-                                    </div>
-                                    <div className="vehicles-list__item-actions">
-                                        <button
-                                            type="button"
-                                            className="vehicles-list__item-remove"
-                                            onClick={(e) => handleRemoveVehicle(e, vehicle.id)}
-                                            aria-label="Remove vehicle"
-                                            title="Remove vehicle"
-                                        >
-                                            ×
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="vehicles-list__item-arrow"
-                                            aria-label="Select vehicle"
-                                        >
-                                            <ArrowRoundedRight7x11Svg />
-                                        </button>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                            </div>
+                        </>
+                    )}
+                    
+                    {/* Garage History Section */}
+                    {vehicles.length > 0 && (
+                        <>
+                            <div className="dropcart__header" style={{ paddingTop: '8px', paddingBottom: '4px', borderBottom: '1px solid #e5e5e5' }}>
+                                <div className="dropcart__title" style={{ fontSize: '12px', textTransform: 'uppercase', fontWeight: 600 }}>
+                                    <FormattedMessage id="TEXT_GARAGE" defaultMessage="Garage" />
+                                </div>
+                            </div>
+                            <div className="dropcart__body" style={{ padding: '0 0 8px 0' }}>
+                                <div className="vehicles-list">
+                                    {sortedVehicles.map((vehicle) => (
+                                        <div
+                                            key={vehicle.id}
+                                            className={classNames('vehicles-list__item', {
+                                                'vehicles-list__item--current': vehicle.id === currentCarId
+                                            })}
+                                            style={{ 
+                                                cursor: 'pointer',
+                                                borderBottom: '1px solid #e5e5e5',
+                                                borderRadius: 0,
+                                                margin: 0,
+                                            }}
+                                            onClick={() => handleSelectVehicle(vehicle)}
+                                            role="button"
+                                            tabIndex={0}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    handleSelectVehicle(vehicle);
+                                                }
+                                            }}
+                                        >
+                                            <div className="vehicles-list__item-info">
+                                                <div className="vehicles-list__item-name">
+                                                    {getVehicleTitle(vehicle.data)}
+                                                </div>
+                                                <div className="vehicles-list__item-details">
+                                                    {getVehicleDetails(vehicle.data)}
+                                                </div>
+                                            </div>
+                                            <div className="vehicles-list__item-actions">
+                                                <button
+                                                    type="button"
+                                                    className="vehicles-list__item-remove"
+                                                    onClick={(e) => handleRemoveVehicle(e, vehicle.id)}
+                                                    aria-label="Remove vehicle"
+                                                    title="Remove vehicle"
+                                                >
+                                                    ×
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="vehicles-list__item-arrow"
+                                                    aria-label="Select vehicle"
+                                                >
+                                                    <ArrowRoundedRight7x11Svg />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </>
+                    )}
+                    
                     <div className="dropcart__footer">
                         <AppLink href={url.accountGarage()} className="btn btn-primary btn-sm btn-block">
                             <FormattedMessage id="LINK_ACCOUNT_GARAGE" defaultMessage="Garage" />
@@ -231,14 +303,17 @@ export default function CarIndicator() {
     const latestVehicleName = getLatestVehicleName();
     const carIndicatorValue = latestVehicleName || <FormattedMessage id="TEXT_NO_VEHICLES" defaultMessage="No vehicles" />;
 
+    const garageIcon = <img src="/images/vehicle-garage.svg" alt="Garage" />;
+
     return (
         <Indicator
-            icon={<img src="/images/vehicle-garage.svg" alt="Garage" style={{ width: '28px', height: '28px' }} />}
+            icon={garageIcon}
             label={carIndicatorLabel}
             value={carIndicatorValue}
             counter={vehicles.length}
             trigger="click"
             controllerRef={carIndicatorCtrl}
+            badge={vehicles.length === 0 ? <span className="garage-icon__warn">!</span> : undefined}
         >
             <CarDropdown onCloseMenu={() => carIndicatorCtrl.current?.close()} />
         </Indicator>

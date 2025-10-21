@@ -255,6 +255,7 @@
 
                 &-input {
                     position: relative;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
                     // Blue left section with big bold "S"
                     &:before {
@@ -276,6 +277,7 @@
                         pointer-events: none;
                         box-shadow: inset -2px 0 8px rgba(0, 0, 0, 0.15);
                         letter-spacing: 0;
+                        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                     }
 
                     input.form-control {
@@ -296,7 +298,6 @@
                         &:hover {
                             border-color: rgba(220, 53, 69, 0.4);
                             background: rgba(255, 255, 255, 1);
-                            transform: translateY(-2px);
                             box-shadow: 
                                 0 6px 20px rgba(0, 0, 0, 0.12),
                                 inset 0 1px 0 rgba(255, 255, 255, 0.9);
@@ -308,7 +309,6 @@
                                 0 0 0 4px rgba(220, 53, 69, 0.15),
                                 0 8px 24px rgba(0, 0, 0, 0.15);
                             outline: none;
-                            transform: translateY(-2px) scale(1.01);
                             background: rgba(255, 255, 255, 1);
                         }
 
@@ -316,6 +316,16 @@
                             color: rgba(30, 41, 59, 0.5);
                             font-weight: $font-weight-normal;
                         }
+                    }
+
+                    // Apply transforms to the container instead of the input
+                    &:hover {
+                        transform: translateY(-2px);
+                    }
+
+                    // When input is focused, transform the entire container
+                    &:has(input.form-control:focus) {
+                        transform: translateY(-2px) scale(1.01);
                     }
                 }
             }

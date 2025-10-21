@@ -1,10 +1,13 @@
 // react
 import React from 'react';
+// third-party
+import { FormattedMessage } from 'react-intl';
 // application
 import AppLink from '~/components/shared/AppLink';
 import Collapse, { ICollapseRenderFn } from '~/components/shared/Collapse';
 import url from '~/services/url';
 import { ICategory } from '~/interfaces/category';
+import { getCategoryTranslationKey } from '~/services/category-translation';
 
 interface Props {
     widgetTitle?: React.ReactNode;
@@ -30,7 +33,10 @@ function WidgetCategories(props: Props) {
                     const render: RenderFilterFn = ({ toggle, setItemRef, setContentRef }) => (
                         <li className="widget-categories__item" ref={setItemRef}>
                             <AppLink href={url.category(category)} className="widget-categories__link">
-                                {category.name}
+                                <FormattedMessage 
+                                    id={getCategoryTranslationKey(category.slug)} 
+                                    defaultMessage={category.name}
+                                />
                             </AppLink>
                             {children.length > 0 && (
                                 <React.Fragment>
@@ -48,7 +54,10 @@ function WidgetCategories(props: Props) {
                                                         href={url.category(child)}
                                                         className="widget-categories__link"
                                                     >
-                                                        {child.name}
+                                                        <FormattedMessage 
+                                                            id={getCategoryTranslationKey(child.slug)} 
+                                                            defaultMessage={child.name}
+                                                        />
                                                     </AppLink>
                                                 </li>
                                             ))}
