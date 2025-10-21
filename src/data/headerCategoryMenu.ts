@@ -3,7 +3,7 @@ import { IMainMenuLink } from '~/interfaces/main-menu-link';
 
 const dataHeaderCategoryMenu: IMainMenuLink[] = [
     {
-        title: 'Car Parts',
+        title: 'MENU_CAR_PARTS',
         url: '/catalog/products',
         submenu: {
             type: 'megamenu',
@@ -13,48 +13,22 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
                     size: 4,
                     links: [
                         {
-                            title: 'Brake System',
-                            url: '/catalog/products',
+                            title: 'GROUP_BRAKE_SYSTEM', url: '/catalog/products',
                             links: [
-                                { title: 'Brake Discs', url: '/catalog/products' },
-                                { title: 'Brake Pads', url: '/catalog/products' },
-                                { title: 'Brake Caliper', url: '/catalog/products' },
-                                { title: 'Brake Accessories', url: '/catalog/products' },
-                                { title: 'Hand Brakes', url: '/catalog/products' },
+                                { title: 'LINK_BRAKE_DISCS', url: '/catalog/products' },
+                                { title: 'LINK_BRAKE_PADS', url: '/catalog/products' },
+                                { title: 'LINK_BRAKE_CALIPER', url: '/catalog/products' },
+                                { title: 'LINK_BRAKE_ACCESSORIES', url: '/catalog/products' },
+                                { title: 'LINK_HAND_BRAKES', url: '/catalog/products' },
                             ],
                         },
                         {
-                            title: 'Engine Parts',
-                            url: '/catalog/products',
+                            title: 'GROUP_ENGINE_PARTS', url: '/catalog/products',
                             links: [
-                                { title: 'Air Filters', url: '/catalog/products' },
-                                { title: 'Oil Filters', url: '/catalog/products' },
-                                { title: 'Fuel Filters', url: '/catalog/products' },
-                                { title: 'Spark Plugs', url: '/catalog/products' },
-                            ],
-                        },
-                    ],
-                },
-                {
-                    size: 4,
-                    links: [
-                        {
-                            title: 'Suspension',
-                            url: '/catalog/products',
-                            links: [
-                                { title: 'Shock Absorbers', url: '/catalog/products' },
-                                { title: 'Springs', url: '/catalog/products' },
-                                { title: 'Ball Joints', url: '/catalog/products' },
-                                { title: 'Control Arms', url: '/catalog/products' },
-                            ],
-                        },
-                        {
-                            title: 'Steering',
-                            url: '/catalog/products',
-                            links: [
-                                { title: 'Steering Racks', url: '/catalog/products' },
-                                { title: 'Tie Rods', url: '/catalog/products' },
-                                { title: 'Power Steering Pumps', url: '/catalog/products' },
+                                { title: 'LINK_AIR_FILTERS', url: '/catalog/products' },
+                                { title: 'LINK_OIL_FILTERS', url: '/catalog/products' },
+                                { title: 'LINK_FUEL_FILTERS', url: '/catalog/products' },
+                                { title: 'LINK_SPARK_PLUGS', url: '/catalog/products' },
                             ],
                         },
                     ],
@@ -63,22 +37,42 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
                     size: 4,
                     links: [
                         {
-                            title: 'Exhaust System',
-                            url: '/catalog/products',
+                            title: 'GROUP_SUSPENSION', url: '/catalog/products',
                             links: [
-                                { title: 'Mufflers', url: '/catalog/products' },
-                                { title: 'Catalytic Converters', url: '/catalog/products' },
-                                { title: 'Exhaust Pipes', url: '/catalog/products' },
+                                { title: 'LINK_SHOCK_ABSORBERS', url: '/catalog/products' },
+                                { title: 'LINK_SPRINGS', url: '/catalog/products' },
+                                { title: 'LINK_BALL_JOINTS', url: '/catalog/products' },
+                                { title: 'LINK_CONTROL_ARMS', url: '/catalog/products' },
                             ],
                         },
                         {
-                            title: 'Electrical System',
-                            url: '/catalog/products',
+                            title: 'GROUP_STEERING', url: '/catalog/products',
                             links: [
-                                { title: 'Batteries', url: '/catalog/products' },
-                                { title: 'Alternators', url: '/catalog/products' },
-                                { title: 'Starters', url: '/catalog/products' },
-                                { title: 'Sensors', url: '/catalog/products' },
+                                { title: 'LINK_STEERING_RACKS', url: '/catalog/products' },
+                                { title: 'LINK_TIE_RODS', url: '/catalog/products' },
+                                { title: 'LINK_POWER_STEERING_PUMPS', url: '/catalog/products' },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    size: 4,
+                    links: [
+                        {
+                            title: 'GROUP_EXHAUST_SYSTEM', url: '/catalog/products',
+                            links: [
+                                { title: 'LINK_MUFFLERS', url: '/catalog/products' },
+                                { title: 'LINK_CATALYTIC_CONVERTERS', url: '/catalog/products' },
+                                { title: 'LINK_EXHAUST_PIPES', url: '/catalog/products' },
+                            ],
+                        },
+                        {
+                            title: 'GROUP_ELECTRICAL_SYSTEM', url: '/catalog/products',
+                            links: [
+                                { title: 'LINK_BATTERIES', url: '/catalog/products' },
+                                { title: 'LINK_ALTERNATORS', url: '/catalog/products' },
+                                { title: 'LINK_STARTERS', url: '/catalog/products' },
+                                { title: 'LINK_SENSORS', url: '/catalog/products' },
                             ],
                         },
                     ],
@@ -87,7 +81,7 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
         },
     },
     {
-        title: 'Wiper Blades',
+        title: 'MENU_WIPER_BLADES',
         url: '/catalog/products?category=wiper-blades',
         submenu: {
             type: 'megamenu',
@@ -97,12 +91,11 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
                     size: 6,
                     links: [
                         {
-                            title: 'Front Wipers',
-                            url: '/catalog/products',
+                            title: 'GROUP_FRONT_WIPERS', url: '/catalog/products',
                             links: [
-                                { title: 'Standard Wipers', url: '/catalog/products' },
-                                { title: 'Flat Blade Wipers', url: '/catalog/products' },
-                                { title: 'Hybrid Wipers', url: '/catalog/products' },
+                                { title: 'LINK_STANDARD_WIPERS', url: '/catalog/products' },
+                                { title: 'LINK_FLAT_BLADE_WIPERS', url: '/catalog/products' },
+                                { title: 'LINK_HYBRID_WIPERS', url: '/catalog/products' },
                             ],
                         },
                     ],
@@ -111,11 +104,10 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
                     size: 6,
                     links: [
                         {
-                            title: 'Rear Wipers',
-                            url: '/catalog/products',
+                            title: 'GROUP_REAR_WIPERS', url: '/catalog/products',
                             links: [
-                                { title: 'Rear Wiper Blades', url: '/catalog/products' },
-                                { title: 'Rear Wiper Arms', url: '/catalog/products' },
+                                { title: 'LINK_REAR_WIPER_BLADES', url: '/catalog/products' },
+                                { title: 'LINK_REAR_WIPER_ARMS', url: '/catalog/products' },
                             ],
                         },
                     ],
@@ -124,7 +116,7 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
         },
     },
     {
-        title: 'Oils and Car Care',
+        title: 'MENU_OILS_CAR_CARE',
         url: '/catalog/products?category=oils-care',
         submenu: {
             type: 'megamenu',
@@ -134,12 +126,11 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
                     size: 6,
                     links: [
                         {
-                            title: 'Engine Oils',
-                            url: '/catalog/products',
+                            title: 'GROUP_ENGINE_OILS', url: '/catalog/products',
                             links: [
-                                { title: 'Synthetic Oil', url: '/catalog/products' },
-                                { title: 'Semi-Synthetic Oil', url: '/catalog/products' },
-                                { title: 'Mineral Oil', url: '/catalog/products' },
+                                { title: 'LINK_SYNTHETIC_OIL', url: '/catalog/products' },
+                                { title: 'LINK_SEMI_SYNTHETIC_OIL', url: '/catalog/products' },
+                                { title: 'LINK_MINERAL_OIL', url: '/catalog/products' },
                             ],
                         },
                     ],
@@ -148,12 +139,11 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
                     size: 6,
                     links: [
                         {
-                            title: 'Car Care',
-                            url: '/catalog/products',
+                            title: 'GROUP_CAR_CARE', url: '/catalog/products',
                             links: [
-                                { title: 'Car Wash', url: '/catalog/products' },
-                                { title: 'Wax & Polish', url: '/catalog/products' },
-                                { title: 'Interior Cleaners', url: '/catalog/products' },
+                                { title: 'LINK_CAR_WASH', url: '/catalog/products' },
+                                { title: 'LINK_WAX_POLISH', url: '/catalog/products' },
+                                { title: 'LINK_INTERIOR_CLEANERS', url: '/catalog/products' },
                             ],
                         },
                     ],
@@ -162,7 +152,7 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
         },
     },
     {
-        title: 'Car Accessories',
+        title: 'MENU_CAR_ACCESSORIES',
         url: '/catalog/products?category=accessories',
         submenu: {
             type: 'megamenu',
@@ -172,12 +162,11 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
                     size: 6,
                     links: [
                         {
-                            title: 'Interior',
-                            url: '/catalog/products',
+                            title: 'GROUP_INTERIOR', url: '/catalog/products',
                             links: [
-                                { title: 'Floor Mats', url: '/catalog/products' },
-                                { title: 'Seat Covers', url: '/catalog/products' },
-                                { title: 'Steering Wheel Covers', url: '/catalog/products' },
+                                { title: 'LINK_FLOOR_MATS', url: '/catalog/products' },
+                                { title: 'LINK_SEAT_COVERS', url: '/catalog/products' },
+                                { title: 'LINK_STEERING_WHEEL_COVERS', url: '/catalog/products' },
                             ],
                         },
                     ],
@@ -186,12 +175,11 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
                     size: 6,
                     links: [
                         {
-                            title: 'Exterior',
-                            url: '/catalog/products',
+                            title: 'GROUP_EXTERIOR', url: '/catalog/products',
                             links: [
-                                { title: 'Car Covers', url: '/catalog/products' },
-                                { title: 'Mud Flaps', url: '/catalog/products' },
-                                { title: 'Roof Racks', url: '/catalog/products' },
+                                { title: 'LINK_CAR_COVERS', url: '/catalog/products' },
+                                { title: 'LINK_MUD_FLAPS', url: '/catalog/products' },
+                                { title: 'LINK_ROOF_RACKS', url: '/catalog/products' },
                             ],
                         },
                     ],
@@ -200,7 +188,7 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
         },
     },
     {
-        title: 'Tool',
+        title: 'MENU_TOOLS',
         url: '/catalog/products?category=tools',
         submenu: {
             type: 'megamenu',
@@ -210,27 +198,18 @@ const dataHeaderCategoryMenu: IMainMenuLink[] = [
                     size: 12,
                     links: [
                         {
-                            title: 'Hand Tools',
-                            url: '/catalog/products',
+                            title: 'GROUP_HAND_TOOLS', url: '/catalog/products',
                             links: [
-                                { title: 'Wrenches', url: '/catalog/products' },
-                                { title: 'Screwdrivers', url: '/catalog/products' },
-                                { title: 'Pliers', url: '/catalog/products' },
-                                { title: 'Sockets', url: '/catalog/products' },
+                                { title: 'LINK_WRENCHES', url: '/catalog/products' },
+                                { title: 'LINK_SCREWDRIVERS', url: '/catalog/products' },
+                                { title: 'LINK_PLIERS', url: '/catalog/products' },
+                                { title: 'LINK_SOCKETS', url: '/catalog/products' },
                             ],
                         },
                     ],
                 },
             ],
         },
-    },
-    {
-        title: 'Bicycle Parts',
-        url: '/catalog/products?category=bicycle',
-    },
-    {
-        title: 'Boat Accessories',
-        url: '/catalog/products?category=boat',
     },
 ];
 
