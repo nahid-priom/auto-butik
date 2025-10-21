@@ -303,14 +303,17 @@ export default function CarIndicator() {
     const latestVehicleName = getLatestVehicleName();
     const carIndicatorValue = latestVehicleName || <FormattedMessage id="TEXT_NO_VEHICLES" defaultMessage="No vehicles" />;
 
+    const garageIcon = <img src="/images/vehicle-garage.svg" alt="Garage" />;
+
     return (
         <Indicator
-            icon={<img src="/images/vehicle-garage.svg" alt="Garage" style={{ width: '28px', height: '28px' }} />}
+            icon={garageIcon}
             label={carIndicatorLabel}
             value={carIndicatorValue}
             counter={vehicles.length}
             trigger="click"
             controllerRef={carIndicatorCtrl}
+            badge={vehicles.length === 0 ? <span className="garage-icon__warn">!</span> : undefined}
         >
             <CarDropdown onCloseMenu={() => carIndicatorCtrl.current?.close()} />
         </Indicator>

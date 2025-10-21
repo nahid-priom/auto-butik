@@ -25,6 +25,7 @@ interface Props extends PropsWithChildren<{}> {
     counter?: number;
     trigger?: Trigger;
     controllerRef?: React.MutableRefObject<IIndicatorController | null>;
+    badge?: React.ReactNode; // optional top-right badge (e.g., warning)
 }
 
 function Indicator(props: Props) {
@@ -37,6 +38,7 @@ function Indicator(props: Props) {
         trigger = 'none',
         children,
         controllerRef,
+        badge,
     } = props;
     const hasLabel = label !== undefined && label !== null;
     const hasValue = value !== undefined && value !== null;
@@ -71,8 +73,10 @@ function Indicator(props: Props) {
         <React.Fragment>
             <span className="indicator__icon">
                 {icon}
-                {showCounter && counter > 0 && <span className="indicator__counter">{counter}</span>}
             </span>
+
+            {showCounter && counter > 0 && <span className="indicator__counter">{counter}</span>}
+            {badge}
 
             {hasLabel && <span className="indicator__title">{label}</span>}
             {hasValue && <span className="indicator__value">{value}</span>}

@@ -3,6 +3,13 @@
 @import '../mixins/breakpoints';
 @import '../mixins/direction';
 
+// Header rendering smoothing
+.header {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
 // Contact Us Button Styling
 .header__navbar-contact {
     display: flex;
@@ -15,93 +22,44 @@
         font-size: 14px;
         padding: 8px 20px;
         border: 2px solid #dc3545;
-        border-radius: 6px;
-        transition: all 0.3s ease;
+        border-radius: 999px; // pill
+        transition: all 0.25s ease;
         text-decoration: none !important;
+        background: transparent;
+        box-shadow: 0 2px 10px rgba(220, 53, 69, 0.08);
         
         &:hover {
             background: #dc3545;
             color: #ffffff !important;
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.25);
+            transform: translateY(-1px);
         }
     }
 }
 
-// Larger Icons & Top-Right Counter Badges
+// Indicators: ensure image-based icons scale elegantly (car/garage icon)
 .header__indicators {
-    .indicator {
-        position: relative;
-    }
-    
-    .indicator__button {
-        padding: 8px 16px;
-        height: 64px;
-        min-width: 64px;
-        position: relative;
-        overflow: visible;
-    }
-    
     .indicator__icon {
-        width: 44px;
-        height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        
-        svg {
-            width: 40px !important;
-            height: 40px !important;
-            display: block !important;
-            
-            // Outline icons
-            &[stroke] {
-                stroke: currentColor;
-                fill: none;
-                stroke-width: 1.8;
-            }
-            
-            // Solid icons (like RectangleGroupIcon for garage)
-            &[fill]:not([fill="none"]) {
-                fill: currentColor;
-                stroke: none;
-            }
-        }
+        img { width: 28px; height: 28px; display: block; }
     }
-    
-    .indicator__title {
+
+    // Car icon attention badge when no vehicle chosen (top-right of button)
+    .garage-icon__warn {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #f59e0b; // amber
+        color: #fff;
         font-size: 11px;
-    }
-    
-    .indicator__value {
-        font-size: 14px;
-    }
-    
-    .indicator__counter {
-        position: absolute !important;
-        top: 0 !important;
-        right: 0 !important;
-        font-size: 11px !important;
-        min-width: 22px !important;
-        height: 22px !important;
-        line-height: 22px !important;
-        padding: 0 6px !important;
-        border-radius: 11px !important;
-        font-weight: 700 !important;
-        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.5) !important;
-        z-index: 10 !important;
-        transform: translate(35%, -35%) !important;
-        
-        // Hide when count is 0
-        &:empty {
-            display: none !important;
-        }
-    }
-    
-    // Hide counter badge when it contains "0"
-    .indicator__counter:not(:empty) {
-        &[data-count="0"] {
-            display: none !important;
-        }
+        line-height: 16px;
+        text-align: center;
+        font-weight: 700;
+        z-index: 3;
+        box-shadow: 0 2px 6px rgba(245, 158, 11, .35);
+        pointer-events: none;
     }
 }
 
