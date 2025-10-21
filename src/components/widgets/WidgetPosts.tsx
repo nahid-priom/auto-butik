@@ -1,5 +1,7 @@
 // react
 import React from 'react';
+// third-party
+import { FormattedMessage } from 'react-intl';
 // application
 import AppImage from '~/components/shared/AppImage';
 import AppLink from '~/components/shared/AppLink';
@@ -32,7 +34,14 @@ function WidgetPosts(props: Props) {
                         <div className="widget-posts__info">
                             <div className="widget-posts__name">
                                 <AppLink href={url.post(post)}>
-                                    {post.title}
+                                    {post.titleKey ? (
+                                        <FormattedMessage 
+                                            id={post.titleKey} 
+                                            defaultMessage={post.title}
+                                        />
+                                    ) : (
+                                        post.title
+                                    )}
                                 </AppLink>
                             </div>
                             <div className="widget-posts__date">{post.date}</div>

@@ -2,12 +2,14 @@
 import React from 'react';
 // third-party
 import classNames from 'classnames';
+import { FormattedMessage } from 'react-intl';
 // application
 import AppLink from '~/components/shared/AppLink';
 import Collapse, { ICollapseRenderFnData } from '~/components/shared/Collapse';
 import url from '~/services/url';
 import { ArrowDown9x6Svg } from '~/svg';
 import { ICategory } from '~/interfaces/category';
+import { getCategoryTranslationKey } from '~/services/category-translation';
 
 type RenderFnData = ICollapseRenderFnData<HTMLLIElement, HTMLUListElement>;
 type RenderFn = (data: RenderFnData, category: ICategory) => React.ReactNode;
@@ -33,7 +35,10 @@ function WidgetCategoriesList(props: Props) {
                     href={url.category(category)}
                     className="widget-categories-list__root-link"
                 >
-                    {category.name}
+                    <FormattedMessage 
+                        id={getCategoryTranslationKey(category.slug)} 
+                        defaultMessage={category.name}
+                    />
                 </AppLink>
 
                 {subs.length > 0 && (
@@ -44,7 +49,10 @@ function WidgetCategoriesList(props: Props) {
                                     href={url.category(sub)}
                                     className="widget-categories-list__child-link"
                                 >
-                                    {sub.name}
+                                    <FormattedMessage 
+                                        id={getCategoryTranslationKey(sub.slug)} 
+                                        defaultMessage={sub.name}
+                                    />
                                 </AppLink>
                             </li>
                         ))}
@@ -63,7 +71,10 @@ function WidgetCategoriesList(props: Props) {
                                         href={url.category(sub)}
                                         className="widget-categories-list__child-link"
                                     >
-                                        {sub.name}
+                                        <FormattedMessage 
+                                            id={getCategoryTranslationKey(sub.slug)} 
+                                            defaultMessage={sub.name}
+                                        />
                                     </AppLink>
                                 </li>
                             ))}

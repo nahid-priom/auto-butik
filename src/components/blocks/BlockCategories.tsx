@@ -8,6 +8,7 @@ import AppLink from '~/components/shared/AppLink';
 import Decor from '~/components/shared/Decor';
 import url from '~/services/url';
 import { ICategory } from '~/interfaces/category';
+import { getCategoryTranslationKey } from '~/services/category-translation';
 
 interface Props {
     blockTitle?: React.ReactNode;
@@ -37,14 +38,20 @@ function BlockCategories(props: Props) {
                         <div className="category-card__info">
                             <div className="category-card__name">
                                 <AppLink href={url.category(category)}>
-                                    {category.name}
+                                    <FormattedMessage 
+                                        id={getCategoryTranslationKey(category.slug)} 
+                                        defaultMessage={category.name}
+                                    />
                                 </AppLink>
                             </div>
                             <ul className="category-card__children">
                                 {children.map((child) => (
                                     <li key={child.id}>
                                         <AppLink href={url.category(child)}>
-                                            {child.name}
+                                            <FormattedMessage 
+                                                id={getCategoryTranslationKey(child.slug)} 
+                                                defaultMessage={child.name}
+                                            />
                                         </AppLink>
                                     </li>
                                 ))}

@@ -2,6 +2,7 @@
 import React from 'react';
 // third-party
 import classNames from 'classnames';
+import { FormattedMessage } from 'react-intl';
 // application
 import AppImage from '~/components/shared/AppImage';
 import AppLink from '~/components/shared/AppLink';
@@ -189,7 +190,14 @@ function Post(props: Props) {
                                 </div>
                             </div>
                             <div className="post-navigation__item-title">
-                                {dataBlogPosts[1].title}
+                                {dataBlogPosts[1].titleKey ? (
+                                    <FormattedMessage 
+                                        id={dataBlogPosts[1].titleKey} 
+                                        defaultMessage={dataBlogPosts[1].title}
+                                    />
+                                ) : (
+                                    dataBlogPosts[1].title
+                                )}
                             </div>
                         </div>
                     </AppLink>
@@ -205,7 +213,14 @@ function Post(props: Props) {
                                 </div>
                             </div>
                             <div className="post-navigation__item-title">
-                                {dataBlogPosts[2].title}
+                                {dataBlogPosts[2].titleKey ? (
+                                    <FormattedMessage 
+                                        id={dataBlogPosts[2].titleKey} 
+                                        defaultMessage={dataBlogPosts[2].title}
+                                    />
+                                ) : (
+                                    dataBlogPosts[2].title
+                                )}
                             </div>
                         </div>
                         <div className="post-navigation__item-image">

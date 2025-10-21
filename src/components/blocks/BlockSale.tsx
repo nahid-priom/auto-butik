@@ -59,9 +59,9 @@ function BlockSale(props: Props) {
                     <div className="block-sale__title">
                         <FormattedMessage id="HEADER_DEAL_ZONE_TITLE" />
                     </div>
-                    <div className="block-sale__subtitle">
+                    {/* <div className="block-sale__subtitle">
                         <FormattedMessage id="HEADER_DEAL_ZONE_SUBTITLE" />
-                    </div>
+                    </div> */}
                     <div className="block-sale__timer">
                         <Timer time={3 * 24 * 60 * 60} />
                     </div>
