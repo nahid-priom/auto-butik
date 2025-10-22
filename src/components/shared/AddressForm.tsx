@@ -7,7 +7,7 @@ import React, {
 // third-party
 import classNames from 'classnames';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, FieldError } from 'react-hook-form';
 // application
 import { countriesApi } from '~/api';
 import { ICountry } from '~/interfaces/country';
@@ -34,6 +34,8 @@ interface Props {
     idPrefix?: string;
 }
 
+type AddressFormErrors = Partial<Record<keyof IAddressForm, FieldError>>;
+
 export function getAddressFormDefaultValue(initialData: IAddressForm | null = null): IAddressForm {
     return {
         firstName: '',
@@ -56,7 +58,9 @@ function AddressForm(props: Props) {
     const intl = useIntl();
     const formMethods = useFormContext();
     const { errors: errorsProps } = formMethods.formState;
-    const errors = namespace ? errorsProps[namespace] : errorsProps;
+    const errors: AddressFormErrors = namespace
+        ? ((errorsProps as Record<string, AddressFormErrors | undefined>)[namespace] || {})
+        : (errorsProps as AddressFormErrors);
     const fieldId = idPrefix ? `${idPrefix}-` : '';
     const ns = useMemo(() => (namespace ? `${namespace}.` : ''), [namespace]);
     const [countries, setCountries] = useState<ICountry[] | null>(null);

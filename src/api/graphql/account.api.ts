@@ -1,7 +1,7 @@
 import { ApolloClient, InMemoryCache, createHttpLink, gql, ApolloError } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { IUser, IAuthResponse } from '~/interfaces/user';
-import { IAddress } from '~/interfaces/user';
+import { IAddress } from '~/interfaces/address';
 import { IOrder } from '~/interfaces/order';
 import { IListOptions, IOrdersList } from '~/interfaces/list';
 import { IEditAddressData } from '~/api/base';
@@ -165,6 +165,25 @@ export const UPDATE_CUSTOMER_MUTATION = gql`
       lastName
       emailAddress
       phoneNumber
+    }
+  }
+`;
+
+export const UPDATE_CUSTOMER_PASSWORD_MUTATION = gql`
+  mutation UpdateCustomerPassword($currentPassword: String!, $newPassword: String!) {
+    updateCustomerPassword(currentPassword: $currentPassword, newPassword: $newPassword) {
+      __typename
+      ... on Success {
+        success
+      }
+      ... on InvalidCredentialsError {
+        errorCode
+        message
+      }
+      ... on PasswordValidationError {
+        errorCode
+        message
+      }
     }
   }
 `;
@@ -356,7 +375,7 @@ export const customerApi = {
     const [firstName = '', ...rest] = (address.fullName || '').trim().split(' ');
     const lastName = rest.join(' ');
     return {
-      id: Number(address.id),
+      id: Number(address.id) || 0,
       firstName,
       lastName,
       company: address.company || '',
@@ -668,6 +687,46 @@ export const customerApi = {
       };
     } catch (error) {
       throw new Error('Profile update failed');
+    }
+  },
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    try {
+      const { data } = await graphqlClient.mutate<{
+        updateCustomerPassword:
+          | { __typename: 'Success'; success: boolean }
+          | { __typename: 'InvalidCredentialsError'; errorCode: string; message?: string }
+          | { __typename: 'PasswordValidationError'; errorCode: string; message?: string }
+          | null;
+      }>({
+        mutation: UPDATE_CUSTOMER_PASSWORD_MUTATION,
+        variables: { currentPassword, newPassword },
+      });
+
+      const result = data?.updateCustomerPassword;
+
+      if (!result) {
+        throw new Error('PASSWORD_CHANGE_FAILED');
+      }
+
+      if (result.__typename === 'Success' && result.success) {
+        return;
+      }
+
+      if (result.__typename === 'InvalidCredentialsError') {
+        throw new Error(result.errorCode || 'INVALID_CREDENTIALS');
+      }
+
+      if (result.__typename === 'PasswordValidationError') {
+        throw new Error(result.errorCode || 'PASSWORD_VALIDATION_ERROR');
+      }
+
+      throw new Error('PASSWORD_CHANGE_FAILED');
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('PASSWORD_CHANGE_FAILED');
     }
   },
 

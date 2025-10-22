@@ -76,7 +76,13 @@ function Page() {
 
         if (data.createAccount) {
             try {
-                await userSignUp(data.account.email, data.account.password);
+                await userSignUp(
+                    data.account.email,
+                    data.account.password,
+                    data.account.firstName,
+                    data.account.lastName,
+                    data.account.phone,
+                );
             } catch (error) {
                 if (error instanceof Error) {
                     alert(intl.formatMessage({ id: `ERROR_API_${error.message}` }));

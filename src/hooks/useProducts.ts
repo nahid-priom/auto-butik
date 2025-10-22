@@ -16,7 +16,7 @@ export interface IProductsList {
   filters: any[];
   navigation: {
     type: 'page';
-    current: number;
+    page: number;
     from: number;
     to: number;
     total: number;
@@ -220,7 +220,7 @@ export const useProducts = (options: UseProductsOptions = {}) => {
           filters: [], // TODO: Add filters support
           navigation: {
             type: 'page',
-            current: page,
+            page,
             from,
             to,
             total: result.totalItems,

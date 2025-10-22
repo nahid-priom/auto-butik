@@ -1,7 +1,9 @@
 // react
 import React, { useState } from 'react';
 // application
-import PageHeader from '~/components/shared/PageHeader';
+import BlockHeader from '~/components/blocks/BlockHeader';
+import BlockSpace from '~/components/blocks/BlockSpace';
+import PageTitle from '~/components/shared/PageTitle';
 import CarLookupForm from '~/components/shared/CarLookupForm';
 import WidgetCarSearchHistory from '~/components/widgets/WidgetCarSearchHistory';
 import { ICarData, IWheelData } from '~/interfaces/car';
@@ -48,7 +50,12 @@ function Page() {
 
     return (
         <React.Fragment>
-            <PageHeader breadcrumb={breadcrumb} header="Car Search History Demo" />
+            <PageTitle>Car Search History Demo</PageTitle>
+            <BlockHeader
+                pageTitle="Car Search History Demo"
+                breadcrumb={breadcrumb}
+            />
+            <BlockSpace layout="after-header" />
 
             <div className="container">
                 <div className="row">
@@ -158,4 +165,3 @@ function Page() {
 }
 
 export default Page;
-

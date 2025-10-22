@@ -83,10 +83,10 @@ export const getProductStructuredData = (product: IProduct) => {
                 name: theme.name,
             },
         },
-        aggregateRating: product.reviews > 0 ? {
+        aggregateRating: (product.reviews || 0) > 0 ? {
             '@type': 'AggregateRating',
             ratingValue: product.rating,
-            reviewCount: product.reviews,
+            reviewCount: product.reviews || 0,
         } : undefined,
     };
 };
@@ -203,4 +203,3 @@ export const getContactPageStructuredData = () => ({
         },
     },
 });
-

@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { Controller, FormProvider } from 'react-hook-form';
 import { FormattedMessage, useIntl } from 'react-intl';
 // application
-import AppLink from '~/components/shared/AppLink';
+import AppLink, { IAppLinkHref, resolveAppLinkHref } from '~/components/shared/AppLink';
 import AsyncAction from '~/components/shared/AsyncAction';
 import BlockHeader from '~/components/blocks/BlockHeader';
 import BlockProductsCarousel from '~/components/blocks/BlockProductsCarousel';
@@ -91,6 +91,8 @@ function ShopPageProduct(props: Props) {
         })),
         { title: product.name, url: url.product(product) },
     ];
+
+    const resolveBreadcrumbUrl = (href: IAppLinkHref): string => resolveAppLinkHref(href);
 
     const featuredAttributes = product.attributes.filter((x) => x.featured);
 
@@ -316,7 +318,10 @@ function ShopPageProduct(props: Props) {
     // Prepare structured data
     const productStructuredData = getProductStructuredData(product);
     const breadcrumbStructuredData = getBreadcrumbStructuredData(
-        breadcrumb.map(item => ({ name: item.title, url: item.url }))
+        breadcrumb.map((item) => ({
+            name: item.title,
+            url: resolveBreadcrumbUrl(item.url),
+        }))
     );
 
     const combinedStructuredData = {

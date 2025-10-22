@@ -39,10 +39,12 @@ export function useSetOption(
     option: keyof IListOptions,
     filterValueFn?: (data: any) => any,
 ) {
-    const callback = useCallback(filterValueFn || ((x) => x), []);
+    const callback = useCallback((value: unknown) => (
+        filterValueFn ? filterValueFn(value) : value
+    ), [filterValueFn]);
     const shopSetOptionValue = useShopSetOptionValueThunk();
 
-    return useCallback((data) => {
+    return useCallback((data: unknown) => {
         shopSetOptionValue(option, callback(data)).then();
     }, [shopSetOptionValue, option, callback]);
 }

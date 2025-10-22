@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 // application
-import AppLink from '~/components/shared/AppLink';
+import AppLink, { resolveAppLinkHref } from '~/components/shared/AppLink';
 import BlockSpace from '~/components/blocks/BlockSpace';
 import Checkbox from '~/components/shared/Checkbox';
 import PageTitle from '~/components/shared/PageTitle';
@@ -28,7 +28,7 @@ function Page() {
     const signUpForm = useSignUpForm({
         onSuccess: () => {
             toast.success(intl.formatMessage({ id: 'TEXT_TOAST_REGISTRATION_SUCCESS' }), { theme: 'colored' });
-            router.push(url.accountDashboard());
+            router.push(resolveAppLinkHref(url.accountDashboard()));
         },
     });
 
@@ -37,7 +37,7 @@ function Page() {
         const checkAuth = () => {
             const token = localStorage.getItem('customerToken');
             if (token && user && user.id !== 'loading') {
-                router.push(url.accountDashboard());
+                router.push(resolveAppLinkHref(url.accountDashboard()));
             }
             setIsCheckingAuth(false);
         };

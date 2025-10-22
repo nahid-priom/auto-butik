@@ -7,9 +7,7 @@ import {
     useState,
 } from 'react';
 // third-party
-import { FieldPath } from 'react-hook-form/dist/types/utils';
-import { UseFormRegister } from 'react-hook-form/dist/types/form';
-import { UseFormReturn } from 'react-hook-form/dist/types';
+import { FieldPath, UseFormRegister, UseFormReturn } from 'react-hook-form';
 // application
 import { IListOptions, INavigableList } from '~/interfaces/list';
 import { INavigationEvent } from '~/components/shared/Navigation';
@@ -99,7 +97,7 @@ export function useProductTabs<T extends IProductTab>(
     const products = useDeferredData(() => (
         currentTab ? productsSource(currentTab) : Promise.resolve([])
     ), [], initialData, [currentTab]);
-    const handleTabChange = useCallback((tab) => {
+    const handleTabChange = useCallback((tab: IWithCurrent<T>) => {
         setCurrentTabId(tab.id);
     }, [setCurrentTabId]);
 

@@ -48,6 +48,15 @@ export function normalizeLinkHref(data: IAppLinkHref): INormalizedLinkProps {
     };
 }
 
+export function resolveAppLinkHref(data: IAppLinkHref): string {
+    if (typeof data === 'string') {
+        return data;
+    }
+
+    const normalized = normalizeLinkHref(data);
+    return formatUrl(normalized.as);
+}
+
 type AnchorProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'>;
 
 interface Props extends PropsWithChildren<AnchorProps> {

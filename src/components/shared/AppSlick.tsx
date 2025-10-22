@@ -11,7 +11,9 @@ import Slick, { Settings } from 'react-slick';
 // application
 import { useDirection } from '~/services/i18n/hooks';
 
-export type ISlickProps = Settings;
+export type ISlickProps = Settings & { children?: React.ReactNode };
+
+const SlickComponent = Slick as unknown as React.ComponentClass<ISlickProps>;
 
 interface Props extends ISlickProps {
     children: React.ReactNode;
@@ -265,7 +267,7 @@ function AppSlickInner(props: Props) {
         }
     }, [direction]);
 
-    const beforeChangeWrapper: ISlickProps['beforeChange'] = useCallback((oldIndex, newIndex) => {
+    const beforeChangeWrapper: ISlickProps['beforeChange'] = useCallback((oldIndex: number, newIndex: number) => {
         if (beforeChange) {
             beforeChange(oldIndex, newIndex);
         }
@@ -308,7 +310,7 @@ function AppSlickInner(props: Props) {
             className={classes}
             onMouseDown={onMousedown}
         >
-            <Slick
+            <SlickComponent
                 {...otherProps}
                 rtl={direction === 'rtl'}
                 beforeChange={beforeChangeWrapper}
@@ -316,7 +318,7 @@ function AppSlickInner(props: Props) {
                 ref={setSlickRef}
             >
                 {reversedChildren}
-            </Slick>
+            </SlickComponent>
         </div>
     );
 }

@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 // third-party
 import classNames from 'classnames';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, FieldError } from 'react-hook-form';
 // application
 import { useDetachableForm } from '~/services/hooks';
 import { validateEmail } from '~/services/validators';
@@ -23,6 +23,8 @@ interface Props {
     idPrefix?: string;
 }
 
+type RegisterFormErrors = Partial<Record<keyof IRegisterForm, FieldError>>;
+
 export function getRegisterFormDefaultValue(initialData: IRegisterForm | null = null): IRegisterForm {
     return {
         firstName: '',
@@ -40,7 +42,9 @@ function RegisterForm(props: Props) {
     const formMethods = useFormContext();
     const { errors: errorsProps } = formMethods.formState;
     const { getValues } = formMethods;
-    const errors = namespace ? errorsProps[namespace] : errorsProps;
+    const errors: RegisterFormErrors = namespace
+        ? ((errorsProps as Record<string, RegisterFormErrors | undefined>)[namespace] || {})
+        : (errorsProps as RegisterFormErrors);
     const intl = useIntl();
     const fieldId = idPrefix ? `${idPrefix}-` : '';
     const ns = useMemo(() => (namespace ? `${namespace}.` : ''), [namespace]);

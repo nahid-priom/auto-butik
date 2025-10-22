@@ -108,7 +108,9 @@ function App(props: Props) {
     }, []);
 
     const page = useMemo(() => {
-        const PageLayout = Component.Layout || React.Fragment;
+        const PageLayout: React.ComponentType<{ children?: React.ReactNode }> = Component.Layout
+            ? Component.Layout
+            : ({ children }) => <>{children}</>;
 
         return (
             <PageLayout>

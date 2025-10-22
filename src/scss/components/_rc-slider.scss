@@ -1,0 +1,74 @@
+/*
+// rc-slider overrides
+*/
+@import '../variables';
+
+$local-track-height: 6px;
+$local-handle-size: 16px;
+$local-height: max($local-track-height, $local-handle-size);
+$local-handle-inner-size: 6px;
+
+.rc-slider {
+    height: $local-height;
+    padding: 0;
+}
+
+.rc-slider-rail {
+    height: $local-track-height;
+    margin-top: -($local-track-height / 2);
+    border-radius: $local-track-height / 2;
+    background-color: $nouislider-border-color;
+}
+
+.rc-slider-track {
+    height: $local-track-height;
+    border-radius: $local-track-height / 2;
+    background-color: $nouislider-connect-color;
+}
+
+.rc-slider-handle {
+    width: $local-handle-size;
+    height: $local-handle-size;
+    margin-top: -($local-handle-size / 2);
+    margin-left: -($local-handle-size / 2);
+    border: none;
+    border-radius: $local-handle-size / 2;
+    background-color: $nouislider-border-color;
+    box-shadow: 0 0 0 0 rgba($nouislider-border-color, 0);
+    transition: box-shadow .2s ease;
+
+    &:after {
+        display: block;
+        content: '';
+        position: absolute;
+        top: ($local-handle-size - $local-handle-inner-size) / 2;
+        left: ($local-handle-size - $local-handle-inner-size) / 2;
+        width: $local-handle-inner-size;
+        height: $local-handle-inner-size;
+        border-radius: $local-handle-inner-size / 2;
+        background-color: $nouislider-handle-color;
+        transition: transform .2s ease;
+    }
+
+    &:focus,
+    &:active,
+    &:hover {
+        box-shadow: 0 0 0 3px rgba($nouislider-border-color, .3);
+        outline: none;
+    }
+
+    &:focus,
+    &:active {
+        &:after {
+            transform: scale(0);
+        }
+    }
+}
+
+.rc-slider-handle-dragging {
+    box-shadow: 0 0 0 3px rgba($nouislider-border-color, .3);
+}
+
+.rc-slider-step {
+    display: none;
+}

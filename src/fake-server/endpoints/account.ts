@@ -6,11 +6,13 @@ import { IUser } from '~/interfaces/user';
 export function accountSignIn(email: string, password: string): Promise<IUser> {
     if (email === 'info@autobutik.com' && password === '123456') {
         const user: IUser = {
+            id: '1',
             email: 'info@autobutik.com',
             phone: '+46 8 123 456 78',
             firstName: 'Test',
             lastName: 'User',
             avatar: '//www.gravatar.com/avatar/bde30b7dd579b3c9773f80132523b4c3?d=mp&s=88',
+            identifier: 'info@autobutik.com',
         };
 
         return delayResponse(Promise.resolve(user));
@@ -33,11 +35,13 @@ export function accountSignUp(email: string, password: string): Promise<IUser> {
     }
 
     const user: IUser = {
+        id: '2',
         email,
         phone: '+46 8 123 456 78',
         firstName: 'New',
         lastName: 'User',
         avatar: '//www.gravatar.com/avatar/bde30b7dd579b3c9773f80132523b4c3?d=mp&s=88',
+        identifier: email,
     };
 
     return delayResponse(Promise.resolve(user));
@@ -49,11 +53,13 @@ export function accountSignOut(): Promise<void> {
 
 export function accountEditProfile(data: IEditProfileData): Promise<IUser> {
     const user: IUser = {
+        id: '1',
         email: data.email,
         phone: data.phone,
         firstName: data.firstName,
         lastName: data.lastName,
         avatar: '//www.gravatar.com/avatar/bde30b7dd579b3c9773f80132523b4c3?d=mp&s=88',
+        identifier: data.email,
     };
 
     return delayResponse(Promise.resolve(user));

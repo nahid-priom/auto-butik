@@ -6,7 +6,7 @@ import React, {
     useState,
 } from 'react';
 // third-party
-import InputRange from 'react-input-range';
+import Slider from 'rc-slider';
 // application
 import CurrencyFormat from '~/components/shared/CurrencyFormat';
 import { IRangeFilter, IRangeFilterValue } from '~/interfaces/filter';
@@ -29,64 +29,64 @@ interface Props {
 function FilterRange(props: Props) {
     const { options, value, onChangeValue } = props;
     const [propsFrom, propsTo] = value || [];
-    const [timer, setTimer] = useState<number>();
-    const [state, setState] = useState([propsFrom, propsTo]);
+    const { min, max } = options;
+    const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | undefined>(undefined);
+    const [state, setState] = useState<IRangeFilterValue>([
+        propsFrom ?? min,
+        propsTo ?? max,
+    ]);
     const [stateFrom, stateTo] = state;
     const direction = useDirection();
 
-    let { min, max } = options;
-    let from = Math.max(getFirstValidValue(stateFrom, propsFrom, min)!, min);
-    let to = Math.min(getFirstValidValue(stateTo, propsTo, max)!, max);
-    let fromLabel = from;
-    let toLabel = to;
-
-    // since react-input-range does not support RTL direction,
-    // we just need to invert and swipe values
-    if (direction === 'rtl') {
-        [from, to] = [to * -1, from * -1];
-        [min, max] = [max * -1, min * -1];
-        [fromLabel, toLabel] = [from * -1, to * -1];
-    }
+    const from = Math.max(getFirstValidValue(stateFrom, propsFrom, min)!, min);
+    const to = Math.min(getFirstValidValue(stateTo, propsTo, max)!, max);
+    const fromLabel = from;
+    const toLabel = to;
 
     // Update state from props.
     useEffect(() => {
-        setState([propsFrom, propsTo]);
-    }, [propsFrom, propsTo]);
+        setState([propsFrom ?? min, propsTo ?? max]);
+    }, [propsFrom, propsTo, min, max]);
 
     // Clear previous timer.
     useEffect(() => () => {
-        clearTimeout(timer);
+        if (timer) {
+            clearTimeout(timer);
+        }
     }, [timer]);
 
-    const handleChange = useCallback((newValue) => {
-        let { min: newFrom, max: newTo } = newValue;
+    const handleChange = useCallback((newValue: number | number[]) => {
+        const [rawFrom, rawTo] = Array.isArray(newValue) ? newValue : [newValue, newValue];
+        const clampedFrom = Math.max(rawFrom, min);
+        const clampedTo = Math.min(rawTo, max);
 
-        // This is needed to fix a bug in react-input-range.
-        [newFrom, newTo] = [Math.max(newFrom, min), Math.min(newTo, max)];
-
-        // since react-input-range does not support RTL direction,
-        // we just need to invert and swipe values
-        if (direction === 'rtl') {
-            [newFrom, newTo] = [newTo * -1, newFrom * -1];
-        }
-
-        setState([newFrom, newTo]);
+        setState([clampedFrom, clampedTo]);
 
         if (onChangeValue) {
-            setTimer(setTimeout(() => {
-                onChangeValue({ filter: options, value: [newFrom, newTo] });
-            }, 250) as unknown as number);
+            setTimer((prevTimer) => {
+                if (prevTimer) {
+                    clearTimeout(prevTimer);
+                }
+
+                return setTimeout(() => {
+                    onChangeValue({ filter: options, value: [clampedFrom, clampedTo] });
+                    setTimer(undefined);
+                }, 250);
+            });
         }
-    }, [min, max, options, onChangeValue, direction, setTimer, setState]);
+    }, [min, max, onChangeValue, options]);
 
     return useMemo(() => (
         <div className="filter-range">
             <div className="filter-range__slider" dir="ltr">
-                <InputRange
-                    minValue={min}
-                    maxValue={max}
-                    value={{ min: from, max: to }}
+                <Slider
+                    range
+                    min={min}
+                    max={max}
+                    value={[from, to]}
                     step={1}
+                    allowCross={false}
+                    reverse={direction === 'rtl'}
                     onChange={handleChange}
                 />
             </div>
@@ -98,7 +98,7 @@ function FilterRange(props: Props) {
                 </div>
             </div>
         </div>
-    ), [min, max, from, to, fromLabel, toLabel, handleChange]);
+    ), [min, max, from, to, fromLabel, toLabel, handleChange, direction]);
 }
 
 export default FilterRange;
