@@ -1,18 +1,19 @@
 /*
 // .block-header
 */
-@import '../variables';
-@import '../mixins/breakpoints';
-
+@import "../variables";
+@import "../mixins/breakpoints";
 
 $local-title-padding-y: 36px;
 $local-breadcrumb-height: 21px;
 $local-breadcrumb-padding-top: 16px;
 $local-breadcrumb-padding-bottom: 40px;
-$local-breadcrumb-padding-y: $local-breadcrumb-padding-top + $local-breadcrumb-padding-bottom;
+$local-breadcrumb-padding-y: $local-breadcrumb-padding-top +
+    $local-breadcrumb-padding-bottom;
 
-
-.block-header {}
+.block-header {
+    border-radius: 4px;
+}
 .block-header__body {
     display: flex;
     flex-direction: column;
@@ -28,7 +29,6 @@ $local-breadcrumb-padding-y: $local-breadcrumb-padding-top + $local-breadcrumb-p
     padding-top: $local-title-padding-y;
     padding-bottom: $local-title-padding-y + 4px;
 }
-
 
 @include media-breakpoint-up(xl) {
     .block-header__title {

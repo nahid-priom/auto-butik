@@ -1,17 +1,19 @@
-@import '../variables';
-@import '../mixins/status-badge';
-@import '../mixins/card';
-@import '../mixins/direction';
-@import '../mixins/breakpoints';
-@import '../mixins/loader';
-@import '../mixins/tag-badge';
-@import '../mixins/scheme';
-
+@import "../variables";
+@import "../mixins/status-badge";
+@import "../mixins/card";
+@import "../mixins/direction";
+@import "../mixins/breakpoints";
+@import "../mixins/loader";
+@import "../mixins/tag-badge";
+@import "../mixins/scheme";
 
 @mixin product-card-base() {
     display: block;
 
     @include card;
+
+    border-radius: 10px;
+    overflow: hidden;
 
     .product-card__action {
         position: relative;
@@ -19,9 +21,7 @@
         padding: 8px;
         margin: 0;
         border: none;
-        transition:
-            color .08s,
-            background .08s;
+        transition: color 0.08s, background 0.08s;
 
         @include define-button-scheme($btn-muted-scheme);
 
@@ -52,7 +52,11 @@
         }
 
         &:before {
-            @include loader(16px, 2px, map_get($btn-muted-scheme, loader-color));
+            @include loader(
+                16px,
+                2px,
+                map_get($btn-muted-scheme, loader-color)
+            );
         }
     }
     .product-card__image {
@@ -60,7 +64,7 @@
     }
     .product-card__rating {
         color: map_get($card-scheme, opposite-alt);
-        font-size: .8125rem;
+        font-size: 0.8125rem;
     }
     .product-card__features {
         color: map_get($card-scheme, opposite-alt);
@@ -82,13 +86,13 @@
             &:before {
                 display: block;
                 position: absolute;
-                content: '';
+                content: "";
                 width: 3px;
                 height: 3px;
                 border-radius: 1.5px;
                 background: currentColor;
                 top: 9px;
-                opacity: .7;
+                opacity: 0.7;
 
                 @include direction {
                     #{$inset-inline-start}: 3px;
@@ -111,7 +115,7 @@
     }
     .product-card__prices {
         font-weight: $font-weight-medium;
-        letter-spacing: -.04em;
+        letter-spacing: -0.04em;
         line-height: 1;
         color: $price-color;
     }
@@ -130,9 +134,7 @@
         border: none;
         border-radius: 2px;
         font-weight: $font-weight-medium;
-        transition:
-            background-color .15s,
-            color .15s;
+        transition: background-color 0.15s, color 0.15s;
 
         &:focus {
             outline: none;
@@ -152,7 +154,11 @@
             cursor: default;
 
             &:after {
-                @include loader(22px, 2px, map_get($btn-primary-scheme, normal-font-color));
+                @include loader(
+                    22px,
+                    2px,
+                    map_get($btn-primary-scheme, normal-font-color)
+                );
             }
         }
     }
@@ -164,9 +170,7 @@
         color: map_get($wishlist-button-scheme, normal-font-color);
         fill: map_get($wishlist-button-scheme, normal-icon-color);
         border-radius: 2px;
-        transition:
-            background .15s,
-            fill .15s;
+        transition: background 0.15s, fill 0.15s;
 
         &:focus {
             outline: none;
@@ -189,7 +193,11 @@
     .product-card__wishlist--loading,
     .product-card__compare--loading {
         &:after {
-            @include loader(16px, 2px, map_get($btn-muted-scheme, loader-color));
+            @include loader(
+                16px,
+                2px,
+                map_get($btn-muted-scheme, loader-color)
+            );
         }
     }
     .product-card__addtocart-icon {
@@ -200,7 +208,7 @@
         background: transparent;
         color: map_get($addtocart-button-scheme, default-font-color);
         z-index: 0;
-        transition: color .2s;
+        transition: color 0.2s;
 
         svg {
             display: block;
@@ -213,7 +221,7 @@
             top: -($local-expand / 2);
             left: -($local-expand / 2);
             display: block;
-            content: '';
+            content: "";
             position: absolute;
             width: calc(100% + #{$local-expand});
             height: calc(100% + #{$local-expand});
@@ -221,9 +229,7 @@
             z-index: -1;
             border-radius: 50%;
             transform: scale(0);
-            transition:
-                transform .2s,
-                background .2s;
+            transition: transform 0.2s, background 0.2s;
         }
         &:focus {
             outline: none;
@@ -242,15 +248,21 @@
                 color: map_get($addtocart-button-scheme, hover-font-color);
 
                 &:before {
-                    background: map_get($addtocart-button-scheme, hover-bg-color);
+                    background: map_get(
+                        $addtocart-button-scheme,
+                        hover-bg-color
+                    );
                 }
             }
             &:active {
                 color: map_get($addtocart-button-scheme, active-font-color);
 
                 &:before {
-                    transition-duration: .05s;
-                    background: map_get($addtocart-button-scheme, active-bg-color);
+                    transition-duration: 0.05s;
+                    background: map_get(
+                        $addtocart-button-scheme,
+                        active-bg-color
+                    );
                 }
             }
         }
@@ -260,7 +272,11 @@
         cursor: default;
 
         &:after {
-            @include loader(22px, 2px, map_get($addtocart-button-scheme, normal-font-color));
+            @include loader(
+                22px,
+                2px,
+                map_get($addtocart-button-scheme, normal-font-color)
+            );
         }
     }
     &,
@@ -274,13 +290,15 @@
 
                 &:before {
                     transform: scale(1);
-                    background: map_get($addtocart-button-scheme, normal-bg-color);
+                    background: map_get(
+                        $addtocart-button-scheme,
+                        normal-bg-color
+                    );
                 }
             }
         }
     }
 }
-
 
 @mixin product-card-grid-base() {
     .product-card__addtocart-full,
@@ -290,8 +308,8 @@
     }
 
     $local-padding: 16px;
-    $local-actions-transition-duration: .2s;
-    $local-actions-transition-delay: .05s;
+    $local-actions-transition-duration: 0.2s;
+    $local-actions-transition-delay: 0.05s;
 
     display: flex;
     flex-direction: column;
@@ -300,7 +318,7 @@
     &:after {
         display: block;
         position: static;
-        content: '';
+        content: "";
         order: 1;
         flex-grow: 1;
     }
@@ -401,16 +419,15 @@
     @media (hover: hover) {
         .product-card__action--wishlist,
         .product-card__action--compare {
-            transition:
-                transform $local-actions-transition-duration,
-                opacity $local-actions-transition-duration,
-                color .12s,
-                background .12s;
+            transition: transform $local-actions-transition-duration,
+                opacity $local-actions-transition-duration, color 0.12s,
+                background 0.12s;
             opacity: 0;
             will-change: transform;
 
             @include direction {
-                transform: translateX(#{100% * $transform-direction}) translateX(6px);
+                transform: translateX(#{100% * $transform-direction})
+                    translateX(6px);
             }
         }
 
@@ -424,7 +441,6 @@
         }
     }
 }
-
 
 @mixin product-card-horizontal-base() {
     .product-card__action--wishlist,
@@ -562,8 +578,6 @@
     }
 }
 
-
-
 @mixin product-card-list-base() {
     .product-card__addtocart-icon,
     .product-card__action--wishlist,
@@ -620,7 +634,6 @@
     }
 }
 
-
 @mixin product-card-list-desktop-base() {
     $local-image-width: 260px;
     $local-image-padding-x: 24px;
@@ -647,14 +660,16 @@
         bottom: $local-fit-bottom;
 
         @include direction {
-            #{$inset-inline-start}: $local-image-width + $local-info-padding-x-start - 2px;
+            #{$inset-inline-start}: $local-image-width +
+                $local-info-padding-x-start - 2px;
         }
     }
 
     // info
     .product-card__info {
         padding-top: $local-info-padding-y-start;
-        padding-bottom: $local-fit-height + $local-fit-bottom + $local-info-padding-y-end;
+        padding-bottom: $local-fit-height + $local-fit-bottom +
+            $local-info-padding-y-end;
         flex-grow: 1;
 
         @include direction {
@@ -810,7 +825,6 @@
     }
 }
 
-
 @mixin product-card-list-mobile-base() {
     flex-direction: column;
 
@@ -920,8 +934,6 @@
     }
 }
 
-
-
 @mixin product-card-layout-list() {
     @include product-card-list-base;
 
@@ -937,8 +949,6 @@
         @include product-card-list-mobile-base;
     }
 }
-
-
 
 @mixin product-card-table-base() {
     .product-card__fit,
@@ -985,7 +995,6 @@
         }
     }
 }
-
 
 @mixin product-card-table-desktop-base() {
     @include direction {
@@ -1082,7 +1091,6 @@
     }
 }
 
-
 @mixin product-card-table-mobile-base() {
     @include card;
 
@@ -1163,8 +1171,6 @@
     }
 }
 
-
-
 @mixin product-card-layout-table() {
     @include product-card-table-base;
 
@@ -1176,7 +1182,8 @@
             padding: 0 18px;
 
             @include direction {
-                #{$border-inline-start}: 1px solid map_get($card-scheme, divider);
+                #{$border-inline-start}: 1px solid
+                    map_get($card-scheme, divider);
             }
         }
         .product-card__rating {
@@ -1189,7 +1196,8 @@
             align-items: center;
 
             @include direction {
-                #{$border-inline-start}: 1px solid map_get($card-scheme, divider);
+                #{$border-inline-start}: 1px solid
+                    map_get($card-scheme, divider);
             }
         }
         .product-card__meta {
@@ -1200,7 +1208,8 @@
             justify-content: center;
 
             @include direction {
-                #{$border-inline-start}: 1px solid map_get($card-scheme, divider);
+                #{$border-inline-start}: 1px solid
+                    map_get($card-scheme, divider);
             }
         }
     }
@@ -1219,7 +1228,8 @@
             padding: 0 16px;
 
             @include direction {
-                #{$border-inline-start}: 1px solid map_get($card-scheme, divider);
+                #{$border-inline-start}: 1px solid
+                    map_get($card-scheme, divider);
             }
         }
         .product-card__name {

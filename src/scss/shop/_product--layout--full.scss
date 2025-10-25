@@ -1,8 +1,7 @@
-@import '../variables';
-@import '../mixins/card';
-@import '../mixins/direction';
-@import '../mixins/breakpoints';
-
+@import "../variables";
+@import "../mixins/card";
+@import "../mixins/direction";
+@import "../mixins/breakpoints";
 
 .product--layout--full {
     .product__body {
@@ -35,12 +34,11 @@
         grid-row: 4;
     }
 
-
     --product-gutter: 30px;
-
 
     .product__card {
         @include card;
+        border-radius: 10px;
     }
     .product__card--two {
         display: none;
@@ -85,12 +83,6 @@
         margin-top: var(--product-gutter);
     }
 
-
-
-
-
-
-
     .product__subtitle {
         padding-top: 8px;
     }
@@ -133,13 +125,13 @@
 
                 position: absolute;
                 display: block;
-                content: '';
+                content: "";
                 width: $local-size;
                 height: $local-size;
                 border-radius: $local-size / 2;
                 background: currentColor;
                 top: 12px;
-                opacity: .85;
+                opacity: 0.85;
 
                 @include direction {
                     #{$inset-inline-start}: 0;
@@ -163,7 +155,6 @@
             text-decoration: underline;
         }
     }
-
 
     @include media-breakpoint-up(xl) {
         // styles
@@ -226,7 +217,6 @@
         }
         .product__actions-item--wishlist,
         .product__actions-item--compare {
-
             position: absolute;
             top: (24px + 16px - ($local-size) / 2 - 1px);
             width: $local-size;
@@ -250,11 +240,12 @@
         }
         .product__actions-item--compare {
             @include direction {
-                #{$inset-inline-end}: (28px - ($local-size - 16px) / 2 + $local-size - 4px);
+                #{$inset-inline-end}: (
+                    28px - ($local-size - 16px) / 2 + $local-size - 4px
+                );
             }
         }
     }
-
 
     @include media-breakpoint-down(xl) {
         // variables
@@ -512,7 +503,6 @@
         }
     }
 
-
     @include media-breakpoint-only(sm) {
         // styles
         .product__meta {
@@ -542,7 +532,6 @@
             }
         }
     }
-
 
     @include media-breakpoint-down(sm) {
         // grid
