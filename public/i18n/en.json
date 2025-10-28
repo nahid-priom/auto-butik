@@ -310,20 +310,20 @@
   "CATEGORY_CORNER_LIGHTS": "Corner Lights",
   "CATEGORY_OFF_ROAD_LIGHTING": "Off-Road Lighting",
   "CATEGORY_LIGHTING_ACCESSORIES": "Lighting Accessories",
-  
+
   "CATEGORY_FUEL_SYSTEM": "Fuel System",
   "CATEGORY_FUEL_PUMPS": "Fuel Pumps",
   "CATEGORY_MOTOR_OIL": "Motor Oil",
   "CATEGORY_GAS_CAPS": "Gas Caps",
   "CATEGORY_FUEL_INJECTOR": "Fuel Injector",
   "CATEGORY_CONTROL_MOTOR": "Control Motor",
-  
+
   "CATEGORY_BODY_PARTS": "Body Parts",
   "CATEGORY_BUMPERS": "Bumpers",
   "CATEGORY_HOODS": "Hoods",
   "CATEGORY_GRILLES": "Grilles",
   "CATEGORY_DOOR_HANDLES": "Door Handles",
-  
+
   "CATEGORY_INTERIOR_PARTS": "Interior Parts",
   "CATEGORY_DASHBOARDS": "Dashboards",
   "CATEGORY_SEAT_COVERS": "Seat Covers",
@@ -332,7 +332,7 @@
   "CATEGORY_VISORS": "Visors",
   "CATEGORY_CAR_COVERS": "Car Covers",
   "CATEGORY_INTERIOR_PARTS_ACCESSORIES": "Accessories",
-  
+
   "CATEGORY_TIRES_WHEELS": "Tires & Wheels",
   "CATEGORY_WHEEL_COVERS": "Wheel Covers",
   "CATEGORY_BRAKE_KITS": "Brake Kits",
@@ -341,7 +341,7 @@
   "CATEGORY_TIRES": "Tires",
   "CATEGORY_SENSORS": "Sensors",
   "CATEGORY_TIRES_WHEELS_ACCESSORIES": "Accessories",
-  
+
   "CATEGORY_ENGINE_DRIVETRAIN": "Engine & Drivetrain",
   "CATEGORY_TIMING_BELTS": "Timing Belts",
   "CATEGORY_SPARK_PLUGS": "Spark Plugs",
@@ -350,7 +350,7 @@
   "CATEGORY_OIL_FILTERS": "Oil Filters",
   "CATEGORY_ENGINE_MOUNTS": "Engine Mounts",
   "CATEGORY_ENGINE_DRIVETRAIN_ACCESSORIES": "Accessories",
-  
+
   "CATEGORY_OILS_LUBRICANTS": "Oils & Lubricants",
   "CATEGORY_TOOLS_GARAGE": "Tools & Garage",
 
@@ -607,5 +607,28 @@
 
   "TEXT_CURRENT_CAR": "Current Car",
   "BUTTON_SET_AS_CURRENT": "Set as Current Car",
-  "TEXT_SELECTED_AS_CURRENT": "Selected as Current"
+  "TEXT_SELECTED_AS_CURRENT": "Selected as Current",
+
+  "LOCATION": "Location",
+  "EAN": "EAN",
+  "OUTER_DIAMETER_MM": "Outer diameter [mm]",
+  "BRAKE_DISC_THICKNESS_MM": "Brake disc thickness [mm]",
+  "MINIMUM_THICKNESS_MM": "Minimum thickness [mm]",
+  "HEIGHT_MM": "Height [mm]",
+  "HOLE_CIRCLE_DIAMETER_MM": "Hole circle Ø [mm]",
+  "BRAKE_DISC_TYPE": "Brake disc type",
+  "CENTERING_DIAMETER_MM": "Centering diameter [mm]",
+  "NUMBER_OF_HOLES": "Number of holes",
+  "SURFACE": "Surface",
+  "MEETS_ECE_STANDARD": "Meets ECE standard",
+  "DRILLING_DIAMETER_TO_MM": "Drilling diameter to [mm]",
+  "PRODUCT_LINE": "Product line",
+  "BRAND_QUALITY": "Brand quality",
+  "MANUFACTURER": "Manufacturer",
+  "ITEM_NO": "Item no.",
+  "PRODUCT_NAME": "Brake Disc BOSCH 012345XYZ",
+  "BUTTON_SHOW_ALL_FEATURES": "Show all features",
+  "BUTTON_HIDE_ALL_FEATURES": "Hide all features",
+  "TEXT_VEHICLE_SPECIFIC": "Vehicle Specific",
+  "TEXT_ID": "ID"
 }

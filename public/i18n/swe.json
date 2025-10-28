@@ -301,20 +301,20 @@
   "CATEGORY_CORNER_LIGHTS": "Hörnljus",
   "CATEGORY_OFF_ROAD_LIGHTING": "Terrängbelysning",
   "CATEGORY_LIGHTING_ACCESSORIES": "Belysnings tillbehör",
-  
+
   "CATEGORY_FUEL_SYSTEM": "Bränslesystem",
   "CATEGORY_FUEL_PUMPS": "Bränslepumpar",
   "CATEGORY_MOTOR_OIL": "Motorolja",
   "CATEGORY_GAS_CAPS": "Bränslelock",
   "CATEGORY_FUEL_INJECTOR": "Bränsleinsprutare",
   "CATEGORY_CONTROL_MOTOR": "Kontrollmotor",
-  
+
   "CATEGORY_BODY_PARTS": "Karossdelar",
   "CATEGORY_BUMPERS": "Stötfångare",
   "CATEGORY_HOODS": "Motorhuvar",
   "CATEGORY_GRILLES": "Grillar",
   "CATEGORY_DOOR_HANDLES": "Dörrhandtag",
-  
+
   "CATEGORY_INTERIOR_PARTS": "Interiördelar",
   "CATEGORY_DASHBOARDS": "Instrumentpaneler",
   "CATEGORY_SEAT_COVERS": "Sätesöverdrag",
@@ -323,7 +323,7 @@
   "CATEGORY_VISORS": "Solskydd",
   "CATEGORY_CAR_COVERS": "Bilskydd",
   "CATEGORY_INTERIOR_PARTS_ACCESSORIES": "Tillbehör",
-  
+
   "CATEGORY_TIRES_WHEELS": "Däck & Fälgar",
   "CATEGORY_WHEEL_COVERS": "Hjulkapslar",
   "CATEGORY_BRAKE_KITS": "Bromssatser",
@@ -332,7 +332,7 @@
   "CATEGORY_TIRES": "Däck",
   "CATEGORY_SENSORS": "Sensorer",
   "CATEGORY_TIRES_WHEELS_ACCESSORIES": "Tillbehör",
-  
+
   "CATEGORY_ENGINE_DRIVETRAIN": "Motor & Drivlina",
   "CATEGORY_TIMING_BELTS": "Kamremmar",
   "CATEGORY_SPARK_PLUGS": "Tändstift",
@@ -341,7 +341,7 @@
   "CATEGORY_OIL_FILTERS": "Oljefilter",
   "CATEGORY_ENGINE_MOUNTS": "Motorfästen",
   "CATEGORY_ENGINE_DRIVETRAIN_ACCESSORIES": "Tillbehör",
-  
+
   "CATEGORY_OILS_LUBRICANTS": "Oljor & Smörjmedel",
   "CATEGORY_TOOLS_GARAGE": "Verktyg & Garage",
 
@@ -519,7 +519,7 @@
   "TAB_POWER_TOOLS": "Elverktyg",
   "TAB_HAND_TOOLS": "Handverktyg",
   "TAB_PLUMBING": "VVS",
-  
+
   "MENU_CAR_PARTS": "Bildelar",
   "MENU_WIPER_BLADES": "Torkarblad",
   "MENU_OILS_CAR_CARE": "Oljor och bilvård",
@@ -603,5 +603,28 @@
 
   "TEXT_CURRENT_CAR": "Nuvarande bil",
   "BUTTON_SET_AS_CURRENT": "Sätt som nuvarande bil",
-  "TEXT_SELECTED_AS_CURRENT": "Vald som nuvarande"
+  "TEXT_SELECTED_AS_CURRENT": "Vald som nuvarande",
+
+  "LOCATION": "Plats",
+  "EAN": "EAN",
+  "OUTER_DIAMETER_MM": "Ytterdiameter [mm]",
+  "BRAKE_DISC_THICKNESS_MM": "Bromsskivans tjocklek [mm]",
+  "MINIMUM_THICKNESS_MM": "Minsta tjocklek [mm]",
+  "HEIGHT_MM": "Höjd [mm]",
+  "HOLE_CIRCLE_DIAMETER_MM": "Hålkrets Ø [mm]",
+  "BRAKE_DISC_TYPE": "Bromsskivetyp",
+  "CENTERING_DIAMETER_MM": "Centreringsdiameter [mm]",
+  "NUMBER_OF_HOLES": "Antal hål",
+  "SURFACE": "Yta",
+  "MEETS_ECE_STANDARD": "Uppfyller ECE-standard",
+  "DRILLING_DIAMETER_TO_MM": "Borrhål diameter till [mm]",
+  "PRODUCT_LINE": "Produktlinje",
+  "BRAND_QUALITY": "Varumärkeskvalitet",
+  "MANUFACTURER": "Tillverkare",
+  "ITEM_NO": "Artikelnr",
+  "PRODUCT_NAME": "Bromsskiva BOSCH 012345XYZ",
+  "BUTTON_SHOW_ALL_FEATURES": "Visa alla funktioner",
+  "BUTTON_HIDE_ALL_FEATURES": "Dölj alla funktioner",
+  "TEXT_VEHICLE_SPECIFIC": "Fordon Specifik",
+  "TEXT_ID": "ID"
 }
