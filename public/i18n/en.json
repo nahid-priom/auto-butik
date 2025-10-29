@@ -630,5 +630,6 @@
   "BUTTON_SHOW_ALL_FEATURES": "Show all features",
   "BUTTON_HIDE_ALL_FEATURES": "Hide all features",
   "TEXT_VEHICLE_SPECIFIC": "Vehicle Specific",
-  "TEXT_ID": "ID"
+  "TEXT_ID": "ID",
+  "SHIPPED_FROM_STOCKHOLM": "Shipped from Stockholm"
 }

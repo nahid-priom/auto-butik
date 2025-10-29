@@ -142,9 +142,9 @@
         color: #666;
     }
     .product-card__prices {
+        font-size: 25px !important;
         font-weight: $font-weight-medium;
         letter-spacing: -0.04em;
-        line-height: 1;
         color: $price-color;
     }
     .product-card__price--new {
@@ -155,13 +155,61 @@
         text-decoration: line-through;
         color: $price-old-color;
     }
+    .product-card__shipping-info {
+        display: flex;
+        gap: 8px;
+        color: black;
+    }
+
+    .product-card__shipping-info__icon {
+        display: flex;
+        align-items: start;
+    }
+
+    .product-card__shipping-info__text {
+        font-size: 14px;
+        color: #333;
+    }
+
+    .product-card__prices-and-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .product-card__shipping-info__date {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .product-card__quantity-and-cart {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .product-card__quantity-select {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+        font-size: 14px;
+        min-width: 60px;
+    }
+
+    .product-card__quantity-select:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
     .product-card__addtocart-full {
+        flex: 1;
         position: relative;
         background: map_get($btn-primary-scheme, normal-bg-color);
         color: map_get($btn-primary-scheme, normal-font-color);
         border: none;
         border-radius: 5px;
-        padding: 0 !important;
+        padding: 10px 0 !important;
         font-weight: $font-weight-medium;
         transition: background-color 0.15s, color 0.15s;
 
@@ -193,6 +241,7 @@
     }
     .product-card__wishlist,
     .product-card__compare {
+        flex: 1;
         position: relative;
         border: none;
         background: map_get($wishlist-button-scheme, normal-bg-color);
@@ -330,7 +379,6 @@
 }
 
 @mixin product-card-grid-base() {
-    .product-card__addtocart-full,
     .product-card__wishlist,
     .product-card__compare {
         display: none;
@@ -423,9 +471,9 @@
     }
     .product-card__footer {
         padding: $local-padding;
-        align-items: center;
         display: flex;
-        order: 2;
+        flex-direction: column;
+        gap: 10px;
     }
     .product-card__prices {
         flex-grow: 1;
@@ -722,25 +770,21 @@
 
     // footer
     .product-card__footer {
-        width: 220px;
-        align-items: center;
+        width: 260px;
         display: flex;
-        order: 2;
-        flex-shrink: 0;
-        flex-direction: column;
-        padding: 0 22px (39px + 10px);
+        flex-direction: column-reverse;
+        justify-content: start;
+        padding: 10px;
+        gap: 10px;
 
         @include direction {
             #{$border-inline-start}: 1px solid map_get($card-scheme, divider);
         }
     }
     .product-card__prices {
-        padding: 28px 0;
-        font-size: 20px;
         display: flex;
         align-items: flex-end;
         flex-wrap: wrap;
-        justify-content: center;
     }
     .product-card__price--old {
         font-size: 15px;
@@ -749,21 +793,12 @@
             #{$margin-inline-start}: 6px;
         }
     }
-    .product-card__addtocart-full {
-        display: block;
-        height: 36px;
-        padding: 0 20px;
-        width: 100%;
-        margin-bottom: 10px;
-    }
     .product-card__wishlist,
     .product-card__compare {
         font-size: 13px;
         line-height: 16px;
         display: flex;
         align-items: center;
-        justify-content: center;
-        padding: 7px 10px 5px;
 
         svg {
             position: relative;
@@ -971,7 +1006,9 @@
     .product-card__wishlist,
     .product-card__compare,
     .product-card__action,
-    .product-card__addtocart-full {
+    .product-card__addtocart-full,
+    .product-card__shipping-info,
+    .product-card__quantity-and-cart {
         display: none;
     }
 

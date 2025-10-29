@@ -626,5 +626,6 @@
   "BUTTON_SHOW_ALL_FEATURES": "Visa alla funktioner",
   "BUTTON_HIDE_ALL_FEATURES": "Dölj alla funktioner",
   "TEXT_VEHICLE_SPECIFIC": "Fordon Specifik",
-  "TEXT_ID": "ID"
+  "TEXT_ID": "ID",
+  "SHIPPED_FROM_STOCKHOLM": "Skickas från Stockholm"
 }

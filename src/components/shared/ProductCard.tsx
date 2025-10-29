@@ -9,6 +9,7 @@ import AppLink from "~/components/shared/AppLink";
 import AsyncAction from "~/components/shared/AsyncAction";
 import CompatibilityStatusBadge from "~/components/shared/CompatibilityStatusBadge";
 import CurrencyFormat from "~/components/shared/CurrencyFormat";
+import { FaCalendarCheck } from "react-icons/fa";
 import Rating from "~/components/shared/Rating";
 import url from "~/services/url";
 import { IProduct } from "~/interfaces/product";
@@ -288,94 +289,102 @@ function ProductCard(props: Props) {
             </div>
 
             <div className="product-card__footer">
-                <div className="product-card__prices">
-                    {product.compareAtPrice !== null && (
-                        <React.Fragment>
-                            <div className="product-card__price product-card__price--new">
-                                <CurrencyFormat value={product.price} />
-                            </div>
-                            <div className="product-card__price product-card__price--old">
-                                <CurrencyFormat value={product.compareAtPrice} />
-                            </div>
-                        </React.Fragment>
-                    )}
-                    {product.compareAtPrice === null && (
-                        <div className="product-card__price product-card__price--current">
-                            <CurrencyFormat value={product.price} />
-                        </div>
-                    )}
+                <div className="product-card__shipping-info">
+                    <div className="product-card__shipping-info__icon">
+                        <FaCalendarCheck />
+                    </div>
+                    <div className="product-card__shipping-info__text">
+                        <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
+                        {": "}
+                        <span className="product-card__shipping-info__date">Tomorrow, 2025-10-29</span>
+                    </div>
                 </div>
-                {!exclude.includes("buttons") && (
-                    <React.Fragment>
-                        <AsyncAction
-                            action={() => cartAddItem(product)}
-                            render={({ run, loading }) => (
-                                <button
-                                    type="button"
-                                    className={classNames("product-card__addtocart-icon", {
-                                        "product-card__addtocart-icon--loading": loading,
-                                    })}
-                                    aria-label={intl.formatMessage({ id: "BUTTON_ADD_TO_CART" })}
-                                    onClick={run}
-                                >
-                                    <Cart20Svg />
-                                </button>
-                            )}
-                        />
-                        {!exclude.includes("list-buttons") && (
+                <div className="product-card__prices-and-buttons">
+                    <div className="product-card__prices">
+                        {product.compareAtPrice !== null && (
                             <React.Fragment>
-                                <AsyncAction
-                                    action={() => cartAddItem(product)}
-                                    render={({ run, loading }) => (
-                                        <button
-                                            type="button"
-                                            className={classNames("product-card__addtocart-full", {
-                                                "product-card__addtocart-full--loading": loading,
-                                            })}
-                                            onClick={run}
-                                        >
-                                            <FormattedMessage id="BUTTON_ADD_TO_CART" />
-                                        </button>
-                                    )}
-                                />
-                                <AsyncAction
-                                    action={() => addToWishlist()}
-                                    render={({ run, loading }) => (
-                                        <button
-                                            type="button"
-                                            className={classNames("product-card__wishlist", {
-                                                "product-card__wishlist--loading": loading,
-                                            })}
-                                            onClick={run}
-                                        >
-                                            <Wishlist16Svg />
-                                            <span>
-                                                <FormattedMessage id="BUTTON_ADD_TO_WISHLIST" />
-                                            </span>
-                                        </button>
-                                    )}
-                                />
-                                <AsyncAction
-                                    action={() => addToCompare()}
-                                    render={({ run, loading }) => (
-                                        <button
-                                            type="button"
-                                            className={classNames("product-card__compare", {
-                                                "product-card__compare--loading": loading,
-                                            })}
-                                            onClick={run}
-                                        >
-                                            <Compare16Svg />
-                                            <span>
-                                                <FormattedMessage id="BUTTON_ADD_TO_COMPARE" />
-                                            </span>
-                                        </button>
-                                    )}
-                                />
+                                <div className="product-card__price product-card__price--new">
+                                    <CurrencyFormat value={product.price} />
+                                </div>
+                                <div className="product-card__price product-card__price--old">
+                                    <CurrencyFormat value={product.compareAtPrice} />
+                                </div>
                             </React.Fragment>
                         )}
-                    </React.Fragment>
-                )}
+                        {product.compareAtPrice === null && (
+                            <div className="product-card__price product-card__price--current">
+                                <CurrencyFormat value={product.price} />
+                            </div>
+                        )}
+                    </div>
+                    {!exclude.includes("buttons") && (
+                        <React.Fragment>
+                            {!exclude.includes("list-buttons") && (
+                                <React.Fragment>
+                                    <div className="product-card__quantity-and-cart">
+                                        <div className="product-card__quantity">
+                                            <select className="product-card__quantity-select" defaultValue="1">
+                                                {Array.from({ length: 10 }, (_, i) => i + 1).map((number) => (
+                                                    <option key={number} value={number}>
+                                                        {number}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <AsyncAction
+                                            action={() => cartAddItem(product)}
+                                            render={({ run, loading }) => (
+                                                <button
+                                                    type="button"
+                                                    className={classNames("product-card__addtocart-full", {
+                                                        "product-card__addtocart-full--loading": loading,
+                                                    })}
+                                                    onClick={run}
+                                                >
+                                                    <FormattedMessage id="BUTTON_ADD_TO_CART" />
+                                                </button>
+                                            )}
+                                        />
+                                    </div>
+                                    <AsyncAction
+                                        action={() => addToWishlist()}
+                                        render={({ run, loading }) => (
+                                            <button
+                                                type="button"
+                                                className={classNames("product-card__wishlist", {
+                                                    "product-card__wishlist--loading": loading,
+                                                })}
+                                                onClick={run}
+                                            >
+                                                <Wishlist16Svg />
+                                                <span>
+                                                    <FormattedMessage id="BUTTON_ADD_TO_WISHLIST" />
+                                                </span>
+                                            </button>
+                                        )}
+                                    />
+                                    <AsyncAction
+                                        action={() => addToCompare()}
+                                        render={({ run, loading }) => (
+                                            <button
+                                                type="button"
+                                                className={classNames("product-card__compare", {
+                                                    "product-card__compare--loading": loading,
+                                                })}
+                                                onClick={run}
+                                            >
+                                                <Compare16Svg />
+                                                <span>
+                                                    <FormattedMessage id="BUTTON_ADD_TO_COMPARE" />
+                                                </span>
+                                            </button>
+                                        )}
+                                    />
+                                </React.Fragment>
+                            )}
+                        </React.Fragment>
+                    )}
+                </div>
             </div>
         </div>
     );
