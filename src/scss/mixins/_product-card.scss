@@ -177,6 +177,12 @@
         gap: 8px;
     }
 
+    .product-card__vat-and-shipping-info {
+        display: flex;
+        gap: 8px;
+        font-size: 12px;
+    }
+
     .product-card__shipping-info__date {
         font-weight: 500;
         color: #333;
@@ -193,7 +199,7 @@
         border: 1px solid #ddd;
         border-radius: 4px;
         background-color: white;
-        font-size: 14px;
+        font-size: 16px;
         min-width: 60px;
     }
 

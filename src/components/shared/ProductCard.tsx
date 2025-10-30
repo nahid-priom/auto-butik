@@ -317,6 +317,11 @@ function ProductCard(props: Props) {
                             </div>
                         )}
                     </div>
+                    <div className="product-card__vat-and-shipping-info">
+                        <FormattedMessage id="TEXT_INCL_VAT" />
+                        <span> | </span>
+                        <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                    </div>
                     {!exclude.includes("buttons") && (
                         <React.Fragment>
                             {!exclude.includes("list-buttons") && (
