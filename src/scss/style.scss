@@ -150,208 +150,190 @@
 //   - .profile-card
 // ---------------------------------------- */
 
-
-
 /* ----------------------------------------
 // Common
 // ---------------------------------------- */
-@import 'common/animations';
-@import 'common/base';
-@import 'common/document';
-@import 'common/grid';
-@import 'common/header';
-@import 'common/site';
-
-
+@import "common/animations";
+@import "common/base";
+@import "common/document";
+@import "common/grid";
+@import "common/header";
+@import "common/site";
 
 /* ----------------------------------------
 // Components
 // ---------------------------------------- */
-@import 'components/alert';
-@import 'components/arrow';
-@import 'components/breadcrumb';
-@import 'components/btn';
-@import 'components/button-toggle';
-@import 'components/card';
-@import 'components/card-table';
-@import 'components/collapse-area';
-@import 'components/container';
-@import 'components/decor';
-@import 'components/filters-button';
-@import 'components/form';
-@import 'components/form-control';
-@import 'components/image';
-@import 'components/input-check';
-@import 'components/input-check-color';
-@import 'components/input-number';
-@import 'components/input-radio';
-@import 'components/input-radio-color';
-@import 'components/input-radio-label';
-@import 'components/rc-slider';
-@import 'components/layout-switcher';
-@import 'components/loading-bar';
-@import 'components/modal';
-@import 'components/ngx-toastr';
-@import 'components/pagination';
-@import 'components/rating';
-@import 'components/section-header';
-@import 'components/select2';
-@import 'components/share-links';
-@import 'components/shop-features';
-@import 'components/sidebar';
-@import 'components/slick-prevent-click';
-@import 'components/social-links';
-@import 'components/status-badge';
-@import 'components/tag-badge';
-@import 'components/tags';
-@import 'components/teammate';
-@import 'components/timer';
-@import 'components/tooltip';
-@import 'components/typography';
-@import 'components/vehicle-form';
-@import 'components/vehicle-select';
-@import 'components/vehicles-list';
-@import 'components/view-options';
-@import 'components/widget';
-
-
+@import "components/alert";
+@import "components/arrow";
+@import "components/breadcrumb";
+@import "components/btn";
+@import "components/button-toggle";
+@import "components/card";
+@import "components/card-table";
+@import "components/collapse-area";
+@import "components/container";
+@import "components/decor";
+@import "components/filters-button";
+@import "components/form";
+@import "components/form-control";
+@import "components/image";
+@import "components/input-check";
+@import "components/input-check-color";
+@import "components/input-number";
+@import "components/input-radio";
+@import "components/input-radio-color";
+@import "components/input-radio-label";
+@import "components/rc-slider";
+@import "components/layout-switcher";
+@import "components/loading-bar";
+@import "components/modal";
+@import "components/ngx-toastr";
+@import "components/pagination";
+@import "components/rating";
+@import "components/section-header";
+@import "components/select2";
+@import "components/share-links";
+@import "components/shop-features";
+@import "components/sidebar";
+@import "components/slick-prevent-click";
+@import "components/social-links";
+@import "components/status-badge";
+@import "components/tag-badge";
+@import "components/tags";
+@import "components/teammate";
+@import "components/timer";
+@import "components/tooltip";
+@import "components/typography";
+@import "components/vehicle-form";
+@import "components/vehicle-select";
+@import "components/vehicles-list";
+@import "components/view-options";
+@import "components/widget";
 
 /* ----------------------------------------
 // Filters
 // ---------------------------------------- */
-@import 'filters/filter';
-@import 'filters/filter-category';
-@import 'filters/filter-color';
-@import 'filters/filter-list';
-@import 'filters/filter-range';
-@import 'filters/filter-rating';
-@import 'filters/filter-vehicle';
-
-
+@import "filters/filter";
+@import "filters/filter-category";
+@import "filters/filter-color";
+@import "filters/filter-list";
+@import "filters/filter-range";
+@import "filters/filter-rating";
+@import "filters/filter-vehicle";
 
 /* ----------------------------------------
 // Footer
 // ---------------------------------------- */
-@import 'footer/footer-contacts';
-@import 'footer/footer-links';
-@import 'footer/footer-newsletter';
-@import 'footer/site-footer';
-
-
+@import "footer/footer-contacts";
+@import "footer/footer-links";
+@import "footer/footer-newsletter";
+@import "footer/site-footer";
 
 /* ----------------------------------------
 // Pages
 // ---------------------------------------- */
-@import 'pages/about';
-@import 'pages/contacts';
-@import 'pages/faq';
-@import 'pages/not-found';
-
-
+@import "pages/about";
+@import "pages/contacts";
+@import "pages/faq";
+@import "pages/not-found";
 
 /* ----------------------------------------
 // Blocks
 // ---------------------------------------- */
-@import 'blocks/block-banners';
-@import 'blocks/block-brands';
-@import 'blocks/block-categories';
-@import 'blocks/block-empty';
-@import 'blocks/block-features';
-@import 'blocks/block-finder';
-@import 'blocks/block-header';
-@import 'blocks/block-map';
-@import 'blocks/block-posts-carousel';
-@import 'blocks/block-products-carousel';
-@import 'blocks/block-products-columns';
-@import 'blocks/block-reviews';
-@import 'blocks/block-sale';
-@import 'blocks/block-slideshow';
-@import 'blocks/block-space';
-@import 'blocks/block-split';
-@import 'blocks/block-teammates';
-@import 'blocks/block-benefits';
-@import 'blocks/block-vehicle-search-hero';
-@import 'blocks/block-newsletter';
-@import 'blocks/block-zone';
-
-
+@import "blocks/block-banners";
+@import "blocks/block-brands";
+@import "blocks/block-categories";
+@import "blocks/block-empty";
+@import "blocks/block-features";
+@import "blocks/block-finder";
+@import "blocks/block-header";
+@import "blocks/block-map";
+@import "blocks/block-posts-carousel";
+@import "blocks/block-products-carousel";
+@import "blocks/block-products-columns";
+@import "blocks/block-reviews";
+@import "blocks/block-sale";
+@import "blocks/block-slideshow";
+@import "blocks/block-space";
+@import "blocks/block-split";
+@import "blocks/block-teammates";
+@import "blocks/block-benefits";
+@import "blocks/block-vehicle-search-hero";
+@import "blocks/block-newsletter";
+@import "blocks/block-zone";
 
 /* ----------------------------------------
 // Widgets
 // ---------------------------------------- */
-@import 'widgets/widget-about-us';
-@import 'widgets/widget-car-history';
-@import 'widgets/widget-categories-list';
-@import 'widgets/widget-categories';
-@import 'widgets/widget-comments';
-@import 'widgets/widget-filters';
-@import 'widgets/widget-newsletter';
-@import 'widgets/widget-posts';
-@import 'widgets/widget-products';
-@import 'widgets/widget-search';
-@import 'widgets/widget-tags';
-
-
+@import "widgets/widget-about-us";
+@import "widgets/widget-car-history";
+@import "widgets/widget-categories-list";
+@import "widgets/widget-categories";
+@import "widgets/widget-comments";
+@import "widgets/widget-filters";
+@import "widgets/widget-newsletter";
+@import "widgets/widget-posts";
+@import "widgets/widget-products";
+@import "widgets/widget-search";
+@import "widgets/widget-tags";
 
 /* ----------------------------------------
 // Shop
 // ---------------------------------------- */
-@import 'shop/analogs-table';
-@import 'shop/applied-filters';
-@import 'shop/cart';
-@import 'shop/cart-table';
-@import 'shop/categories-list';
-@import 'shop/category-card';
-@import 'shop/checkout';
-@import 'shop/compare';
-@import 'shop/compare-table';
-@import 'shop/order-header';
-@import 'shop/order-list';
-@import 'shop/order-success';
-@import 'shop/payment-methods';
-@import 'shop/product';
-@import 'shop/product-card';
-@import 'shop/product-form';
-@import 'shop/product-gallery';
-@import 'shop/product-tabs';
-@import 'shop/products-list';
-@import 'shop/products-view';
-@import 'shop/quickview';
-@import 'shop/review';
-@import 'shop/reviews-list';
-@import 'shop/reviews-view';
-@import 'shop/spec';
-@import 'shop/vehicle-picker-modal';
-@import 'shop/wishlist';
-
-
+@import "shop/analogs-table";
+@import "shop/applied-filters";
+@import "shop/cart";
+@import "shop/cart-table";
+@import "shop/categories-list";
+@import "shop/category-card";
+@import "shop/checkout";
+@import "shop/compare";
+@import "shop/compare-table";
+@import "shop/order-header";
+@import "shop/order-list";
+@import "shop/order-success";
+@import "shop/payment-methods";
+@import "shop/product";
+@import "shop/product-card";
+@import "shop/product-form";
+@import "shop/product-gallery";
+@import "shop/product-tabs";
+@import "shop/products-list";
+@import "shop/products-view";
+@import "shop/quickview";
+@import "shop/review";
+@import "shop/reviews-list";
+@import "shop/reviews-view";
+@import "shop/spec";
+@import "shop/vehicle-picker-modal";
+@import "shop/wishlist";
+@import "shop/product-question";
+@import "shop/product-information.scss";
+@import "shop/compatible-vehicles";
+@import "shop/original-part-number";
 
 /* ----------------------------------------
 // Blog
 // ---------------------------------------- */
-@import 'blog/blog-view';
-@import 'blog/comment';
-@import 'blog/comments-list';
-@import 'blog/comments-view';
-@import 'blog/post';
-@import 'blog/post-card';
-@import 'blog/post-header';
-@import 'blog/post-navigation';
-@import 'blog/post-view';
-@import 'blog/posts-list';
-@import 'blog/posts-view';
-
-
+@import "blog/blog-view";
+@import "blog/comment";
+@import "blog/comments-list";
+@import "blog/comments-view";
+@import "blog/post";
+@import "blog/post-card";
+@import "blog/post-header";
+@import "blog/post-navigation";
+@import "blog/post-view";
+@import "blog/posts-list";
+@import "blog/posts-view";
 
 /* ----------------------------------------
 // Account
 // ---------------------------------------- */
-@import 'account/account-nav';
-@import 'account/address-card';
-@import 'account/addresses-list';
-@import 'account/dashboard';
-@import 'account/profile-card';
+@import "account/account-nav";
+@import "account/address-card";
+@import "account/addresses-list";
+@import "account/dashboard";
+@import "account/profile-card";
 
-
-
-@import 'custom';
+@import "custom";

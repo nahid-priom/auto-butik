@@ -1,36 +1,36 @@
 // react
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 // third-party
-import classNames from 'classnames';
-import { Controller, FormProvider } from 'react-hook-form';
-import { FormattedMessage, useIntl } from 'react-intl';
+import classNames from "classnames";
+import { Controller, FormProvider } from "react-hook-form";
+import { FormattedMessage, useIntl } from "react-intl";
 // application
-import AppLink, { IAppLinkHref, resolveAppLinkHref } from '~/components/shared/AppLink';
-import AsyncAction from '~/components/shared/AsyncAction';
-import BlockHeader from '~/components/blocks/BlockHeader';
-import BlockProductsCarousel from '~/components/blocks/BlockProductsCarousel';
-import BlockSpace from '~/components/blocks/BlockSpace';
-import CompatibilityStatusBadge from '~/components/shared/CompatibilityStatusBadge';
-import CurrencyFormat from '~/components/shared/CurrencyFormat';
-import InputNumber from '~/components/shared/InputNumber';
-import PageTitle from '~/components/shared/PageTitle';
-import SEO from '~/components/shared/SEO';
-import ProductForm from '~/components/shop/ProductForm';
-import ProductGallery, { IProductGalleryLayout } from '~/components/shop/ProductGallery';
-import ProductSidebar from '~/components/shop/ProductSidebar';
-import ProductTabs from '~/components/shop/ProductTabs';
-import Rating from '~/components/shared/Rating';
-import ShareLinks from '~/components/shared/ShareLinks';
-import StockStatusBadge from '~/components/shared/StockStatusBadge';
-import url from '~/services/url';
-import { getCategoryPath } from '~/services/utils';
-import { IProduct } from '~/interfaces/product';
-import { IProductPageLayout, IProductPageSidebarPosition } from '~/interfaces/pages';
-import { shopApi } from '~/api';
-import { useCompareAddItem } from '~/store/compare/compareHooks';
-import { useProductForm } from '~/services/forms/product';
-import { useWishlistAddItem } from '~/store/wishlist/wishlistHooks';
-import { getProductStructuredData, getBreadcrumbStructuredData } from '~/services/seo/structured-data';
+import AppLink, { IAppLinkHref, resolveAppLinkHref } from "~/components/shared/AppLink";
+import AsyncAction from "~/components/shared/AsyncAction";
+import BlockHeader from "~/components/blocks/BlockHeader";
+import BlockProductsCarousel from "~/components/blocks/BlockProductsCarousel";
+import BlockSpace from "~/components/blocks/BlockSpace";
+import CompatibilityStatusBadge from "~/components/shared/CompatibilityStatusBadge";
+import CurrencyFormat from "~/components/shared/CurrencyFormat";
+import InputNumber from "~/components/shared/InputNumber";
+import PageTitle from "~/components/shared/PageTitle";
+import SEO from "~/components/shared/SEO";
+import ProductForm from "~/components/shop/ProductForm";
+import ProductGallery, { IProductGalleryLayout } from "~/components/shop/ProductGallery";
+import ProductSidebar from "~/components/shop/ProductSidebar";
+import ProductTabs from "~/components/shop/ProductTabs";
+import Rating from "~/components/shared/Rating";
+import ShareLinks from "~/components/shared/ShareLinks";
+import StockStatusBadge from "~/components/shared/StockStatusBadge";
+import url from "~/services/url";
+import { getCategoryPath } from "~/services/utils";
+import { IProduct } from "~/interfaces/product";
+import { IProductPageLayout, IProductPageSidebarPosition } from "~/interfaces/pages";
+import { shopApi } from "~/api";
+import { useCompareAddItem } from "~/store/compare/compareHooks";
+import { useProductForm } from "~/services/forms/product";
+import { useWishlistAddItem } from "~/store/wishlist/wishlistHooks";
+import { getProductStructuredData, getBreadcrumbStructuredData } from "~/services/seo/structured-data";
 import {
     Compare16Svg,
     Fi24Hours48Svg,
@@ -38,7 +38,17 @@ import {
     FiPaymentSecurity48Svg,
     FiTag48Svg,
     Wishlist16Svg,
-} from '~/svg';
+} from "~/svg";
+import { useCartAddItem } from "~/store/cart/cartHooks";
+import { FaBoxes, FaCalendarCheck, FaCheckCircle } from "react-icons/fa";
+import ProductQuestion from "./ProductQuestion";
+import ProductInformation from "./ProductInformation";
+import CompatibleVehicles from "./CompatibleVehiclies";
+import OriginalPartNumber from "./OriginalPartNumber";
+import { BiLogoVisa } from "react-icons/bi";
+import { RiMastercardFill } from "react-icons/ri";
+import { FaCcPaypal } from "react-icons/fa";
+import { FaApplePay } from "react-icons/fa";
 
 interface Props {
     product: IProduct;
@@ -50,17 +60,167 @@ interface QuickviewFormValues {
 }
 
 function ShopPageProduct(props: Props) {
-    const {
-        product,
-        layout,
-        sidebarPosition = 'start',
-    } = props;
+    const { product, layout, sidebarPosition = "start" } = props;
     const intl = useIntl();
     const wishlistAddItem = useWishlistAddItem();
     const compareAddItem = useCompareAddItem();
     const galleryLayout = `product-${layout}` as IProductGalleryLayout;
     const [relatedProducts, setRelatedProducts] = useState<IProduct[]>([]);
     const productForm = useProductForm(product);
+
+    const cartAddItem = useCartAddItem();
+
+    const addToWishlist = () => wishlistAddItem(product);
+    const addToCompare = () => compareAddItem(product);
+
+    const features = [
+        {
+            name: "LOCATION",
+            values: [{ name: "Rear axle" }],
+        },
+        {
+            name: "EAN",
+            values: [{ name: "4047024749801" }],
+        },
+        {
+            name: "OUTER_DIAMETER_MM",
+            values: [{ name: "272" }],
+        },
+        {
+            name: "BRAKE_DISC_THICKNESS_MM",
+            values: [{ name: "10" }],
+        },
+        {
+            name: "MINIMUM_THICKNESS_MM",
+            values: [{ name: "8" }],
+        },
+        {
+            name: "HEIGHT_MM",
+            values: [{ name: "48.3" }],
+        },
+        {
+            name: "HOLE_CIRCLE_DIAMETER_MM",
+            values: [{ name: "112" }],
+        },
+        {
+            name: "BRAKE_DISC_TYPE",
+            values: [{ name: "full" }],
+        },
+        {
+            name: "CENTERING_DIAMETER_MM",
+            values: [{ name: "65" }],
+        },
+        {
+            name: "NUMBER_OF_HOLES",
+            values: [{ name: "9" }],
+        },
+        {
+            name: "SURFACE",
+            values: [{ name: "oiled" }],
+        },
+        {
+            name: "MEETS_ECE_STANDARD",
+            values: [{ name: "ECE-R90" }],
+        },
+        {
+            name: "DRILLING_DIAMETER_TO_MM",
+            values: [{ name: "15.3" }],
+        },
+        {
+            name: "PRODUCT_LINE",
+            values: [{ name: "BD1515, E1 90 R - 02C0355/0231" }],
+        },
+        {
+            name: "BRAND_QUALITY",
+            values: [{ name: "Premium" }],
+        },
+        {
+            name: "MANUFACTURER",
+            values: [{ name: "BOSCH" }],
+        },
+        {
+            name: "ITEM_NO",
+            values: [{ name: "0 986 479 677" }],
+        },
+    ];
+
+    const sections = [
+        {
+            id: "product-information",
+            title: "Product information",
+            component: <ProductInformation />,
+        },
+        {
+            id: "compatible-vehicles",
+            title: "Compatible vehicles",
+            component: <CompatibleVehicles />,
+        },
+        {
+            id: "original-part-number",
+            title: "Original part number",
+            component: <OriginalPartNumber />,
+        },
+    ];
+
+    const [showAllFeatures, setShowAllFeatures] = useState(false);
+
+    const displayedFeatures = showAllFeatures ? features : features.slice(0, 4);
+    const hasMoreFeatures = features.length > 4;
+
+    const [activeSection, setActiveSection] = useState("product-information");
+    const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
+
+    // Section data
+    const sectionData = [
+        {
+            id: "product-information",
+            title: "Product information",
+            content: "Product information content goes here...",
+        },
+        {
+            id: "compatible-vehicles",
+            title: "Compatible vehicles",
+            content: "Compatible vehicles content goes here...",
+        },
+        {
+            id: "original-part-number",
+            title: "Original part number",
+            content: "Original part number content goes here...",
+        },
+        {
+            id: "related-products",
+            title: "Related products",
+            content: "Related products content goes here...",
+        },
+        {
+            id: "questions-about-product",
+            title: "Questions about the product",
+            content: "Questions about the product content goes here...",
+        },
+    ];
+
+    const menuItems = [
+        { id: "product-information", label: "Product information" },
+        { id: "compatible-vehicles", label: "Compatible vehicles" },
+        { id: "original-part-number", label: "Original part number" },
+        { id: "related-products", label: "Related products" },
+        { id: "questions-about-product", label: "Questions about the product" },
+    ];
+
+    const handleMenuClick = (sectionId: string) => {
+        setActiveSection(sectionId);
+        const element = sectionRefs.current[sectionId];
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    };
+
+    // Set ref for each section
+    useEffect(() => {
+        sectionData.forEach((section) => {
+            sectionRefs.current[section.id] = document.getElementById(section.id);
+        });
+    }, []);
 
     useEffect(() => {
         let canceled = false;
@@ -83,8 +243,8 @@ function ShopPageProduct(props: Props) {
     }
 
     const breadcrumb = [
-        { title: intl.formatMessage({ id: 'LINK_HOME' }), url: url.home() },
-        { title: intl.formatMessage({ id: 'LINK_SHOP' }), url: url.shop() },
+        { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
+        { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
         ...getCategoryPath(product.categories && product.categories[0]).map((x) => ({
             title: x.name,
             url: url.category(x),
@@ -100,61 +260,65 @@ function ShopPageProduct(props: Props) {
         <div className="product__shop-features shop-features">
             <ul className="shop-features__list">
                 <li className="shop-features__item">
-                    <div className="shop-features__item-icon">
-                        <FiFreeDelivery48Svg />
-                    </div>
-                    <div className="shop-features__info">
-                        <div className="shop-features__item-title">
-                            <FormattedMessage id="TEXT_SHOP_FEATURE_FREE_SHIPPING_TITLE" />
+                    <div className="shop-features__item-content">
+                        <div className="shop-features__item-icon">
+                            <FiFreeDelivery48Svg />
                         </div>
-                        <div className="shop-features__item-subtitle">
-                            <FormattedMessage id="TEXT_SHOP_FEATURE_FREE_SHIPPING_SUBTITLE" />
+                        <div className="shop-features__info">
+                            <div className="shop-features__item-title">
+                                <FormattedMessage id="TEXT_SHOP_FEATURE_FREE_SHIPPING_TITLE" />
+                            </div>
+                            <div className="shop-features__item-subtitle">
+                                <FormattedMessage id="TEXT_SHOP_FEATURE_FREE_SHIPPING_SUBTITLE" />
+                            </div>
                         </div>
                     </div>
                 </li>
-                <li className="shop-features__divider" role="presentation" />
                 <li className="shop-features__item">
-                    <div className="shop-features__item-icon">
-                        <Fi24Hours48Svg />
-                    </div>
-                    <div className="shop-features__info">
-                        <div className="shop-features__item-title">
-                            <FormattedMessage id="TEXT_SHOP_FEATURE_SUPPORT_TITLE" />
+                    <div className="shop-features__item-content">
+                        <div className="shop-features__item-icon">
+                            <Fi24Hours48Svg />
                         </div>
-                        <div className="shop-features__item-subtitle">
-                            <FormattedMessage id="TEXT_SHOP_FEATURE_SUPPORT_SUBTITLE" />
+                        <div className="shop-features__info">
+                            <div className="shop-features__item-title">
+                                <FormattedMessage id="TEXT_SHOP_FEATURE_SUPPORT_TITLE" />
+                            </div>
+                            <div className="shop-features__item-subtitle">
+                                <FormattedMessage id="TEXT_SHOP_FEATURE_SUPPORT_SUBTITLE" />
+                            </div>
                         </div>
                     </div>
                 </li>
-                <li className="shop-features__divider" role="presentation" />
                 <li className="shop-features__item">
-                    <div className="shop-features__item-icon">
-                        <FiPaymentSecurity48Svg />
-                    </div>
-                    <div className="shop-features__info">
-                        <div className="shop-features__item-title">
-                            <FormattedMessage id="TEXT_SHOP_FEATURE_SECURITY_TITLE" />
+                    <div className="shop-features__item-content">
+                        <div className="shop-features__item-icon">
+                            <FiPaymentSecurity48Svg />
                         </div>
-                        <div className="shop-features__item-subtitle">
-                            <FormattedMessage id="TEXT_SHOP_FEATURE_SECURITY_SUBTITLE" />
+                        <div className="shop-features__info">
+                            <div className="shop-features__item-title">
+                                <FormattedMessage id="TEXT_SHOP_FEATURE_SECURITY_TITLE" />
+                            </div>
+                            <div className="shop-features__item-subtitle">
+                                <FormattedMessage id="TEXT_SHOP_FEATURE_SECURITY_SUBTITLE" />
+                            </div>
                         </div>
                     </div>
                 </li>
-                <li className="shop-features__divider" role="presentation" />
                 <li className="shop-features__item">
-                    <div className="shop-features__item-icon">
-                        <FiTag48Svg />
-                    </div>
-                    <div className="shop-features__info">
-                        <div className="shop-features__item-title">
-                            <FormattedMessage id="TEXT_SHOP_FEATURE_HOT_OFFERS_TITLE" />
+                    <div className="shop-features__item-content">
+                        <div className="shop-features__item-icon">
+                            <FiTag48Svg />
                         </div>
-                        <div className="shop-features__item-subtitle">
-                            <FormattedMessage id="TEXT_SHOP_FEATURE_HOT_OFFERS_SUBTITLE" />
+                        <div className="shop-features__info">
+                            <div className="shop-features__item-title">
+                                <FormattedMessage id="TEXT_SHOP_FEATURE_HOT_OFFERS_TITLE" />
+                            </div>
+                            <div className="shop-features__item-subtitle">
+                                <FormattedMessage id="TEXT_SHOP_FEATURE_HOT_OFFERS_SUBTITLE" />
+                            </div>
                         </div>
                     </div>
                 </li>
-                <li className="shop-features__divider" role="presentation" />
             </ul>
         </div>
     );
@@ -204,9 +368,7 @@ function ShopPageProduct(props: Props) {
                                         <FormattedMessage id="TABLE_BRAND" />
                                     </th>
                                     <td>
-                                        <AppLink href={url.brand(product.brand)}>
-                                            {product.brand.name}
-                                        </AppLink>
+                                        <AppLink href={url.brand(product.brand)}>{product.brand.name}</AppLink>
                                     </td>
                                 </tr>
                                 <tr>
@@ -233,26 +395,22 @@ function ShopPageProduct(props: Props) {
 
     const productActions = (
         <div className="product__actions">
-            {product.stock !== 'out-of-stock' && (
+            {product.stock !== "out-of-stock" && (
                 <React.Fragment>
                     <div className="quickview__product-actions-item quickview__product-actions-item--quantity">
                         <Controller<QuickviewFormValues>
                             name="quantity"
                             rules={{ required: true }}
                             render={({ field: { ref: fieldRef, ...fieldProps } }) => (
-                                <InputNumber
-                                    min={1}
-                                    inputRef={fieldRef}
-                                    {...fieldProps}
-                                />
+                                <InputNumber min={1} inputRef={fieldRef} {...fieldProps} />
                             )}
                         />
                     </div>
                     <div className="product__actions-item product__actions-item--addtocart">
                         <button
                             type="submit"
-                            className={classNames('btn', 'btn-primary', 'btn-lg', 'btn-block', {
-                                'btn-loading': productForm.submitInProgress,
+                            className={classNames("btn", "btn-primary", "btn-lg", "btn-block", {
+                                "btn-loading": productForm.submitInProgress,
                             })}
                         >
                             <FormattedMessage id="BUTTON_ADD_TO_CART" />
@@ -266,8 +424,8 @@ function ShopPageProduct(props: Props) {
                 render={({ run, loading }) => (
                     <button
                         type="button"
-                        className={classNames('product__actions-item', 'product__actions-item--wishlist', {
-                            'product__actions-item--loading': loading,
+                        className={classNames("product__actions-item", "product__actions-item--wishlist", {
+                            "product__actions-item--loading": loading,
                         })}
                         onClick={run}
                     >
@@ -283,8 +441,8 @@ function ShopPageProduct(props: Props) {
                 render={({ run, loading }) => (
                     <button
                         type="button"
-                        className={classNames('product__actions-item', 'product__actions-item--compare', {
-                            'product__actions-item--loading': loading,
+                        className={classNames("product__actions-item", "product__actions-item--compare", {
+                            "product__actions-item--loading": loading,
                         })}
                         onClick={run}
                     >
@@ -325,23 +483,24 @@ function ShopPageProduct(props: Props) {
     );
 
     const combinedStructuredData = {
-        '@context': 'https://schema.org',
-        '@graph': [productStructuredData, breadcrumbStructuredData],
+        "@context": "https://schema.org",
+        "@graph": [productStructuredData, breadcrumbStructuredData],
     };
 
     // Get availability string
-    const availability = product.stock === 'in-stock'
-        ? 'in stock'
-        : product.stock === 'out-of-stock'
-            ? 'out of stock'
-            : 'preorder';
+    const availability =
+        product.stock === "in-stock" ? "in stock" : product.stock === "out-of-stock" ? "out of stock" : "preorder";
 
     return (
         <React.Fragment>
             <PageTitle>{product.name}</PageTitle>
             <SEO
                 title={product.name}
-                description={product.description || product.excerpt || `Buy ${product.name} - Quality auto part with fast delivery`}
+                description={
+                    product.description ||
+                    product.excerpt ||
+                    `Buy ${product.name} - Quality auto part with fast delivery`
+                }
                 keywords={`${product.name}, ${product.sku}, ${product.partNumber}, auto parts, car parts`}
                 image={product.images && product.images.length > 0 ? product.images[0] : undefined}
                 type="product"
@@ -352,14 +511,12 @@ function ShopPageProduct(props: Props) {
                 structuredData={combinedStructuredData}
             />
 
-            <BlockHeader
-                breadcrumb={breadcrumb}
-            />
+            <BlockHeader breadcrumb={breadcrumb} />
 
-            <div className={classNames('block-split', { 'block-split--has-sidebar': layout === 'sidebar' })}>
+            <div className={classNames("block-split", { "block-split--has-sidebar": layout === "sidebar" })}>
                 <div className="container">
                     <div className="block-split__row row no-gutters">
-                        {layout === 'sidebar' && sidebarPosition === 'start' && (
+                        {layout === "sidebar" && sidebarPosition === "start" && (
                             <div className="block-split__item block-split__item-sidebar col-auto">
                                 <ProductSidebar />
                             </div>
@@ -368,118 +525,365 @@ function ShopPageProduct(props: Props) {
                         <div className="block-split__item block-split__item-content col-auto">
                             <div className={`product product--layout--${layout}`}>
                                 <div className="product__body">
-                                    <div className="product__card product__card--one" />
-                                    <div className="product__card product__card--two" />
+                                    <div className="product__section">
+                                        <ProductGallery
+                                            images={product.images || []}
+                                            layout={galleryLayout}
+                                            className="product__gallery"
+                                        />
 
-                                    <ProductGallery
-                                        images={product.images || []}
-                                        layout={galleryLayout}
-                                        className="product__gallery"
-                                    />
+                                        <div className="product__header">
+                                            <h1 className="product__title">{product.name}</h1>
 
-                                    <div className="product__header">
-                                        <h1 className="product__title">{product.name}</h1>
-
-                                        <div className="product__subtitle">
-                                            <div className="product__rating">
-                                                <div className="product__rating-stars">
-                                                    <Rating value={product.rating || 0} />
-                                                </div>
-                                                <div className="product__rating-label">
-                                                    <AppLink href={{ href: { hash: 'product-tab-reviews' } }}>
-                                                        <FormattedMessage
-                                                            id="TEXT_RATING_LABEL"
-                                                            values={{
-                                                                rating: product.rating,
-                                                                reviews: product.reviews,
-                                                            }}
-                                                        />
-                                                    </AppLink>
-                                                </div>
+                                            <div className="product__subtitle">
+                                                <CompatibilityStatusBadge className="product__fit" product={product} />
                                             </div>
 
-                                            <CompatibilityStatusBadge className="product__fit" product={product} />
-                                        </div>
-                                    </div>
-
-                                    {layout === 'full' && (
-                                        <div className="product__main">
-                                            {product.excerpt && (
-                                                <div className="product__excerpt">
-                                                    {product.excerpt}
-                                                </div>
-                                            )}
-
-                                            {featuredAttributes.length > 0 && (
-                                                <div className="product__features">
-                                                    <div className="product__features-title">
-                                                        <FormattedMessage id="TEXT_KEY_FEATURES" />
-                                                        :
-                                                    </div>
-                                                    <ul>
-                                                        {featuredAttributes.map((attribute, index) => (
-                                                            <li key={index}>
-                                                                {attribute.name}
-                                                                {': '}
-                                                                <span>
-                                                                    {attribute.values
-                                                                        .map((value) => value.name)
-                                                                        .join(', ')}
-                                                                </span>
-                                                            </li>
-                                                        ))}
-
-                                                    </ul>
-                                                    <div className="product__features-link">
-                                                        <AppLink href={{ href: { hash: 'product-tab-specification' } }}>
-                                                            <FormattedMessage id="LINK_SEE_FULL_SPECIFICATION" />
-                                                        </AppLink>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    <div className="product__info">
-                                        <FormProvider {...productForm.methods}>
-                                            <form onSubmit={productForm.submit} className="product__info-card">
-                                                {productInfoBody}
-
-                                                {product.options.length > 0 && (
-                                                    <ProductForm
-                                                        options={product.options}
-                                                        className="product__form"
-                                                        namespace="options"
-                                                    />
+                                            <div className="product__main">
+                                                {product.excerpt && (
+                                                    <div className="product__excerpt">{product.excerpt}</div>
                                                 )}
 
-                                                {productActions}
+                                                <div className="product-card__meta">
+                                                    <div className="product-card__meta-row">
+                                                        <div className="product-card__meta-column">
+                                                            <span className="product-card__meta-title">
+                                                                <FormattedMessage id="TEXT_ID" />
+                                                                {": "}
+                                                            </span>
+                                                            {product.sku}
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                                                {productTagsAndShareLinks}
-                                            </form>
-                                        </FormProvider>
+                                                <div className="product-card__prices-and-buttons">
+                                                    <div className="product-card__prices">
+                                                        {product.compareAtPrice !== null && (
+                                                            <React.Fragment>
+                                                                <div className="product-card__price product-card__price--new">
+                                                                    <CurrencyFormat value={product.price} />
+                                                                </div>
+                                                                <div className="product-card__price product-card__price--old">
+                                                                    <CurrencyFormat value={product.compareAtPrice} />
+                                                                </div>
+                                                            </React.Fragment>
+                                                        )}
+                                                        {product.compareAtPrice === null && (
+                                                            <div className="product-card__price product-card__price--current">
+                                                                <CurrencyFormat value={product.price} />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="product-card__vat-and-shipping-info">
+                                                        <FormattedMessage id="TEXT_INCL_VAT" />
+                                                        <span> | </span>
+                                                        <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                                                    </div>
 
-                                        {shopFeatures}
+                                                    <React.Fragment>
+                                                        <React.Fragment>
+                                                            <div className="product-card__quantity-and-cart">
+                                                                <div className="product-card__quantity">
+                                                                    <select
+                                                                        className="product-card__quantity-select"
+                                                                        defaultValue="1"
+                                                                    >
+                                                                        {Array.from(
+                                                                            { length: 10 },
+                                                                            (_, i) => i + 1
+                                                                        ).map((number) => (
+                                                                            <option key={number} value={number}>
+                                                                                {number}
+                                                                            </option>
+                                                                        ))}
+                                                                    </select>
+                                                                </div>
+                                                                <AsyncAction
+                                                                    action={() => cartAddItem(product)}
+                                                                    render={({ run, loading }) => (
+                                                                        <button
+                                                                            type="button"
+                                                                            className={classNames(
+                                                                                "product-card__addtocart-full",
+                                                                                {
+                                                                                    "product-card__addtocart-full--loading":
+                                                                                        loading,
+                                                                                }
+                                                                            )}
+                                                                            onClick={run}
+                                                                        >
+                                                                            <FormattedMessage id="BUTTON_ADD_TO_CART" />
+                                                                        </button>
+                                                                    )}
+                                                                />
+                                                                <div>
+                                                                    <AsyncAction
+                                                                        action={() => addToWishlist()}
+                                                                        render={({ run, loading }) => (
+                                                                            <button
+                                                                                type="button"
+                                                                                className={classNames(
+                                                                                    "product-card__wishlist",
+                                                                                    {
+                                                                                        "product-card__wishlist--loading":
+                                                                                            loading,
+                                                                                    }
+                                                                                )}
+                                                                                onClick={run}
+                                                                            >
+                                                                                <Wishlist16Svg />
+                                                                                <span>
+                                                                                    <FormattedMessage id="BUTTON_ADD_TO_WISHLIST" />
+                                                                                </span>
+                                                                            </button>
+                                                                        )}
+                                                                    />
+                                                                    <AsyncAction
+                                                                        action={() => addToCompare()}
+                                                                        render={({ run, loading }) => (
+                                                                            <button
+                                                                                type="button"
+                                                                                className={classNames(
+                                                                                    "product-card__compare",
+                                                                                    {
+                                                                                        "product-card__compare--loading":
+                                                                                            loading,
+                                                                                    }
+                                                                                )}
+                                                                                onClick={run}
+                                                                            >
+                                                                                <Compare16Svg />
+                                                                                <span>
+                                                                                    <FormattedMessage id="BUTTON_ADD_TO_COMPARE" />
+                                                                                </span>
+                                                                            </button>
+                                                                        )}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </React.Fragment>
+                                                    </React.Fragment>
+                                                </div>
+
+                                                <div className="vehicle-compatibility">
+                                                    <div className="compatibility-content">
+                                                        <div className="compatibility-icon">
+                                                            <FaCheckCircle />
+                                                        </div>
+                                                        <div className="compatibility-text">
+                                                            <FormattedMessage id="VEHICLE_COMPATIBILITY_TEXT" />{" "}
+                                                            <button className="compatibility-link">
+                                                                <FormattedMessage id="WILL_IT_REALLY_FIT" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="stock-info">
+                                                    <div className="stock-icon">
+                                                        <FaBoxes />
+                                                    </div>
+                                                    <span className="stock-status">
+                                                        <FormattedMessage id="STOCK_IN_STOCK" />
+                                                    </span>
+                                                    <span className="stock-separator">.</span>
+                                                    <span className="price-valid">
+                                                        <FormattedMessage id="PRICE_VALID_UNTIL" />: 2025-10-30
+                                                    </span>
+                                                </div>
+
+                                                <div className="product-card__shipping-info">
+                                                    {/* Left Side - Shipping Information */}
+                                                    <div className="product-card__shipping-details">
+                                                        <div className="product-card__shipping-info__content">
+                                                            <div className="product-card__shipping-info__icon">
+                                                                <FaCalendarCheck />
+                                                            </div>
+                                                            <div className="product-card__shipping-info__text">
+                                                                <div className="shipping-title">
+                                                                    <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
+                                                                    <span>:</span>
+                                                                </div>
+                                                                <div className="product-card__shipping-info__date">
+                                                                    Tomorrow, 2025-10-29
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Right Side - Payment Icons */}
+                                                    <div className="product-card__payment-methods">
+                                                        <div className="payment-icons">
+                                                            {/* Replace these with your actual SVG components */}
+                                                            <div className="payment-icon" title="Visa">
+                                                                <BiLogoVisa />
+                                                            </div>
+                                                            <div className="payment-icon" title="Mastercard">
+                                                                <RiMastercardFill />
+                                                            </div>
+                                                            <div className="payment-icon" title="PayPal">
+                                                                <FaCcPaypal />
+                                                            </div>
+                                                            <div className="payment-icon" title="Apple Pay">
+                                                                <FaApplePay />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="product-card__features">
+                                                    <div
+                                                        className={`product-card__features-columns ${
+                                                            showAllFeatures ? "two-columns" : "one-column"
+                                                        }`}
+                                                    >
+                                                        <div className="product-card__features-column">
+                                                            {displayedFeatures
+                                                                .slice(
+                                                                    0,
+                                                                    showAllFeatures
+                                                                        ? Math.ceil(displayedFeatures.length / 2)
+                                                                        : 4
+                                                                )
+                                                                .map((attribute, index) => (
+                                                                    <div
+                                                                        key={index}
+                                                                        className="product-card__feature-item"
+                                                                    >
+                                                                        <FormattedMessage id={attribute.name} />
+                                                                        {": "}
+                                                                        <span className="product-card__feature-value">
+                                                                            {attribute.values
+                                                                                .map((x) => x.name)
+                                                                                .join(", ")}
+                                                                        </span>
+                                                                    </div>
+                                                                ))}
+                                                        </div>
+
+                                                        {showAllFeatures && (
+                                                            <div className="product-card__features-column">
+                                                                {displayedFeatures
+                                                                    .slice(Math.ceil(displayedFeatures.length / 2))
+                                                                    .map((attribute, index) => (
+                                                                        <div
+                                                                            key={
+                                                                                index +
+                                                                                Math.ceil(displayedFeatures.length / 2)
+                                                                            }
+                                                                            className="product-card__feature-item"
+                                                                        >
+                                                                            <FormattedMessage id={attribute.name} />
+                                                                            {": "}
+                                                                            <span className="product-card__feature-value">
+                                                                                {attribute.values
+                                                                                    .map((x) => x.name)
+                                                                                    .join(", ")}
+                                                                            </span>
+                                                                        </div>
+                                                                    ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {hasMoreFeatures && (
+                                                        <button
+                                                            className="product-card__show-more-btn"
+                                                            onClick={() => setShowAllFeatures(!showAllFeatures)}
+                                                        >
+                                                            <FormattedMessage
+                                                                id={
+                                                                    showAllFeatures
+                                                                        ? "BUTTON_HIDE_ALL_FEATURES"
+                                                                        : "BUTTON_SHOW_ALL_FEATURES"
+                                                                }
+                                                            />
+                                                        </button>
+                                                    )}
+                                                </div>
+
+                                                <div className="safety-info-link">
+                                                    <div className="safety-info-text">
+                                                        <FormattedMessage id="SAFETY_PRODUCT_INFO" />
+                                                    </div>
+                                                    <button className="safety-info-button">
+                                                        <FormattedMessage id="MANUFACTURER_INFO" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
+                                    <div className="product__info">{shopFeatures}</div>
+                                    <div className="product-info-container">
+                                        {/* Two Column Layout for first 4 sections */}
+                                        <div className="product-info-layout">
+                                            {/* Left Column - Content Sections */}
+                                            <div className="product-info-content">
+                                                {sections.map((section) => (
+                                                    <section
+                                                        key={section.id}
+                                                        id={section.id}
+                                                        className={`product-info-section ${
+                                                            activeSection === section.id ? "active" : ""
+                                                        }`}
+                                                    >
+                                                        <div className="section-content">{section.component}</div>
+                                                    </section>
+                                                ))}
+                                            </div>
 
-                                    <ProductTabs className="product__tabs" product={product} layout={layout} />
+                                            {/* Right Column - Navigation Menu */}
+                                            <div className="product-info-navigation">
+                                                <nav className="navigation-menu">
+                                                    <ul className="menu-list">
+                                                        {menuItems.map((item) => (
+                                                            <li key={item.id} className="menu-item">
+                                                                <button
+                                                                    className={`menu-button ${
+                                                                        activeSection === item.id ? "active" : ""
+                                                                    }`}
+                                                                    onClick={() => handleMenuClick(item.id)}
+                                                                >
+                                                                    {item.label}
+                                                                </button>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </nav>
+                                            </div>
+                                        </div>
+
+                                        {/* Full Width Related Products Section */}
+                                        {relatedProducts.length > 0 && (
+                                            <React.Fragment>
+                                                <BlockSpace layout="divider-nl" />
+
+                                                <BlockProductsCarousel
+                                                    blockTitle={intl.formatMessage({ id: "HEADER_RELATED_PRODUCTS" })}
+                                                    products={relatedProducts}
+                                                    layout={layout === "sidebar" ? "grid-4-sidebar" : "grid-5"}
+                                                />
+                                            </React.Fragment>
+                                        )}
+
+                                        {/* Full Width Questions Section */}
+                                        <section
+                                            id="questions-about-product"
+                                            className={`product-info-section full-width-section ${
+                                                activeSection === "questions-about-product" ? "active" : ""
+                                            }`}
+                                        >
+                                            <div className="section-content">
+                                                <ProductQuestion productName="Brake caliper KAMOKA JBC0206" />
+                                            </div>
+                                        </section>
+                                    </div>{" "}
+                                    {/* <ProductTabs className="product__tabs" product={product} layout={layout} /> */}
                                 </div>
                             </div>
-
-                            {relatedProducts.length > 0 && (
-                                <React.Fragment>
-                                    <BlockSpace layout="divider-nl" />
-
-                                    <BlockProductsCarousel
-                                        blockTitle={intl.formatMessage({ id: 'HEADER_RELATED_PRODUCTS' })}
-                                        products={relatedProducts}
-                                        layout={layout === 'sidebar' ? 'grid-4-sidebar' : 'grid-5'}
-                                    />
-                                </React.Fragment>
-                            )}
                         </div>
 
-                        {layout === 'sidebar' && sidebarPosition === 'end' && (
+                        {layout === "sidebar" && sidebarPosition === "end" && (
                             <div className="block-split__item block-split__item-sidebar col-auto">
                                 <ProductSidebar />
                             </div>

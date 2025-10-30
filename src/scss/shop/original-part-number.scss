@@ -1,0 +1,135 @@
+.original-part-number {
+    width: 100%;
+}
+
+.part-number-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+.part-number-table-container {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.part-number-table {
+    width: 100%;
+    display: table;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-bottom: 1px solid #e0e0e0;
+    min-height: 50px;
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.table-row:nth-child(even) {
+    background: #fafafa;
+}
+
+.table-cell {
+    padding: 12px 16px;
+    font-size: 14px;
+    display: flex;
+    align-items: flex-start;
+    min-height: 50px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.brand-cell {
+    font-weight: 600;
+    color: #333;
+    border-right: 1px solid #e0e0e0;
+    background: #f8f9fa;
+    align-items: center;
+}
+
+.number-cell {
+    color: #666;
+    background: #fff;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.table-row:nth-child(even) .number-cell {
+    background: #fafafa;
+}
+
+/* Scrollbar styling */
+.part-number-table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.part-number-table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.part-number-table-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.part-number-table-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .part-number-title {
+        font-size: 18px;
+        margin-bottom: 14px;
+    }
+
+    .part-number-table-container {
+        max-height: 400px;
+    }
+
+    .table-cell {
+        padding: 10px 12px;
+        font-size: 13px;
+        min-height: 45px;
+    }
+
+    .table-row {
+        min-height: 45px;
+    }
+}
+
+@media (max-width: 480px) {
+    .part-number-title {
+        font-size: 16px;
+        margin-bottom: 12px;
+    }
+
+    .part-number-table-container {
+        max-height: 350px;
+    }
+
+    .table-cell {
+        padding: 8px 10px;
+        font-size: 12px;
+        min-height: 40px;
+    }
+
+    .table-row {
+        min-height: 40px;
+        grid-template-columns: 1fr 1fr;
+    }
+}

@@ -1,17 +1,17 @@
 /*
 // .view-options
 */
-@import '../variables';
-@import '../mixins/direction';
-@import '../mixins/breakpoints';
-
+@import "../variables";
+@import "../mixins/direction";
+@import "../mixins/breakpoints";
 
 .view-options {
-    font-size: .9375rem;
+    font-size: 0.9375rem;
     overflow: hidden;
+    border-radius: 4px;
 }
 .view-options__body {
-    padding: .75rem 1rem;
+    padding: 0.75rem 1rem;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -28,7 +28,7 @@
     }
 }
 .view-options__body--filters {
-    padding: .875rem 1rem;
+    padding: 0.875rem 1rem;
 }
 .view-options__label {
     position: absolute;
@@ -92,7 +92,6 @@
     margin-top: 8px;
 }
 
-
 .view-options--offcanvas--mobile {
     @include media-breakpoint-up(lg) {
         .view-options__filters-button {
@@ -100,7 +99,6 @@
         }
     }
 }
-
 
 @include media-breakpoint-down(md) {
     .view-options__legend {

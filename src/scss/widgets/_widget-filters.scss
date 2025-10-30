@@ -1,11 +1,10 @@
 /*
 // .widget-filters
 */
-@import '../variables';
-@import '../mixins/card';
-@import '../mixins/direction';
-@import '../mixins/breakpoints';
-
+@import "../variables";
+@import "../mixins/card";
+@import "../mixins/direction";
+@import "../mixins/breakpoints";
 
 @mixin local-offcanvas() {
     .widget-filters__header {
@@ -20,9 +19,9 @@
     }
 }
 
-
 .widget-filters {
     display: block;
+    border-radius: 4px;
 }
 .widget-filters__item {
     padding: 8px $widget-padding;
@@ -41,7 +40,6 @@
         }
     }
 }
-
 
 .widget-filters--offcanvas--none {
     @include card;
