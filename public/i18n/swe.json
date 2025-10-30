@@ -646,5 +646,11 @@
   "VEHICLE_RESET": "Återställ",
   "SELECT_MAKE_PLACEHOLDER": "Välj märke",
   "SELECT_MODEL_PLACEHOLDER": "Välj modell",
-  "SELECTED_VEHICLE": "Valt fordon:"
+  "SELECTED_VEHICLE": "Valt fordon:",
+  "SAFETY_PRODUCT_INFO": "Säkerhets- och produktinformation",
+  "MANUFACTURER_INFO": "Information om tillverkare",
+  "VEHICLE_COMPATIBILITY_TEXT": "Denna artikel är lämplig för fordonet {vehicleName}.",
+  "WILL_IT_REALLY_FIT": "Kommer den verkligen passa?",
+  "STOCK_IN_STOCK": "I lager",
+  "PRICE_VALID_UNTIL": "Priset gäller"
 }

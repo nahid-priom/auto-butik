@@ -40,12 +40,15 @@ import {
     Wishlist16Svg,
 } from "~/svg";
 import { useCartAddItem } from "~/store/cart/cartHooks";
-import { FaCalendarCheck } from "react-icons/fa";
+import { FaBoxes, FaCalendarCheck, FaCheckCircle } from "react-icons/fa";
 import ProductQuestion from "./ProductQuestion";
 import ProductInformation from "./ProductInformation";
 import CompatibleVehicles from "./CompatibleVehiclies";
 import OriginalPartNumber from "./OriginalPartNumber";
-import RelatedProducts from "./RelatedProducts";
+import { BiLogoVisa } from "react-icons/bi";
+import { RiMastercardFill } from "react-icons/ri";
+import { FaCcPaypal } from "react-icons/fa";
+import { FaApplePay } from "react-icons/fa";
 
 interface Props {
     product: IProduct;
@@ -662,31 +665,126 @@ function ShopPageProduct(props: Props) {
                                                     </React.Fragment>
                                                 </div>
 
-                                                <div className="product-card__shipping-info">
-                                                    <div className="product-card__shipping-info__icon">
-                                                        <FaCalendarCheck />
+                                                <div className="vehicle-compatibility">
+                                                    <div className="compatibility-content">
+                                                        <div className="compatibility-icon">
+                                                            <FaCheckCircle />
+                                                        </div>
+                                                        <div className="compatibility-text">
+                                                            <FormattedMessage id="VEHICLE_COMPATIBILITY_TEXT" />{" "}
+                                                            <button className="compatibility-link">
+                                                                <FormattedMessage id="WILL_IT_REALLY_FIT" />
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                    <div className="product-card__shipping-info__text">
-                                                        <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
-                                                        {": "}
-                                                        <span className="product-card__shipping-info__date">
-                                                            Tomorrow, 2025-10-29
-                                                        </span>
+                                                </div>
+
+                                                <div className="stock-info">
+                                                    <div className="stock-icon">
+                                                        <FaBoxes />
+                                                    </div>
+                                                    <span className="stock-status">
+                                                        <FormattedMessage id="STOCK_IN_STOCK" />
+                                                    </span>
+                                                    <span className="stock-separator">.</span>
+                                                    <span className="price-valid">
+                                                        <FormattedMessage id="PRICE_VALID_UNTIL" />: 2025-10-30
+                                                    </span>
+                                                </div>
+
+                                                <div className="product-card__shipping-info">
+                                                    {/* Left Side - Shipping Information */}
+                                                    <div className="product-card__shipping-details">
+                                                        <div className="product-card__shipping-info__content">
+                                                            <div className="product-card__shipping-info__icon">
+                                                                <FaCalendarCheck />
+                                                            </div>
+                                                            <div className="product-card__shipping-info__text">
+                                                                <div className="shipping-title">
+                                                                    <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
+                                                                    <span>:</span>
+                                                                </div>
+                                                                <div className="product-card__shipping-info__date">
+                                                                    Tomorrow, 2025-10-29
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Right Side - Payment Icons */}
+                                                    <div className="product-card__payment-methods">
+                                                        <div className="payment-icons">
+                                                            {/* Replace these with your actual SVG components */}
+                                                            <div className="payment-icon" title="Visa">
+                                                                <BiLogoVisa />
+                                                            </div>
+                                                            <div className="payment-icon" title="Mastercard">
+                                                                <RiMastercardFill />
+                                                            </div>
+                                                            <div className="payment-icon" title="PayPal">
+                                                                <FaCcPaypal />
+                                                            </div>
+                                                            <div className="payment-icon" title="Apple Pay">
+                                                                <FaApplePay />
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
 
                                                 <div className="product-card__features">
-                                                    <ul>
-                                                        {displayedFeatures.map((attribute, index) => (
-                                                            <li key={index}>
-                                                                <FormattedMessage id={attribute.name} />
-                                                                {": "}
-                                                                <span className="product-card__feature-value">
-                                                                    {attribute.values.map((x) => x.name).join(", ")}
-                                                                </span>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
+                                                    <div
+                                                        className={`product-card__features-columns ${
+                                                            showAllFeatures ? "two-columns" : "one-column"
+                                                        }`}
+                                                    >
+                                                        <div className="product-card__features-column">
+                                                            {displayedFeatures
+                                                                .slice(
+                                                                    0,
+                                                                    showAllFeatures
+                                                                        ? Math.ceil(displayedFeatures.length / 2)
+                                                                        : 4
+                                                                )
+                                                                .map((attribute, index) => (
+                                                                    <div
+                                                                        key={index}
+                                                                        className="product-card__feature-item"
+                                                                    >
+                                                                        <FormattedMessage id={attribute.name} />
+                                                                        {": "}
+                                                                        <span className="product-card__feature-value">
+                                                                            {attribute.values
+                                                                                .map((x) => x.name)
+                                                                                .join(", ")}
+                                                                        </span>
+                                                                    </div>
+                                                                ))}
+                                                        </div>
+
+                                                        {showAllFeatures && (
+                                                            <div className="product-card__features-column">
+                                                                {displayedFeatures
+                                                                    .slice(Math.ceil(displayedFeatures.length / 2))
+                                                                    .map((attribute, index) => (
+                                                                        <div
+                                                                            key={
+                                                                                index +
+                                                                                Math.ceil(displayedFeatures.length / 2)
+                                                                            }
+                                                                            className="product-card__feature-item"
+                                                                        >
+                                                                            <FormattedMessage id={attribute.name} />
+                                                                            {": "}
+                                                                            <span className="product-card__feature-value">
+                                                                                {attribute.values
+                                                                                    .map((x) => x.name)
+                                                                                    .join(", ")}
+                                                                            </span>
+                                                                        </div>
+                                                                    ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
 
                                                     {hasMoreFeatures && (
                                                         <button
@@ -702,6 +800,15 @@ function ShopPageProduct(props: Props) {
                                                             />
                                                         </button>
                                                     )}
+                                                </div>
+
+                                                <div className="safety-info-link">
+                                                    <div className="safety-info-text">
+                                                        <FormattedMessage id="SAFETY_PRODUCT_INFO" />
+                                                    </div>
+                                                    <button className="safety-info-button">
+                                                        <FormattedMessage id="MANUFACTURER_INFO" />
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>

@@ -650,5 +650,11 @@
   "VEHICLE_RESET": "Reset",
   "SELECT_MAKE_PLACEHOLDER": "Select Make",
   "SELECT_MODEL_PLACEHOLDER": "Select Model",
-  "SELECTED_VEHICLE": "Selected Vehicle:"
+  "SELECTED_VEHICLE": "Selected Vehicle:",
+  "SAFETY_PRODUCT_INFO": "Safety and product information",
+  "MANUFACTURER_INFO": "Manufacturer information",
+  "VEHICLE_COMPATIBILITY_TEXT": "This item is suitable for the vehicle {vehicleName}.",
+  "WILL_IT_REALLY_FIT": "Will it really fit?",
+  "STOCK_IN_STOCK": "In stock",
+  "PRICE_VALID_UNTIL": "Price valid"
 }
