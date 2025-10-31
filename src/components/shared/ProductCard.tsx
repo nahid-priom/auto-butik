@@ -19,9 +19,17 @@ import { useQuickviewOpen } from "~/store/quickview/quickviewHooks";
 import { useWishlistAddItem } from "~/store/wishlist/wishlistHooks";
 import { Cart20Svg, Compare16Svg, Quickview16Svg, Wishlist16Svg } from "~/svg";
 
-export type IProductCardElement = "actions" | "status-badge" | "meta" | "features" | "buttons" | "list-buttons";
+export type IProductCardElement =
+    | "actions"
+    | "status-badge"
+    | "meta"
+    | "features"
+    | "buttons"
+    | "list-buttons"
+    | "shipping"
+    | "vat";
 
-export type IProductCardLayout = "grid" | "list" | "table" | "horizontal";
+export type IProductCardLayout = "grid" | "list";
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
     product: IProduct;
@@ -261,44 +269,47 @@ function ProductCard(props: Props) {
                         </ul>
                     </div>
                 )} */}
+                {!exclude.includes("features") && displayedFeatures.length > 0 && (
+                    <div className="product-card__features">
+                        <ul>
+                            {displayedFeatures.map((attribute, index) => (
+                                <li key={index}>
+                                    <FormattedMessage id={attribute.name} />
+                                    {": "}
+                                    <span className="product-card__feature-value">
+                                        {attribute.values.map((x) => x.name).join(", ")}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
 
-                <div className="product-card__features">
-                    <ul>
-                        {displayedFeatures.map((attribute, index) => (
-                            <li key={index}>
-                                <FormattedMessage id={attribute.name} />
-                                {": "}
-                                <span className="product-card__feature-value">
-                                    {attribute.values.map((x) => x.name).join(", ")}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-
-                    {hasMoreFeatures && (
-                        <button
-                            className="product-card__show-more-btn"
-                            onClick={() => setShowAllFeatures(!showAllFeatures)}
-                        >
-                            <FormattedMessage
-                                id={showAllFeatures ? "BUTTON_HIDE_ALL_FEATURES" : "BUTTON_SHOW_ALL_FEATURES"}
-                            />
-                        </button>
-                    )}
-                </div>
+                        {hasMoreFeatures && (
+                            <button
+                                className="product-card__show-more-btn"
+                                onClick={() => setShowAllFeatures(!showAllFeatures)}
+                            >
+                                <FormattedMessage
+                                    id={showAllFeatures ? "BUTTON_HIDE_ALL_FEATURES" : "BUTTON_SHOW_ALL_FEATURES"}
+                                />
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
 
             <div className="product-card__footer">
-                <div className="product-card__shipping-info">
-                    <div className="product-card__shipping-info__icon">
-                        <FaCalendarCheck />
+                {!exclude.includes("shipping") && (
+                    <div className="product-card__shipping-info">
+                        <div className="product-card__shipping-info__icon">
+                            <FaCalendarCheck />
+                        </div>
+                        <div className="product-card__shipping-info__text">
+                            <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
+                            {": "}
+                            <span className="product-card__shipping-info__date">Tomorrow, 2025-10-29</span>
+                        </div>
                     </div>
-                    <div className="product-card__shipping-info__text">
-                        <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
-                        {": "}
-                        <span className="product-card__shipping-info__date">Tomorrow, 2025-10-29</span>
-                    </div>
-                </div>
+                )}
                 <div className="product-card__prices-and-buttons">
                     <div className="product-card__prices">
                         {product.compareAtPrice !== null && (
@@ -317,11 +328,13 @@ function ProductCard(props: Props) {
                             </div>
                         )}
                     </div>
-                    <div className="product-card__vat-and-shipping-info">
-                        <FormattedMessage id="TEXT_INCL_VAT" />
-                        <span> | </span>
-                        <FormattedMessage id="TEXT_FREE_SHIPPING" />
-                    </div>
+                    {!exclude.includes("vat") && (
+                        <div className="product-card__vat-and-shipping-info">
+                            <FormattedMessage id="TEXT_INCL_VAT" />
+                            <span> | </span>
+                            <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                        </div>
+                    )}
                     {!exclude.includes("buttons") && (
                         <React.Fragment>
                             {!exclude.includes("list-buttons") && (
