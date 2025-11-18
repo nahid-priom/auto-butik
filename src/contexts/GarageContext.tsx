@@ -10,7 +10,7 @@ export interface IGarageVehicle {
 interface IGarageContextValue {
     vehicles: IGarageVehicle[];
     currentCarId: string | null;
-    addVehicle: (data: ICarData | IWheelData) => void;
+    addVehicle: (data: ICarData | IWheelData) => string;
     removeVehicle: (id: string) => void;
     clearGarage: () => void;
     setCurrentCar: (id: string | null) => void;
@@ -73,6 +73,9 @@ export function GarageProvider({ children }: { children: React.ReactNode }) {
     const addVehicle = (data: ICarData | IWheelData) => {
         const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
         setVehicles((prev) => [{ id, data, addedAt: Date.now() }, ...prev]);
+        // Always make the most recently added vehicle the current car
+        setCurrentCarId(id);
+        return id;
     };
 
     const removeVehicle = (id: string) => {
