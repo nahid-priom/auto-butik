@@ -29,7 +29,7 @@ export type IProductCardElement =
     | "shipping"
     | "vat";
 
-export type IProductCardLayout = "grid" | "list";
+export type IProductCardLayout = "grid" | "list" | "horizontal" | "table";
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
     product: IProduct;
