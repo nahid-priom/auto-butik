@@ -1,0 +1,80 @@
+/* Checkbox Container */
+.checkbox-container {
+    display: inline-block;
+}
+
+/* Label Styling */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Hide default checkbox */
+.checkbox-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Custom checkbox */
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    background-color: white;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Checked state - blue background */
+.checkbox-input:checked + .checkbox-custom {
+    background-color: #0077c7;
+    border-color: #0077c7;
+}
+
+/* Checkmark */
+.checkbox-checkmark {
+    width: 12px;
+    height: 10px;
+    opacity: 0;
+    stroke: white;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+}
+
+/* Show checkmark when checked */
+.checkbox-input:checked + .checkbox-custom .checkbox-checkmark {
+    opacity: 1;
+}
+
+/* Checkbox text - black color */
+.checkbox-text {
+    color: #000000;
+    font-size: 14px;
+}
+
+/* Disabled state */
+.checkbox-input:disabled + .checkbox-custom {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+    cursor: not-allowed;
+}
+
+.checkbox-input:checked:disabled + .checkbox-custom {
+    background-color: #9ca3af;
+    border-color: #9ca3af;
+}
+
+.checkbox-input:disabled ~ .checkbox-text {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

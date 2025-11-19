@@ -364,7 +364,7 @@ function ProductCard(props: Props) {
                                             )}
                                         />
                                     </div>
-                                    <AsyncAction
+                                    {/* <AsyncAction
                                         action={() => addToWishlist()}
                                         render={({ run, loading }) => (
                                             <button
@@ -380,24 +380,28 @@ function ProductCard(props: Props) {
                                                 </span>
                                             </button>
                                         )}
-                                    />
-                                    <AsyncAction
-                                        action={() => addToCompare()}
-                                        render={({ run, loading }) => (
-                                            <button
-                                                type="button"
-                                                className={classNames("product-card__compare", {
-                                                    "product-card__compare--loading": loading,
-                                                })}
-                                                onClick={run}
-                                            >
-                                                <Compare16Svg />
-                                                <span>
-                                                    <FormattedMessage id="BUTTON_ADD_TO_COMPARE" />
-                                                </span>
-                                            </button>
-                                        )}
-                                    />
+                                    /> */}
+                                    <div className="checkbox-container">
+                                        <label className="checkbox-label">
+                                            <input type="checkbox" className="checkbox-input" />
+                                            <span className="checkbox-custom">
+                                                <svg className="checkbox-checkmark" viewBox="0 0 12 10">
+                                                    <polyline points="1.5 6 4.5 9 10.5 1" />
+                                                </svg>
+                                            </span>
+
+                                            <span className="checkbox-text">
+                                                <FormattedMessage id="BUTTON_ADD_TO_COMPARE" />
+                                            </span>
+                                        </label>
+                                    </div>
+
+                                    {/* <CustomCheckbox
+          id=""
+          label="Subscribe to newsletter"
+          checked={formData.newsletter}
+          onChange={handleCheckboxChange("newsletter")}
+        /> */}
                                 </React.Fragment>
                             )}
                         </React.Fragment>

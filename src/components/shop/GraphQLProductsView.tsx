@@ -102,8 +102,8 @@ function GraphQLProductsView(props: Props) {
 
     const layoutButtons: LayoutButton[] = useMemo(
         () => [
-            { layout: "grid", icon: <LayoutGrid16Svg /> },
             { layout: "list", icon: <LayoutList16Svg /> },
+            { layout: "grid", icon: <LayoutGrid16Svg /> },
         ],
         []
     );

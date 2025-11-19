@@ -1,53 +1,206 @@
 // react
-import React from 'react';
+import React, { useMemo, useState } from "react";
 // third-party
-import classNames from 'classnames';
+import classNames from "classnames";
 // application
-import AppImage from '~/components/shared/AppImage';
-import MegamenuLinks from '~/components/header/MegamenuLinks';
-import { ILink } from '~/interfaces/link';
-import { IMegamenu } from '~/interfaces/menu';
+import AppImage from "~/components/shared/AppImage";
+import AppLink from "~/components/shared/AppLink";
+import { ILink } from "~/interfaces/link";
+import { IMegamenu } from "~/interfaces/menu";
+import { FormattedMessage } from "react-intl";
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
     menu: IMegamenu;
     onItemClick?: (item: ILink) => void;
 }
 
+/**
+ * Static fallback image (the uploaded file path you provided)
+ * The environment/build will map this path to a real URL in production as needed.
+ */
+const STATIC_ICON = "/images/avatars/product.jpg";
+
 function Megamenu(props: Props) {
-    const {
-        menu,
-        onItemClick,
-        className,
-        ...rootProps
-    } = props;
-    const hasImage = !!menu.image;
+    const { menu, onItemClick, className, ...rootProps } = props;
+    const rootClasses = classNames("megamenu", className);
 
-    const rootClasses = classNames('megamenu', className);
+    const columns = Array.isArray(menu.columns) ? menu.columns : [];
 
+    // Left categories: all top-level links from all columns
+    const leftCategories = useMemo(() => {
+        return columns.flatMap((col) => col.links || []);
+    }, [columns]);
+
+    // Check if any category has nested links (for two-column layout)
+    const hasNestedMenus = useMemo(() => {
+        return leftCategories.some((category) => category.links && category.links.length > 0);
+    }, [leftCategories]);
+
+    // State to track which left category is active (only for two-column layout)
+    const [activeCategory, setActiveCategory] = useState(leftCategories[0] || null);
+
+    // Get children of active category for right column
+    const rightItems = useMemo(() => {
+        if (!activeCategory || !activeCategory.links) return [];
+        return activeCategory.links || [];
+    }, [activeCategory]);
+
+    // For single-column layout: get all items from all categories
+    // If no nested links, use the leftCategories themselves as items
+    const allItems = useMemo(() => {
+        if (hasNestedMenus) return [];
+
+        // For menus without nested links, we need to collect items differently
+        // Check if there are any direct items in the columns structure
+        const itemsFromColumns = columns.flatMap((column) => column.links?.flatMap((link) => link.links || []) || []);
+
+        // If we found items in the nested structure, use them
+        if (itemsFromColumns.length > 0) {
+            return itemsFromColumns;
+        }
+
+        // Otherwise, use the leftCategories as items (for menus that only have top-level categories)
+        return leftCategories;
+    }, [leftCategories, hasNestedMenus, columns]);
+
+    // Handle left category click
+    const handleLeftCategoryClick = (category: any, index: number) => {
+        setActiveCategory(category);
+        onItemClick && onItemClick(category);
+    };
+
+    console.log("Megamenu Debug:", {
+        hasNestedMenus,
+        leftCategories,
+        allItems,
+        columns,
+        activeCategory,
+        rightItems,
+    });
+
+    // Single column layout - all items shown in grid (when no nested menus)
+    if (!hasNestedMenus) {
+        return (
+            <div className={rootClasses} {...rootProps}>
+                <div className="main-menu__megamenu-inner">
+                    <div className="main-menu__megamenu-full">
+                        <div className="mm-blocks">
+                            <div className="mm-blocks-grid mm-blocks-grid--single">
+                                {allItems.map((item, index) => {
+                                    const title =
+                                        typeof item.title === "string" ? (
+                                            <FormattedMessage id={item.title} />
+                                        ) : (
+                                            item.title
+                                        );
+
+                                    return (
+                                        <AppLink
+                                            key={index}
+                                            href={item.url || "#"}
+                                            className="mm-item mm-item--single"
+                                            onClick={() => onItemClick && onItemClick(item)}
+                                        >
+                                            {/* Icon on top */}
+                                            <span className="mm-item__thumb mm-item__thumb--single">
+                                                <AppImage src={STATIC_ICON} alt={"title"} />
+                                            </span>
+
+                                            {/* Text below */}
+                                            <span className="mm-item__label mm-item__label--single">{title}</span>
+                                        </AppLink>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Fallback if no items */}
+                            {allItems.length === 0 && <div className="mm-blocks-empty">No items available</div>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Two-column layout (with nested menus)
     return (
         <div className={rootClasses} {...rootProps}>
-            {hasImage && (
-                <div className="megamenu__image">
-                    <AppImage className="reflect-rtl" src={menu.image} />
-                </div>
-            )}
-            <div className="row">
-                {menu.columns.map((column, columnIndex) => {
-                    const columnClasses = classNames(`col-${column.size}`);
-                    const hasLinks = column.links?.length > 0;
+            <div className="main-menu__megamenu-inner">
+                {/* LEFT COLUMN: Direct links with icons and right arrow */}
+                <div className="main-menu__megamenu-left">
+                    {leftCategories.map((category, index) => {
+                        const title =
+                            typeof category.title === "string" ? (
+                                <FormattedMessage id={category.title} />
+                            ) : (
+                                category.title
+                            );
+                        const isActive = category === activeCategory;
 
-                    return (
-                        <div className={columnClasses} key={columnIndex}>
-                            {hasLinks && (
-                                <MegamenuLinks
-                                    className="megamenu__links"
-                                    links={column.links}
-                                    onItemClick={onItemClick}
-                                />
-                            )}
+                        return (
+                            <AppLink
+                                key={index}
+                                href={category.url || "#"}
+                                className={classNames("mm-cat", { active: isActive })}
+                                onClick={() => handleLeftCategoryClick(category, index)}
+                                onMouseEnter={() => !isActive && setActiveCategory(category)}
+                            >
+                                {/* Icon on the left */}
+                                <span className="mm-cat__icon">
+                                    <AppImage src={STATIC_ICON} alt={"icon"} />
+                                </span>
+
+                                {/* Category title */}
+                                <span className="mm-cat__title">{title}</span>
+
+                                {/* Right arrow */}
+                                <span className="mm-cat__arrow">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M5.5 13l-1-1 4-4-4-4 1-1 5 5z" />
+                                    </svg>
+                                </span>
+                            </AppLink>
+                        );
+                    })}
+                </div>
+
+                {/* RIGHT COLUMN: Child items with icons on top and text below */}
+                <div className="main-menu__megamenu-right">
+                    {activeCategory && (
+                        <div className="mm-blocks">
+                            <div className="mm-blocks-grid mm-blocks-grid--double">
+                                {rightItems.map((item, index) => {
+                                    const title =
+                                        typeof item.title === "string" ? (
+                                            <FormattedMessage id={item.title} />
+                                        ) : (
+                                            item.title
+                                        );
+
+                                    return (
+                                        <AppLink
+                                            key={index}
+                                            href={item.url || "#"}
+                                            className="mm-item mm-item--double"
+                                            onClick={() => onItemClick && onItemClick(item)}
+                                        >
+                                            {/* Icon on top */}
+                                            <span className="mm-item__thumb mm-item__thumb--double">
+                                                <AppImage src={STATIC_ICON} alt={"title"} />
+                                            </span>
+
+                                            {/* Text below */}
+                                            <span className="mm-item__label mm-item__label--double">{title}</span>
+                                        </AppLink>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Fallback if no items */}
+                            {rightItems.length === 0 && <div className="mm-blocks-empty">No items available</div>}
                         </div>
-                    );
-                })}
+                    )}
+                </div>
             </div>
         </div>
     );

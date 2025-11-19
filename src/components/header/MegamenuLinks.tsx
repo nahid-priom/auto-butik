@@ -1,11 +1,11 @@
 // react
-import React from 'react';
+import React from "react";
 // third-party
-import classNames from 'classnames';
+import classNames from "classnames";
 // application
-import AppLink from '~/components/shared/AppLink';
-import { FormattedMessage } from 'react-intl';
-import { ILink, INestedLink } from '~/interfaces/link';
+import AppLink from "~/components/shared/AppLink";
+import { FormattedMessage } from "react-intl";
+import { ILink, INestedLink } from "~/interfaces/link";
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
     links: INestedLink[];
@@ -14,16 +14,10 @@ interface Props extends React.HTMLAttributes<HTMLElement> {
 }
 
 function MegamenuLinks(props: Props) {
-    const {
-        links,
-        level = 0,
-        onItemClick,
-        className,
-        ...rootProps
-    } = props;
+    const { links, level = 0, onItemClick, className, ...rootProps } = props;
 
-    const rootClasses = classNames('megamenu-links', className, {
-        'megamenu-links--root': level === 0,
+    const rootClasses = classNames("megamenu-links", className, {
+        "megamenu-links--root": level === 0,
     });
 
     return (
@@ -31,8 +25,8 @@ function MegamenuLinks(props: Props) {
             {links.map((link, linkIndex) => {
                 const subLinks = link.links || [];
                 const hasSubLinks = subLinks.length > 0;
-                const linkClasses = classNames('megamenu-links__item', {
-                    'megamenu-links__item--has-submenu': link.links,
+                const linkClasses = classNames("megamenu-links__item", {
+                    "megamenu-links__item--has-submenu": hasSubLinks,
                 });
 
                 return (
@@ -43,15 +37,10 @@ function MegamenuLinks(props: Props) {
                             onClick={() => onItemClick && onItemClick(link)}
                             {...link.customFields?.anchorProps}
                         >
-                            {typeof link.title === 'string' ? (
-                                <FormattedMessage id={link.title} />
-                            ) : (
-                                link.title
-                            )}
+                            {typeof link.title === "string" ? <FormattedMessage id={link.title} /> : link.title}
                         </AppLink>
-                        {hasSubLinks && (
-                            <MegamenuLinks links={subLinks} level={level + 1} />
-                        )}
+
+                        {hasSubLinks && <MegamenuLinks links={subLinks} level={level + 1} onItemClick={onItemClick} />}
                     </li>
                 );
             })}
