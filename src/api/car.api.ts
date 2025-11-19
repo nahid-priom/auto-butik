@@ -56,88 +56,173 @@ export class CarApi {
         const baseUrl = getApiUrl();
         const url = `${baseUrl}/car/dropdown/brands`;
         console.log("Car API - Brands URL:", url);
-        const res = await fetch(url, {
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "true",
-            },
-        });
-        const data = await res.json();
-        if (!data.success) throw new Error("Failed to load brands");
-        return data.data as string[];
+        try {
+            const res = await fetch(url, {
+                credentials: "include",
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json",
+                    "ngrok-skip-browser-warning": "true",
+                },
+            });
+
+            if (!res.ok) {
+                console.error("Car API - Brands HTTP error:", res.status, res.statusText);
+                throw new Error(`Failed to load brands: ${res.status} ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            if (!data.success) throw new Error("Failed to load brands");
+            return data.data as string[];
+        } catch (error) {
+            console.error("Car API - Brands error:", error);
+            if (error instanceof TypeError && error.message.includes("fetch")) {
+                throw new Error(
+                    "Network error: Check CORS configuration on backend. Ensure https://api.autobutik.se allows credentials from your origin.",
+                );
+            }
+            throw error;
+        }
     }
 
     async getYears(brand: string): Promise<(number | string)[]> {
         const baseUrl = getApiUrl();
         const url = `${baseUrl}/car/dropdown/years`;
         console.log("Car API - Years URL:", url, "Body:", { merke: brand });
-        const res = await fetch(url, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "true",
-            },
-            body: JSON.stringify({ merke: brand }),
-        });
-        const data = await res.json();
-        if (!data.success) throw new Error("Failed to load years");
-        return data.data as (number | string)[];
+        try {
+            const res = await fetch(url, {
+                method: "POST",
+                credentials: "include",
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json",
+                    "ngrok-skip-browser-warning": "true",
+                },
+                body: JSON.stringify({ merke: brand }),
+            });
+
+            if (!res.ok) {
+                console.error("Car API - Years HTTP error:", res.status, res.statusText);
+                throw new Error(`Failed to load years: ${res.status} ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            if (!data.success) throw new Error("Failed to load years");
+            return data.data as (number | string)[];
+        } catch (error) {
+            console.error("Car API - Years error:", error);
+            if (error instanceof TypeError && error.message.includes("fetch")) {
+                throw new Error(
+                    "Network error: Check CORS configuration on backend. Ensure https://api.autobutik.se allows credentials from your origin.",
+                );
+            }
+            throw error;
+        }
     }
 
     async getModels(brand: string, year: string | number): Promise<string[]> {
         const baseUrl = getApiUrl();
         const url = `${baseUrl}/car/dropdown/models`;
         console.log("Car API - Models URL:", url, "Body:", { merke: brand, year: String(year) });
-        const res = await fetch(url, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "true",
-            },
-            body: JSON.stringify({ merke: brand, year: String(year) }),
-        });
-        const data = await res.json();
-        if (!data.success) throw new Error("Failed to load models");
-        return data.data as string[];
+        try {
+            const res = await fetch(url, {
+                method: "POST",
+                credentials: "include",
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json",
+                    "ngrok-skip-browser-warning": "true",
+                },
+                body: JSON.stringify({ merke: brand, year: String(year) }),
+            });
+
+            if (!res.ok) {
+                console.error("Car API - Models HTTP error:", res.status, res.statusText);
+                throw new Error(`Failed to load models: ${res.status} ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            if (!data.success) throw new Error("Failed to load models");
+            return data.data as string[];
+        } catch (error) {
+            console.error("Car API - Models error:", error);
+            if (error instanceof TypeError && error.message.includes("fetch")) {
+                throw new Error(
+                    "Network error: Check CORS configuration on backend. Ensure https://api.autobutik.se allows credentials from your origin.",
+                );
+            }
+            throw error;
+        }
     }
 
     async getEngines(brand: string, year: string | number, model: string): Promise<ITypesMap> {
         const baseUrl = getApiUrl();
         const url = `${baseUrl}/car/dropdown/types`;
         console.log("Car API - Engines URL:", url, "Body:", { merke: brand, year: String(year), modell: model });
-        const res = await fetch(url, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "true",
-            },
-            body: JSON.stringify({ merke: brand, year: String(year), modell: model }),
-        });
-        const data = await res.json();
-        if (!data.success) throw new Error("Failed to load engines");
-        return data.data as ITypesMap;
+        try {
+            const res = await fetch(url, {
+                method: "POST",
+                credentials: "include",
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json",
+                    "ngrok-skip-browser-warning": "true",
+                },
+                body: JSON.stringify({ merke: brand, year: String(year), modell: model }),
+            });
+
+            if (!res.ok) {
+                console.error("Car API - Engines HTTP error:", res.status, res.statusText);
+                throw new Error(`Failed to load engines: ${res.status} ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            if (!data.success) throw new Error("Failed to load engines");
+            return data.data as ITypesMap;
+        } catch (error) {
+            console.error("Car API - Engines error:", error);
+            if (error instanceof TypeError && error.message.includes("fetch")) {
+                throw new Error(
+                    "Network error: Check CORS configuration on backend. Ensure https://api.autobutik.se allows credentials from your origin.",
+                );
+            }
+            throw error;
+        }
     }
 
     async getWheelDataByModelId(modelId: string): Promise<IWheelData> {
         const baseUrl = getApiUrl();
         const url = `${baseUrl}/car/dropdown/wheel-id`;
         console.log("Car API - Wheel URL:", url, "Body:", { mid: modelId });
-        const res = await fetch(url, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "true",
-            },
-            body: JSON.stringify({ mid: modelId }),
-        });
-        const data = await res.json();
-        if (!data.success) throw new Error("Failed to load wheel data");
-        return data.data as IWheelData;
+        try {
+            const res = await fetch(url, {
+                method: "POST",
+                credentials: "include",
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json",
+                    "ngrok-skip-browser-warning": "true",
+                },
+                body: JSON.stringify({ mid: modelId }),
+            });
+
+            if (!res.ok) {
+                console.error("Car API - Wheel HTTP error:", res.status, res.statusText);
+                throw new Error(`Failed to load wheel data: ${res.status} ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            if (!data.success) throw new Error("Failed to load wheel data");
+            return data.data as IWheelData;
+        } catch (error) {
+            console.error("Car API - Wheel error:", error);
+            if (error instanceof TypeError && error.message.includes("fetch")) {
+                throw new Error(
+                    "Network error: Check CORS configuration on backend. Ensure https://api.autobutik.se allows credentials from your origin.",
+                );
+            }
+            throw error;
+        }
     }
 }
 
