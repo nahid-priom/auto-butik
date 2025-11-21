@@ -11,6 +11,7 @@ import { CurrentVehicleScopeProvider } from "~/services/current-vehicle";
 import { SidebarProvider } from "~/services/sidebar";
 import { useIntl } from "react-intl";
 import { useRouter } from "next/router";
+import BlockVehicleHero from "~/components/blocks/BlockVehicleHero";
 
 function Page() {
     const intl = useIntl();
@@ -46,6 +47,7 @@ function Page() {
             />
             <SidebarProvider>
                 <CurrentVehicleScopeProvider>
+                    <BlockVehicleHero />
                     {pageHeader}
 
                     <div className="block-split block-split--has-sidebar">
@@ -56,7 +58,7 @@ function Page() {
                                 <div className="block-split__item block-split__item-content col-auto flex-grow-1">
                                     <div className="block">
                                         <GraphQLProductsView
-                                            layout="grid"
+                                            layout="list"
                                             gridLayout="grid-3-sidebar"
                                             offCanvasSidebar="mobile"
                                         />

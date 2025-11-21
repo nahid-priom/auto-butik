@@ -1,12 +1,12 @@
 // react
-import React from 'react';
+import React, { useEffect } from "react";
 // third-party
-import classNames from 'classnames';
-import { FormattedMessage } from 'react-intl';
+import classNames from "classnames";
+import { FormattedMessage } from "react-intl";
 // application
-import { useShopFilters, useShopFilterValues, useShopResetFiltersThunk } from '~/store/shop/shopHooks';
-import { IShopPageOffCanvasSidebar } from '~/interfaces/pages';
-import Filter from '~/components/filters/Filter';
+import { useShopFilters, useShopFilterValues, useShopResetFiltersThunk } from "~/store/shop/shopHooks";
+import { IShopPageOffCanvasSidebar } from "~/interfaces/pages";
+import Filter from "~/components/filters/Filter";
 
 interface Props {
     offcanvasSidebar: IShopPageOffCanvasSidebar;
@@ -18,7 +18,11 @@ function WidgetFilters(props: Props) {
     const values = useShopFilterValues();
     const shopResetFilters = useShopResetFiltersThunk();
 
-    const rootClasses = classNames('widget', 'widget-filters', `widget-filters--offcanvas--${offcanvasSidebar}`);
+    useEffect(() => {
+        shopResetFilters();
+    }, []);
+
+    const rootClasses = classNames("widget", "widget-filters", `widget-filters--offcanvas--${offcanvasSidebar}`);
 
     return (
         <div className={rootClasses}>
@@ -30,11 +34,7 @@ function WidgetFilters(props: Props) {
 
             <div className="widget-filters__list">
                 {filters.map((filter) => (
-                    <Filter
-                        key={filter.slug}
-                        filter={filter}
-                        value={values[filter.slug]}
-                    />
+                    <Filter key={filter.slug} filter={filter} value={values[filter.slug]} />
                 ))}
             </div>
 

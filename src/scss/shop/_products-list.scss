@@ -1,12 +1,11 @@
 /*
 // .products-list
 */
-@import '../variables';
-@import '../mixins/card';
-@import '../mixins/product-card';
-@import '../mixins/direction';
-@import '../mixins/breakpoints';
-
+@import "../variables";
+@import "../mixins/card";
+@import "../mixins/product-card";
+@import "../mixins/direction";
+@import "../mixins/breakpoints";
 
 @mixin local-layout($columns, $gutter) {
     .products-list__content {
@@ -20,8 +19,8 @@
 $local-columns: 4;
 $local-gutter: 20px;
 
-
-.products-list {}
+.products-list {
+}
 .products-list__content {
     display: flex;
     flex-wrap: wrap;
@@ -37,7 +36,6 @@ $local-gutter: 20px;
         width: 100%;
     }
 }
-
 
 .products-list[data-layout="grid"] {
     .product-card {
@@ -164,7 +162,7 @@ $local-gutter: 20px;
 
         &:after {
             display: block;
-            content: '';
+            content: "";
             width: 36px;
             margin: 0 16px;
         }

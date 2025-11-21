@@ -1,32 +1,401 @@
 /*
-// .megamenu
+// .main-menu (Updated megamenu styling)
 */
-@import '../variables';
-@import '../mixins/direction';
-@import '../mixins/breakpoints';
-@import '../mixins/header';
-
+@import "../variables";
+@import "../functions";
+@import "../mixins/breakpoints";
+@import "../mixins/direction";
+@import "../mixins/scheme";
+@import "../mixins/header";
 
 @include desktop-header-variant-selector {
-    .megamenu {
+    .main-menu__item--submenu--megamenu {
         position: relative;
-    }
-    .megamenu__image {
-        position: absolute;
-        bottom: 0;
 
-        @include direction {
-            #{$inset-inline-end}: 0;
-            transform-origin: bottom $inline-end;
-        }
-
-        img,
-        picture {
-            display: block;
-        }
-
-        @include media-breakpoint-only(xl) {
-            transform: scale(.81);
+        .main-menu__submenu {
+            position: absolute;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform-origin: top;
+            transform: rotateX(45deg);
+            transition: transform 0.2s, opacity 0.2s;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%) rotateX(45deg);
         }
     }
+
+    .main-menu__item--has-submenu.main-menu__item--hover {
+        .main-menu__submenu {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) rotateX(0);
+        }
+    }
+
+    // Updated megamenu sizing and styling
+    .main-menu__megamenu {
+        padding: 0;
+        background-color: map_get($menu-scheme, main);
+        box-shadow: map_get($menu-scheme, shadow);
+        border-radius: 8px;
+        overflow: hidden;
+        width: 90vw;
+        max-width: 1200px;
+        max-height: 70vh;
+        overflow-y: auto;
+        margin-top: 5px;
+    }
+
+    // Override all megamenu sizes to be consistent
+    .main-menu__megamenu--size--xxl,
+    .main-menu__megamenu--size--xl,
+    .main-menu__megamenu--size--lg,
+    .main-menu__megamenu--size--md,
+    .main-menu__megamenu--size--nl,
+    .main-menu__megamenu--size--sm {
+        width: 90vw;
+        max-width: 1200px;
+    }
+
+    // Megamenu inner layout
+    .main-menu__megamenu-inner {
+        min-height: 400px;
+        display: flex;
+        width: 100%;
+    }
+
+    // Full width layout (single column)
+    .main-menu__megamenu-full {
+        padding: 20px;
+        width: 100%;
+    }
+
+    // Left column styling - UPDATED
+    .main-menu__megamenu-left {
+        width: 25%;
+        min-width: 250px;
+        border-right: 1px solid #e5e5e5;
+        padding: 20px 0;
+        background: #fff;
+
+        .mm-cat {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #000 !important; // Black text color
+            background-color: transparent;
+            border-right: 2px solid transparent;
+            transition: all 0.2s ease;
+            position: relative;
+
+            &:hover {
+                background-color: #f8f8f8; // Light background only on hover
+                // No color change on hover - text stays black
+            }
+
+            &.active {
+                background-color: #f0f0f0;
+                color: #000; // Black text for active state
+                font-weight: 600;
+                border-right-color: #000;
+            }
+
+            .mm-cat__icon {
+                width: 30px; // Increased to 30px
+                height: 30px; // Increased to 30px
+                margin-right: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                }
+            }
+
+            .mm-cat__title {
+                flex: 1;
+                font-size: 14px;
+            }
+
+            .mm-cat__arrow {
+                width: 16px;
+                height: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 8px;
+                color: #000 !important; // Black arrow icon
+
+                svg {
+                    width: 100%;
+                    height: 100%;
+                    fill: currentColor;
+                }
+            }
+
+            &.active .mm-cat__arrow {
+                color: #000; // Black arrow for active state
+            }
+        }
+    }
+
+    // Right column styling - UPDATED
+    .main-menu__megamenu-right {
+        flex: 1;
+        padding: 20px;
+        background: #fff;
+        min-height: 300px;
+    }
+
+    // Blocks grid system
+    .mm-blocks-grid {
+        display: grid;
+        gap: 20px;
+
+        &--single {
+            grid-template-columns: repeat(
+                5,
+                1fr
+            ); // 5 items per row for single column
+            gap: 15px;
+        }
+
+        &--double {
+            grid-template-columns: repeat(
+                5,
+                1fr
+            ); // 5 items per row for double column
+            gap: 15px;
+        }
+    }
+
+    // Item styling
+    .mm-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        text-align: center;
+        transition: color 0.2s ease;
+
+        &--single {
+            color: #000;
+            padding: 10px;
+            border-radius: 8px;
+            background: transparent;
+
+            &:hover {
+                color: #0066cc;
+            }
+        }
+
+        &--double {
+            color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background-color: #f9f9f9;
+                transform: translateY(-2px);
+                color: #333;
+            }
+        }
+    }
+
+    // Thumb styling
+    .mm-item__thumb {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &--single {
+            padding: 8px;
+            margin-bottom: 10px;
+            background: transparent;
+            border-radius: 0;
+
+            img {
+                width: 90px; // Increased size for single column
+                height: 90px; // Increased size for single column
+                object-fit: contain;
+            }
+        }
+
+        &--double {
+            width: 90px; // Increased to 90px
+            height: 90px; // Increased to 90px
+            margin-bottom: 12px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 10px; // Slightly increased padding
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+        }
+    }
+
+    // Label styling
+    .mm-item__label {
+        font-weight: 500;
+        line-height: 1.3;
+
+        &--single {
+            font-size: 13px; // Slightly larger for better readability
+        }
+
+        &--double {
+            font-size: 13px;
+        }
+    }
+
+    // Empty state
+    .mm-blocks-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        color: #999;
+        font-size: 14px;
+    }
+
+    // Ensure the parent menu item can contain the megamenu
+    .main-menu__item--submenu--megamenu {
+        position: static;
+    }
+
+    // Responsive adjustments
+    @include media-breakpoint-down(xl) {
+        .main-menu__megamenu {
+            width: 95vw;
+        }
+
+        // Keep 5 columns for laptop screens (xl breakpoint)
+        .mm-blocks-grid--single,
+        .mm-blocks-grid--double {
+            grid-template-columns: repeat(5, 1fr);
+        }
+    }
+
+    @include media-breakpoint-down(lg) {
+        // 4 columns for smaller laptop screens
+        .mm-blocks-grid--single,
+        .mm-blocks-grid--double {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .main-menu__megamenu-left {
+            width: 30%;
+            min-width: 200px;
+        }
+    }
+
+    @include media-breakpoint-down(md) {
+        .main-menu__megamenu {
+            width: 98vw;
+            max-height: 85vh;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .main-menu__megamenu-inner {
+            flex-direction: column;
+        }
+
+        .main-menu__megamenu-left {
+            width: 100%;
+            min-width: auto;
+            border-right: none;
+            border-bottom: 1px solid #e5e5e5;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        // 3 columns for tablets
+        .mm-blocks-grid--single,
+        .mm-blocks-grid--double {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @include media-breakpoint-down(sm) {
+        // 2 columns for mobile
+        .mm-blocks-grid--single,
+        .mm-blocks-grid--double {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @include media-breakpoint-down(xs) {
+        // 1 column for very small screens
+        .mm-blocks-grid--single,
+        .mm-blocks-grid--double {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+// RTL support using separate selectors
+[dir="ltr"] .main-menu__item--submenu--megamenu .main-menu__submenu {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) rotateX(45deg);
+}
+
+[dir="rtl"] .main-menu__item--submenu--megamenu .main-menu__submenu {
+    right: 50%;
+    left: auto;
+    transform: translateX(50%) rotateX(45deg);
+}
+
+[dir="ltr"]
+    .main-menu__item--has-submenu.main-menu__item--hover
+    .main-menu__submenu {
+    transform: translateX(-50%) rotateX(0);
+}
+
+[dir="rtl"]
+    .main-menu__item--has-submenu.main-menu__item--hover
+    .main-menu__submenu {
+    transform: translateX(50%) rotateX(0);
+}
+
+// Handle left column arrow positioning for RTL
+[dir="ltr"] .main-menu__megamenu-left .mm-cat .mm-cat__icon {
+    margin-right: 12px;
+    margin-left: 0;
+}
+
+[dir="rtl"] .main-menu__megamenu-left .mm-cat .mm-cat__icon {
+    margin-left: 12px;
+    margin-right: 0;
+}
+
+[dir="ltr"] .main-menu__megamenu-left .mm-cat .mm-cat__arrow {
+    margin-left: 8px;
+    margin-right: 0;
+}
+
+[dir="rtl"] .main-menu__megamenu-left .mm-cat .mm-cat__arrow {
+    margin-right: 8px;
+    margin-left: 0;
+}
+
+[dir="ltr"] .main-menu__megamenu-left .mm-cat.active {
+    border-right-color: #000;
+    border-left-color: transparent;
+}
+
+[dir="rtl"] .main-menu__megamenu-left .mm-cat.active {
+    border-left-color: #000;
+    border-right-color: transparent;
 }

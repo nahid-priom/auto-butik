@@ -1,8 +1,8 @@
 // react
-import React from 'react';
+import React from "react";
 // application
-import ProductCard from '~/components/shared/ProductCard';
-import { IProduct } from '~/interfaces/product';
+import ProductCard from "~/components/shared/ProductCard";
+import { IProduct } from "~/interfaces/product";
 
 export interface IBlockProductsColumnsItem {
     title: string;
@@ -28,7 +28,15 @@ function BlockProductsColumns(props: Props) {
                                     <div key={product.id} className="block-products-columns__list-item">
                                         <ProductCard
                                             product={product}
-                                            exclude={['actions', 'status-badge', 'features', 'buttons', 'meta']}
+                                            exclude={[
+                                                "actions",
+                                                "status-badge",
+                                                "features",
+                                                "buttons",
+                                                "meta",
+                                                "shipping",
+                                                "vat",
+                                            ]}
                                         />
                                     </div>
                                 ))}

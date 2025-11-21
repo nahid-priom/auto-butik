@@ -1,12 +1,11 @@
 /*
 // .megamenu-links
 */
-@import '../variables';
-@import '../functions';
-@import '../mixins/breakpoints';
-@import '../mixins/scheme';
-@import '../mixins/header';
-
+@import "../variables";
+@import "../functions";
+@import "../mixins/breakpoints";
+@import "../mixins/scheme";
+@import "../mixins/header";
 
 @include desktop-header-variant-selector {
     .megamenu-links {
@@ -26,9 +25,13 @@
     .megamenu-links__item-link {
         font-size: 16px;
         color: inherit;
-        transition: color .15s;
+        transition: color 0.15s;
 
-        @include scheme-font-weight($menu-scheme, opposite, $font-weight-medium);
+        @include scheme-font-weight(
+            $menu-scheme,
+            opposite,
+            $font-weight-medium
+        );
 
         &:hover {
             color: $link-color;
@@ -56,7 +59,6 @@
             }
         }
     }
-
 
     @include media-breakpoint-only(xl) {
         .megamenu-links__item-link {

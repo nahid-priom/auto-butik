@@ -49,6 +49,7 @@ import { BiLogoVisa } from "react-icons/bi";
 import { RiMastercardFill } from "react-icons/ri";
 import { FaCcPaypal } from "react-icons/fa";
 import { FaApplePay } from "react-icons/fa";
+import BlockVehicleHero from "../blocks/BlockVehicleHero";
 
 interface Props {
     product: IProduct;
@@ -510,6 +511,7 @@ function ShopPageProduct(props: Props) {
                 brand={product.brand?.name}
                 structuredData={combinedStructuredData}
             />
+            <BlockVehicleHero />
 
             <BlockHeader breadcrumb={breadcrumb} />
 

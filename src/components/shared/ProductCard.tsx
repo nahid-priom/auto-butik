@@ -19,9 +19,17 @@ import { useQuickviewOpen } from "~/store/quickview/quickviewHooks";
 import { useWishlistAddItem } from "~/store/wishlist/wishlistHooks";
 import { Cart20Svg, Compare16Svg, Quickview16Svg, Wishlist16Svg } from "~/svg";
 
-export type IProductCardElement = "actions" | "status-badge" | "meta" | "features" | "buttons" | "list-buttons";
+export type IProductCardElement =
+    | "actions"
+    | "status-badge"
+    | "meta"
+    | "features"
+    | "buttons"
+    | "list-buttons"
+    | "shipping"
+    | "vat";
 
-export type IProductCardLayout = "grid" | "list" | "table" | "horizontal";
+export type IProductCardLayout = "grid" | "list" | "horizontal" | "table";
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
     product: IProduct;
@@ -261,44 +269,47 @@ function ProductCard(props: Props) {
                         </ul>
                     </div>
                 )} */}
+                {!exclude.includes("features") && displayedFeatures.length > 0 && (
+                    <div className="product-card__features">
+                        <ul>
+                            {displayedFeatures.map((attribute, index) => (
+                                <li key={index}>
+                                    <FormattedMessage id={attribute.name} />
+                                    {": "}
+                                    <span className="product-card__feature-value">
+                                        {attribute.values.map((x) => x.name).join(", ")}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
 
-                <div className="product-card__features">
-                    <ul>
-                        {displayedFeatures.map((attribute, index) => (
-                            <li key={index}>
-                                <FormattedMessage id={attribute.name} />
-                                {": "}
-                                <span className="product-card__feature-value">
-                                    {attribute.values.map((x) => x.name).join(", ")}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-
-                    {hasMoreFeatures && (
-                        <button
-                            className="product-card__show-more-btn"
-                            onClick={() => setShowAllFeatures(!showAllFeatures)}
-                        >
-                            <FormattedMessage
-                                id={showAllFeatures ? "BUTTON_HIDE_ALL_FEATURES" : "BUTTON_SHOW_ALL_FEATURES"}
-                            />
-                        </button>
-                    )}
-                </div>
+                        {hasMoreFeatures && (
+                            <button
+                                className="product-card__show-more-btn"
+                                onClick={() => setShowAllFeatures(!showAllFeatures)}
+                            >
+                                <FormattedMessage
+                                    id={showAllFeatures ? "BUTTON_HIDE_ALL_FEATURES" : "BUTTON_SHOW_ALL_FEATURES"}
+                                />
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
 
             <div className="product-card__footer">
-                <div className="product-card__shipping-info">
-                    <div className="product-card__shipping-info__icon">
-                        <FaCalendarCheck />
+                {!exclude.includes("shipping") && (
+                    <div className="product-card__shipping-info">
+                        <div className="product-card__shipping-info__icon">
+                            <FaCalendarCheck />
+                        </div>
+                        <div className="product-card__shipping-info__text">
+                            <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
+                            {": "}
+                            <span className="product-card__shipping-info__date">Tomorrow, 2025-10-29</span>
+                        </div>
                     </div>
-                    <div className="product-card__shipping-info__text">
-                        <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
-                        {": "}
-                        <span className="product-card__shipping-info__date">Tomorrow, 2025-10-29</span>
-                    </div>
-                </div>
+                )}
                 <div className="product-card__prices-and-buttons">
                     <div className="product-card__prices">
                         {product.compareAtPrice !== null && (
@@ -317,11 +328,13 @@ function ProductCard(props: Props) {
                             </div>
                         )}
                     </div>
-                    <div className="product-card__vat-and-shipping-info">
-                        <FormattedMessage id="TEXT_INCL_VAT" />
-                        <span> | </span>
-                        <FormattedMessage id="TEXT_FREE_SHIPPING" />
-                    </div>
+                    {!exclude.includes("vat") && (
+                        <div className="product-card__vat-and-shipping-info">
+                            <FormattedMessage id="TEXT_INCL_VAT" />
+                            <span> | </span>
+                            <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                        </div>
+                    )}
                     {!exclude.includes("buttons") && (
                         <React.Fragment>
                             {!exclude.includes("list-buttons") && (
@@ -351,7 +364,7 @@ function ProductCard(props: Props) {
                                             )}
                                         />
                                     </div>
-                                    <AsyncAction
+                                    {/* <AsyncAction
                                         action={() => addToWishlist()}
                                         render={({ run, loading }) => (
                                             <button
@@ -367,24 +380,28 @@ function ProductCard(props: Props) {
                                                 </span>
                                             </button>
                                         )}
-                                    />
-                                    <AsyncAction
-                                        action={() => addToCompare()}
-                                        render={({ run, loading }) => (
-                                            <button
-                                                type="button"
-                                                className={classNames("product-card__compare", {
-                                                    "product-card__compare--loading": loading,
-                                                })}
-                                                onClick={run}
-                                            >
-                                                <Compare16Svg />
-                                                <span>
-                                                    <FormattedMessage id="BUTTON_ADD_TO_COMPARE" />
-                                                </span>
-                                            </button>
-                                        )}
-                                    />
+                                    /> */}
+                                    <div className="checkbox-container">
+                                        <label className="checkbox-label">
+                                            <input type="checkbox" className="checkbox-input" />
+                                            <span className="checkbox-custom">
+                                                <svg className="checkbox-checkmark" viewBox="0 0 12 10">
+                                                    <polyline points="1.5 6 4.5 9 10.5 1" />
+                                                </svg>
+                                            </span>
+
+                                            <span className="checkbox-text">
+                                                <FormattedMessage id="BUTTON_ADD_TO_COMPARE" />
+                                            </span>
+                                        </label>
+                                    </div>
+
+                                    {/* <CustomCheckbox
+          id=""
+          label="Subscribe to newsletter"
+          checked={formData.newsletter}
+          onChange={handleCheckboxChange("newsletter")}
+        /> */}
                                 </React.Fragment>
                             )}
                         </React.Fragment>

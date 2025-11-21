@@ -1,17 +1,17 @@
 // react
-import React, { useState } from 'react';
+import React, { useState } from "react";
 // third-party
-import classNames from 'classnames';
+import classNames from "classnames";
 // application
-import AppLink from '~/components/shared/AppLink';
-import { FormattedMessage } from 'react-intl';
-import Megamenu from '~/components/header/Megamenu';
-import Menu from '~/components/header/Menu';
-import { ArrowDownSm7x5Svg } from '~/svg';
-import { IMainMenuLink } from '~/interfaces/main-menu-link';
-import { useOptions } from '~/store/options/optionsHooks';
+import AppLink from "~/components/shared/AppLink";
+import { FormattedMessage } from "react-intl";
+import Megamenu from "~/components/header/Megamenu";
+import Menu from "~/components/header/Menu";
+import { ArrowDownSm7x5Svg } from "~/svg";
+import { IMainMenuLink } from "~/interfaces/main-menu-link";
+import { useOptions } from "~/store/options/optionsHooks";
 // data
-import dataHeaderCategoryMenu from '~/data/headerCategoryMenu';
+import dataHeaderCategoryMenu from "~/data/headerCategoryMenu";
 
 function MainMenu() {
     const items: IMainMenuLink[] = dataHeaderCategoryMenu;
@@ -42,11 +42,11 @@ function MainMenu() {
                     }
 
                     const itemHasSubmenu = !!item.submenu;
-                    const itemClasses = classNames('main-menu__item', {
-                        'main-menu__item--has-submenu': itemHasSubmenu,
-                        'main-menu__item--submenu--menu': item.submenu?.type === 'menu',
-                        'main-menu__item--submenu--megamenu': item.submenu?.type === 'megamenu',
-                        'main-menu__item--hover': item === currentItem,
+                    const itemClasses = classNames("main-menu__item", {
+                        "main-menu__item--has-submenu": itemHasSubmenu,
+                        "main-menu__item--submenu--menu": item.submenu?.type === "menu",
+                        "main-menu__item--submenu--megamenu": item.submenu?.type === "megamenu",
+                        "main-menu__item--hover": item === currentItem,
                     });
 
                     return (
@@ -62,24 +62,20 @@ function MainMenu() {
                                 onClick={handleItemClick}
                                 {...item.customFields?.anchorProps}
                             >
-                                {typeof item.title === 'string' ? (
-                                    <FormattedMessage id={item.title} />
-                                ) : (
-                                    item.title
-                                )}
+                                {typeof item.title === "string" ? <FormattedMessage id={item.title} /> : item.title}
                                 {itemHasSubmenu && <ArrowDownSm7x5Svg />}
                             </AppLink>
 
                             {itemHasSubmenu && (
                                 <div className="main-menu__submenu">
-                                    {item.submenu?.type === 'menu' && (
+                                    {item.submenu?.type === "menu" && (
                                         <Menu items={item.submenu.links} onItemClick={handleItemClick} />
                                     )}
-                                    {item.submenu?.type === 'megamenu' && (
+                                    {item.submenu?.type === "megamenu" && (
                                         <div
                                             className={classNames(
-                                                'main-menu__megamenu',
-                                                `main-menu__megamenu--size--${item.submenu.size}`,
+                                                "main-menu__megamenu",
+                                                `main-menu__megamenu--size--${item.submenu.size}`
                                             )}
                                         >
                                             <Megamenu menu={item.submenu} onItemClick={handleItemClick} />

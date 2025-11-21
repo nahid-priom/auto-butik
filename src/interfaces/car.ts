@@ -48,8 +48,8 @@ export interface ICarApiResponse {
 }
 
 export interface ICurrentActiveCar {
-    regNr: string;
-    data: ICarData;
+    regNr?: string;
+    data: ICarData | IWheelData;
     fetchedAt: number; // timestamp
 }
 

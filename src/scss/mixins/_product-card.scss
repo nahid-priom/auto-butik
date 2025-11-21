@@ -174,7 +174,7 @@
     .product-card__prices-and-buttons {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
     }
 
     .product-card__vat-and-shipping-info {
@@ -579,7 +579,6 @@
     .product-card__info {
         padding-top: 12px;
         padding-bottom: (16px + 14px + 10px);
-
         @include direction {
             #{$padding-inline-end}: 10px;
         }
@@ -728,7 +727,7 @@
     $local-fit-height: 23px;
 
     .product-card__image {
-        padding: 16px $local-image-padding-x;
+        padding: 16px 10px;
         width: $local-image-width;
     }
     .product-card__badges {
@@ -753,6 +752,7 @@
         padding-top: $local-info-padding-y-start;
         padding-bottom: $local-fit-height + $local-fit-bottom +
             $local-info-padding-y-end;
+        margin-left: 20px;
         flex-grow: 1;
 
         @include direction {
@@ -776,16 +776,16 @@
 
     // footer
     .product-card__footer {
-        width: 260px;
+        width: 280px;
         display: flex;
         flex-direction: column-reverse;
         justify-content: start;
         padding: 10px;
         gap: 10px;
 
-        @include direction {
-            #{$border-inline-start}: 1px solid map_get($card-scheme, divider);
-        }
+        // @include direction {
+        //     #{$border-inline-start}: 1px solid map_get($card-scheme, divider);
+        // }
     }
     .product-card__prices {
         display: flex;

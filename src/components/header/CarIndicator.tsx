@@ -18,7 +18,11 @@ function CarDropdown({ onCloseMenu }: CarDropdownProps) {
     const { vehicles, currentCarId, removeVehicle, setCurrentCar } = useGarage();
 
     const handleSelectVehicle = (vehicle: any) => {
-        setCurrentActiveCar(vehicle.data);
+        setCurrentActiveCar({
+            regNr: (vehicle.data as any).RegNr,
+            data: vehicle.data as any,
+            fetchedAt: Date.now(),
+        });
         setCurrentCar(vehicle.id);
         // Keep dropdown open after selecting current car
     };

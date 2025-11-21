@@ -1,13 +1,12 @@
 /*
 // .main-menu
 */
-@import '../variables';
-@import '../functions';
-@import '../mixins/breakpoints';
-@import '../mixins/direction';
-@import '../mixins/scheme';
-@import '../mixins/header';
-
+@import "../variables";
+@import "../functions";
+@import "../mixins/breakpoints";
+@import "../mixins/direction";
+@import "../mixins/scheme";
+@import "../mixins/header";
 
 @mixin local-define-scheme($scheme) {
     .main-menu__link {
@@ -22,11 +21,10 @@
     }
     .main-menu__item:hover {
         .main-menu__link {
-            background-color: map_get($scheme, hover)
+            background-color: map_get($scheme, hover);
         }
     }
 }
-
 
 @include desktop-header-variant-selector {
     .main-menu {
@@ -81,8 +79,6 @@
         }
     }
 
-
-
     .main-menu__item--submenu--menu {
         position: relative;
 
@@ -94,17 +90,13 @@
             visibility: hidden;
             transform-origin: top;
             transform: rotateX(45deg);
-            transition:
-                transform .2s,
-                opacity .2s;
+            transition: transform 0.2s, opacity 0.2s;
 
             @include direction {
                 #{$inset-inline-start}: 0;
             }
         }
     }
-
-
 
     .main-menu__item--submenu--megamenu {
         .main-menu__submenu {
@@ -114,13 +106,9 @@
             visibility: hidden;
             transform-origin: top;
             transform: rotateX(45deg);
-            transition:
-                transform .2s,
-                opacity .2s;
+            transition: transform 0.2s, opacity 0.2s;
         }
     }
-
-
 
     .main-menu__item--has-submenu.main-menu__item--hover {
         .main-menu__submenu {
@@ -130,17 +118,14 @@
         }
     }
 
-
-
     $local-megamenu-sizes: (
         xxl: 6,
-        xl:  5,
-        lg:  4,
-        md:  3,
-        nl:  2,
-        sm:  1,
+        xl: 5,
+        lg: 4,
+        md: 3,
+        nl: 2,
+        sm: 1,
     );
-
 
     .main-menu__megamenu {
         padding: 26px 30px 30px;
@@ -151,16 +136,25 @@
     @each $name, $size in $local-megamenu-sizes {
         .main-menu__megamenu--size--#{$name} {
             @include media-breakpoint-up(xxl) {
-                width: calc((#{map_get($container-max-widths, xxl) - $grid-gutter-width} - 30px) / 6 * #{$size} + 30px);
+                width: calc(
+                    (
+                            #{map_get($container-max-widths, xxl) -
+                                $grid-gutter-width} - 30px
+                        ) / 6 * #{$size} + 30px
+                );
             }
             @include media-breakpoint-only(xl) {
-                width: calc((#{map_get($container-max-widths, xl) - $grid-gutter-width} - 30px) / 6 * #{$size} + 30px);
+                width: calc(
+                    (
+                            #{map_get($container-max-widths, xl) -
+                                $grid-gutter-width} - 30px
+                        ) / 6 * #{$size} + 30px
+                );
             }
         }
     }
 
-
-    @if($header-layout == spaceship) {
+    @if ($header-layout == spaceship) {
         @include media-breakpoint-only(xl) {
             .main-menu__link {
                 $delta: -2px;
@@ -179,8 +173,7 @@
         }
     }
 
-
-    @if($header-layout == classic) {
+    @if ($header-layout == classic) {
         .main-menu__link {
             height: 100%;
             padding-top: 0;
@@ -197,9 +190,8 @@
         }
     }
 
-
     // define scheme
-    @if($header-layout == spaceship) {
+    @if ($header-layout == spaceship) {
         .main-menu {
             @include local-define-scheme($navbar-scheme);
         }

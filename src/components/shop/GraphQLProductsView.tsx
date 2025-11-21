@@ -1,28 +1,17 @@
 // react
-import React, {
-    useCallback,
-    useContext,
-    useMemo,
-    useState,
-} from 'react';
+import React, { useCallback, useContext, useMemo, useState } from "react";
 // third-party
-import classNames from 'classnames';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { useRouter } from 'next/router';
+import classNames from "classnames";
+import { FormattedMessage, useIntl } from "react-intl";
+import { useRouter } from "next/router";
 // application
-import Navigation, { INavigationEvent } from '~/components/shared/Navigation';
-import ProductCard from '~/components/shared/ProductCard';
-import { isEmptyList } from '~/services/utils';
-import { IShopPageGridLayout, IShopPageLayout, IShopPageOffCanvasSidebar } from '~/interfaces/pages';
-import { SidebarContext } from '~/services/sidebar';
-import { useProducts } from '~/hooks/useProducts';
-import {
-    Filters16Svg,
-    LayoutGrid16Svg,
-    LayoutGridWithDetails16Svg,
-    LayoutList16Svg,
-    LayoutTable16Svg,
-} from '~/svg';
+import Navigation, { INavigationEvent } from "~/components/shared/Navigation";
+import ProductCard from "~/components/shared/ProductCard";
+import { isEmptyList } from "~/services/utils";
+import { IShopPageGridLayout, IShopPageLayout, IShopPageOffCanvasSidebar } from "~/interfaces/pages";
+import { SidebarContext } from "~/services/sidebar";
+import { useProducts } from "~/hooks/useProducts";
+import { Filters16Svg, LayoutGrid16Svg, LayoutGridWithDetails16Svg, LayoutList16Svg, LayoutTable16Svg } from "~/svg";
 
 interface LayoutButton {
     layout: IShopPageLayout;
@@ -43,13 +32,17 @@ function GraphQLProductsView(props: Props) {
     const [layout, setLayout] = useState(layoutProps);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(24);
-    const [sort, setSort] = useState('name_asc');
+    const [sort, setSort] = useState("name_asc");
 
     // Get search query from URL
-    const searchQuery = typeof router.query.search === 'string' ? router.query.search.toLowerCase() : '';
+    const searchQuery = typeof router.query.search === "string" ? router.query.search.toLowerCase() : "";
 
     // Fetch ALL products (without search filter)
-    const { products: productsList, loading: isLoading, error } = useProducts({
+    const {
+        products: productsList,
+        loading: isLoading,
+        error,
+    } = useProducts({
         page,
         limit,
         sort,
@@ -61,9 +54,7 @@ function GraphQLProductsView(props: Props) {
             return productsList;
         }
 
-        const filteredItems = productsList.items.filter(product => 
-            product.name.toLowerCase().includes(searchQuery)
-        );
+        const filteredItems = productsList.items.filter((product) => product.name.toLowerCase().includes(searchQuery));
 
         const totalFiltered = filteredItems.length;
         const totalPages = Math.ceil(totalFiltered / limit);
@@ -100,7 +91,7 @@ function GraphQLProductsView(props: Props) {
     }, []);
 
     const onNavigate = useCallback((event: INavigationEvent) => {
-        if (event.type === 'page') {
+        if (event.type === "page") {
             setPage(event.page);
         }
     }, []);
@@ -109,33 +100,30 @@ function GraphQLProductsView(props: Props) {
         setSidebarIsOpen(true);
     };
 
-    const layoutButtons: LayoutButton[] = useMemo(() => [
-        { layout: 'grid', icon: <LayoutGrid16Svg /> },
-        { layout: 'grid-with-features', icon: <LayoutGridWithDetails16Svg /> },
-        { layout: 'list', icon: <LayoutList16Svg /> },
-        { layout: 'table', icon: <LayoutTable16Svg /> },
-    ], []);
+    const layoutButtons: LayoutButton[] = useMemo(
+        () => [
+            { layout: "list", icon: <LayoutList16Svg /> },
+            { layout: "grid", icon: <LayoutGrid16Svg /> },
+        ],
+        []
+    );
 
-    const rootClasses = classNames('products-view', {
-        'products-view--loading': isLoading,
+    const rootClasses = classNames("products-view", {
+        "products-view--loading": isLoading,
     });
 
     const viewOptionsClasses = classNames(
-        'products-view__options',
-        'view-options',
-        `view-options--offcanvas--${offCanvasSidebar}`,
+        "products-view__options",
+        "view-options",
+        `view-options--offcanvas--${offCanvasSidebar}`
     );
 
-    const productListClasses = classNames(
-        'products-view__list',
-        'products-list',
-        {
-            'products-list--grid--6': gridLayout === 'grid-6-full',
-            'products-list--grid--5': gridLayout === 'grid-5-full',
-            'products-list--grid--4': ['grid-4-full', 'grid-4-sidebar'].includes(gridLayout),
-            'products-list--grid--3': gridLayout === 'grid-3-sidebar',
-        },
-    );
+    const productListClasses = classNames("products-view__list", "products-list", {
+        "products-list--grid--6": gridLayout === "grid-6-full",
+        "products-list--grid--5": gridLayout === "grid-5-full",
+        "products-list--grid--4": ["grid-4-full", "grid-4-sidebar"].includes(gridLayout),
+        "products-list--grid--3": gridLayout === "grid-3-sidebar",
+    });
 
     // Show error message if there's an error
     if (error) {
@@ -143,12 +131,8 @@ function GraphQLProductsView(props: Props) {
             <div className={rootClasses}>
                 <div className="products-view__body">
                     <div className="products-view__empty">
-                        <div className="products-view__empty-title">
-                            Error Loading Products
-                        </div>
-                        <div className="products-view__empty-subtitle">
-                            {error}
-                        </div>
+                        <div className="products-view__empty-title">Error Loading Products</div>
+                        <div className="products-view__empty-subtitle">{error}</div>
                     </div>
                 </div>
             </div>
@@ -191,7 +175,9 @@ function GraphQLProductsView(props: Props) {
                                     className="view-options__filters-button filters-button"
                                     onClick={handleFiltersClick}
                                 >
-                                    <span className="filters-button__icon"><Filters16Svg /></span>
+                                    <span className="filters-button__icon">
+                                        <Filters16Svg />
+                                    </span>
                                     <span className="filters-button__title">
                                         <FormattedMessage id="BUTTON_FILTERS" />
                                     </span>
@@ -201,8 +187,8 @@ function GraphQLProductsView(props: Props) {
                                 <div className="view-options__layout layout-switcher">
                                     <div className="layout-switcher__list">
                                         {layoutButtons.map((button) => {
-                                            const buttonClasses = classNames('layout-switcher__button', {
-                                                'layout-switcher__button--active': button.layout === layout,
+                                            const buttonClasses = classNames("layout-switcher__button", {
+                                                "layout-switcher__button--active": button.layout === layout,
                                             });
 
                                             return (
@@ -220,7 +206,7 @@ function GraphQLProductsView(props: Props) {
                                 </div>
 
                                 <div className="view-options__legend">
-                                    {navigation.type === 'page' && (
+                                    {navigation.type === "page" && (
                                         <FormattedMessage
                                             id="TEXT_SHOWING_PRODUCTS"
                                             values={{
@@ -236,8 +222,7 @@ function GraphQLProductsView(props: Props) {
 
                                 <div className="view-options__select">
                                     <label htmlFor="view-option-sort">
-                                        <FormattedMessage id="INPUT_SORT_LABEL" />
-                                        :
+                                        <FormattedMessage id="INPUT_SORT_LABEL" />:
                                     </label>
                                     <select
                                         id="view-option-sort"
@@ -246,24 +231,19 @@ function GraphQLProductsView(props: Props) {
                                         onChange={handleSortChange}
                                     >
                                         <option value="name_asc">
-                                            {intl.formatMessage({ id: 'INPUT_SORT_OPTION_NAME_ASC' })}
+                                            {intl.formatMessage({ id: "INPUT_SORT_OPTION_NAME_ASC" })}
                                         </option>
                                         <option value="name_desc">
-                                            {intl.formatMessage({ id: 'INPUT_SORT_OPTION_NAME_DESC' })}
+                                            {intl.formatMessage({ id: "INPUT_SORT_OPTION_NAME_DESC" })}
                                         </option>
-                                        <option value="price_asc">
-                                            Price: Low to High
-                                        </option>
-                                        <option value="price_desc">
-                                            Price: High to Low
-                                        </option>
+                                        <option value="price_asc">Price: Low to High</option>
+                                        <option value="price_desc">Price: High to Low</option>
                                     </select>
                                 </div>
 
                                 <div className="view-options__select">
                                     <label htmlFor="view-option-limit">
-                                        <FormattedMessage id="INPUT_LIMIT_LABEL" />
-                                        :
+                                        <FormattedMessage id="INPUT_LIMIT_LABEL" />:
                                     </label>
                                     <select
                                         id="view-option-limit"
@@ -282,8 +262,8 @@ function GraphQLProductsView(props: Props) {
 
                         <div
                             className={productListClasses}
-                            data-layout={layout === 'grid-with-features' ? 'grid' : layout}
-                            data-with-features={layout === 'grid-with-features' ? 'true' : 'false'}
+                            data-layout={layout === "grid-with-features" ? "grid" : layout}
+                            data-with-features={layout === "grid-with-features" ? "true" : "false"}
                         >
                             <div className="products-list__head">
                                 <div className="products-list__column products-list__column--image">
@@ -313,16 +293,10 @@ function GraphQLProductsView(props: Props) {
 
                         <div className="products-view__pagination">
                             <nav aria-label="Page navigation example">
-                                {navigation && (
-                                    <Navigation
-                                        data={navigation}
-                                        page={page}
-                                        onNavigate={onNavigate}
-                                    />
-                                )}
+                                {navigation && <Navigation data={navigation} page={page} onNavigate={onNavigate} />}
                             </nav>
                             <div className="products-view__pagination-legend">
-                                {navigation.type === 'page' && (
+                                {navigation.type === "page" && (
                                     <FormattedMessage
                                         id="TEXT_SHOWING_PRODUCTS"
                                         values={{
