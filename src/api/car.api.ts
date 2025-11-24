@@ -32,8 +32,6 @@ export class CarApi {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    // Add ngrok bypass header for ngrok tunnels
-                    "ngrok-skip-browser-warning": "true",
                 },
             });
 
@@ -62,7 +60,6 @@ export class CarApi {
                 mode: "cors",
                 headers: {
                     "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "true",
                 },
             });
 
@@ -96,7 +93,6 @@ export class CarApi {
                 mode: "cors",
                 headers: {
                     "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ merke: brand }),
             });
@@ -131,7 +127,6 @@ export class CarApi {
                 mode: "cors",
                 headers: {
                     "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ merke: brand, year: String(year) }),
             });
@@ -166,7 +161,6 @@ export class CarApi {
                 mode: "cors",
                 headers: {
                     "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ merke: brand, year: String(year), modell: model }),
             });
@@ -201,7 +195,6 @@ export class CarApi {
                 mode: "cors",
                 headers: {
                     "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ mid: modelId }),
             });
