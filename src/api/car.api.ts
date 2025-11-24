@@ -56,8 +56,6 @@ export class CarApi {
         console.log("Car API - Brands URL:", url);
         try {
             const res = await fetch(url, {
-                credentials: "include",
-                mode: "cors",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -89,8 +87,6 @@ export class CarApi {
         try {
             const res = await fetch(url, {
                 method: "POST",
-                credentials: "include",
-                mode: "cors",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -123,8 +119,6 @@ export class CarApi {
         try {
             const res = await fetch(url, {
                 method: "POST",
-                credentials: "include",
-                mode: "cors",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -157,8 +151,6 @@ export class CarApi {
         try {
             const res = await fetch(url, {
                 method: "POST",
-                credentials: "include",
-                mode: "cors",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -191,8 +183,6 @@ export class CarApi {
         try {
             const res = await fetch(url, {
                 method: "POST",
-                credentials: "include",
-                mode: "cors",
                 headers: {
                     "Content-Type": "application/json",
                 },
