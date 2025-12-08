@@ -110,11 +110,14 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                background-color: #fff; // White background for images
+                border-radius: 4px;
 
                 img {
                     width: 100%;
                     height: 100%;
                     object-fit: contain;
+                    background-color: #fff; // White background for image element
                 }
             }
 
@@ -200,11 +203,13 @@
             padding: 15px;
             border-radius: 8px;
             transition: all 0.2s ease;
+            background-color: #ffffff;
 
             &:hover {
-                background-color: #f9f9f9;
+                background-color: #ffffff;
                 transform: translateY(-2px);
                 color: #333;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             }
         }
     }
@@ -218,13 +223,14 @@
         &--single {
             padding: 8px;
             margin-bottom: 10px;
-            background: transparent;
-            border-radius: 0;
+            background: #fff; // White background for images
+            border-radius: 8px;
 
             img {
                 width: 90px; // Increased size for single column
                 height: 90px; // Increased size for single column
                 object-fit: contain;
+                background-color: #fff; // White background for image element
             }
         }
 
@@ -232,7 +238,7 @@
             width: 90px; // Increased to 90px
             height: 90px; // Increased to 90px
             margin-bottom: 12px;
-            background-color: #f5f5f5;
+            background-color: #fff; // White background for images
             border-radius: 8px;
             padding: 10px; // Slightly increased padding
 
@@ -240,6 +246,7 @@
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
+                background-color: #fff; // White background for image element
             }
         }
     }

@@ -15,10 +15,19 @@ interface Props extends React.HTMLAttributes<HTMLElement> {
 }
 
 /**
- * Static fallback image (the uploaded file path you provided)
- * The environment/build will map this path to a real URL in production as needed.
+ * Static fallback image for items without custom image
  */
 const STATIC_ICON = "/images/avatars/product.jpg";
+
+/**
+ * Get image path from customFields or use fallback
+ */
+const getItemImage = (item: ILink): string => {
+    if (item.customFields?.image) {
+        return item.customFields.image;
+    }
+    return STATIC_ICON;
+};
 
 function Megamenu(props: Props) {
     const { menu, onItemClick, className, ...rootProps } = props;
@@ -103,7 +112,7 @@ function Megamenu(props: Props) {
                                         >
                                             {/* Icon on top */}
                                             <span className="mm-item__thumb mm-item__thumb--single">
-                                                <AppImage src={STATIC_ICON} alt={"title"} />
+                                                <AppImage src={getItemImage(item)} alt={typeof item.title === "string" ? item.title : "item"} />
                                             </span>
 
                                             {/* Text below */}
@@ -147,7 +156,7 @@ function Megamenu(props: Props) {
                             >
                                 {/* Icon on the left */}
                                 <span className="mm-cat__icon">
-                                    <AppImage src={STATIC_ICON} alt={"icon"} />
+                                    <AppImage src={getItemImage(category)} alt={typeof category.title === "string" ? category.title : "category"} />
                                 </span>
 
                                 {/* Category title */}
@@ -186,7 +195,7 @@ function Megamenu(props: Props) {
                                         >
                                             {/* Icon on top */}
                                             <span className="mm-item__thumb mm-item__thumb--double">
-                                                <AppImage src={STATIC_ICON} alt={"title"} />
+                                                <AppImage src={getItemImage(item)} alt={typeof item.title === "string" ? item.title : "item"} />
                                             </span>
 
                                             {/* Text below */}
