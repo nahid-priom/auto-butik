@@ -97,6 +97,7 @@
 //   - .widget-categories-list
 //   - .widget-comments
 //   - .widget-filters
+//   - .widget-vehicle-categories
 //   - .widget-newsletter
 //   - .widget-posts
 //   - .widget-products
@@ -234,6 +235,7 @@
 // Pages
 // ---------------------------------------- */
 @import "pages/about";
+@import "pages/catalog-loading";
 @import "pages/contacts";
 @import "pages/faq";
 @import "pages/not-found";
@@ -272,6 +274,7 @@
 @import "widgets/widget-categories";
 @import "widgets/widget-comments";
 @import "widgets/widget-filters";
+@import "widgets/widget-vehicle-categories";
 @import "widgets/widget-newsletter";
 @import "widgets/widget-posts";
 @import "widgets/widget-products";

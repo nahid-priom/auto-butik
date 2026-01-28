@@ -5,6 +5,7 @@ import BlockHeader from "~/components/blocks/BlockHeader";
 import BlockSpace from "~/components/blocks/BlockSpace";
 import SEO from "~/components/shared/SEO";
 import GraphQLProductsView from "~/components/shop/GraphQLProductsView";
+import VehicleProductsView from "~/components/shop/VehicleProductsView";
 import ShopSidebar from "~/components/shop/ShopSidebar";
 import url from "~/services/url";
 import { CurrentVehicleScopeProvider } from "~/services/current-vehicle";
@@ -12,11 +13,14 @@ import { SidebarProvider } from "~/services/sidebar";
 import { useIntl } from "react-intl";
 import { useRouter } from "next/router";
 import BlockVehicleHero from "~/components/blocks/BlockVehicleHero";
+import { useCurrentActiveCar } from "~/contexts/CarContext";
 
-function Page() {
+function PageContent() {
     const intl = useIntl();
     const router = useRouter();
+    const { currentActiveCar } = useCurrentActiveCar();
     const searchQuery = typeof router.query.search === "string" ? router.query.search : "";
+    const hasActiveCar = !!currentActiveCar;
 
     const pageHeader = (
         <BlockHeader
@@ -45,33 +49,47 @@ function Page() {
                 keywords="auto parts catalog, car parts shop, vehicle parts, automotive parts, brake pads, filters, engine parts"
                 type="website"
             />
-            <SidebarProvider>
-                <CurrentVehicleScopeProvider>
-                    <BlockVehicleHero />
-                    {pageHeader}
+            <BlockVehicleHero />
+            {pageHeader}
 
-                    <div className="block-split block-split--has-sidebar">
-                        <div className="container">
-                            <div className="block-split__row row no-gutters">
-                                <div className="block-split__item block-split__item-sidebar col-auto">{sidebar}</div>
+            <div className="block-split block-split--has-sidebar">
+                <div className="container">
+                    <div className="block-split__row row no-gutters">
+                        <div className="block-split__item block-split__item-sidebar col-auto">{sidebar}</div>
 
-                                <div className="block-split__item block-split__item-content col-auto flex-grow-1">
-                                    <div className="block">
-                                        <GraphQLProductsView
-                                            layout="list"
-                                            gridLayout="grid-3-sidebar"
-                                            offCanvasSidebar="mobile"
-                                        />
-                                    </div>
-                                </div>
+                        <div className="block-split__item block-split__item-content col-auto flex-grow-1">
+                            <div className="block">
+                                {hasActiveCar ? (
+                                    <VehicleProductsView
+                                        layout="list"
+                                        gridLayout="grid-3-sidebar"
+                                        offCanvasSidebar="mobile"
+                                    />
+                                ) : (
+                                    <GraphQLProductsView
+                                        layout="list"
+                                        gridLayout="grid-3-sidebar"
+                                        offCanvasSidebar="mobile"
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <BlockSpace layout="before-footer" />
-                </CurrentVehicleScopeProvider>
-            </SidebarProvider>
+            <BlockSpace layout="before-footer" />
         </React.Fragment>
+    );
+}
+
+function Page() {
+    return (
+        <SidebarProvider>
+            <CurrentVehicleScopeProvider>
+                <PageContent />
+            </CurrentVehicleScopeProvider>
+        </SidebarProvider>
     );
 }
 

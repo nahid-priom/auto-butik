@@ -207,6 +207,144 @@ export class CarApi {
             throw error;
         }
     }
+
+    /**
+     * Get categories (collections) with product counts for a specific vehicle model
+     * @param modelId - The TecDoc KTYPE / model ID from car lookup
+     * @param parentId - Optional parent category ID to get subcategories
+     * @returns Promise with categories data
+     */
+    async getCategoriesForVehicle(modelId: string, parentId?: string | number): Promise<IVehicleCategoriesResponse> {
+        const baseUrl = getApiUrl();
+        const params = new URLSearchParams();
+        if (parentId !== undefined) {
+            params.append("parentId", String(parentId));
+        }
+        const url = `${baseUrl}/car/categories/${modelId}${params.toString() ? `?${params.toString()}` : ""}`;
+        console.log("Car API - Categories URL:", url);
+        try {
+            const res = await fetch(url, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!res.ok) {
+                console.error("Car API - Categories HTTP error:", res.status, res.statusText);
+                throw new Error(`Failed to load categories: ${res.status} ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            if (!data.success) throw new Error("Failed to load categories");
+            return data;
+        } catch (error) {
+            console.error("Car API - Categories error:", error);
+            if (error instanceof TypeError && error.message.includes("fetch")) {
+                throw new Error(
+                    "Network error: Check CORS configuration on backend. Ensure https://api.autobutik.se allows credentials from your origin.",
+                );
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Get products for a specific vehicle model
+     * @param modelId - The TecDoc KTYPE / model ID from car lookup
+     * @param options - Query options (skip, take, term, collectionSlug)
+     * @returns Promise with products data
+     */
+    async getProductsForVehicle(
+        modelId: string,
+        options: {
+            skip?: number;
+            take?: number;
+            term?: string;
+            collectionSlug?: string;
+        } = {}
+    ): Promise<IVehicleProductsResponse> {
+        const baseUrl = getApiUrl();
+        const { skip = 0, take = 24, term = "", collectionSlug = "" } = options;
+        
+        const params = new URLSearchParams();
+        if (skip > 0) params.append("skip", skip.toString());
+        if (take !== 24) params.append("take", take.toString());
+        if (term) params.append("term", term);
+        if (collectionSlug) params.append("collectionSlug", collectionSlug);
+
+        const url = `${baseUrl}/car/products/${modelId}${params.toString() ? `?${params.toString()}` : ""}`;
+        console.log("Car API - Products URL:", url);
+        try {
+            const res = await fetch(url, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!res.ok) {
+                console.error("Car API - Products HTTP error:", res.status, res.statusText);
+                throw new Error(`Failed to load products: ${res.status} ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            if (!data.success) throw new Error("Failed to load products");
+            return data;
+        } catch (error) {
+            console.error("Car API - Products error:", error);
+            if (error instanceof TypeError && error.message.includes("fetch")) {
+                throw new Error(
+                    "Network error: Check CORS configuration on backend. Ensure https://api.autobutik.se allows credentials from your origin.",
+                );
+            }
+            throw error;
+        }
+    }
+}
+
+// Vehicle catalog interfaces
+export interface IVehicleCategory {
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    tecdocNodeId: string | null;
+    tecdocPath: string | null;
+    parentId: string | null;
+    image: string | null;
+    productCount: number;
+    hasChildren: boolean;
+}
+
+export interface IVehicleCategoriesResponse {
+    success: boolean;
+    modelId: string;
+    ktype: string;
+    totalCategories: number;
+    totalProducts: number;
+    categories: IVehicleCategory[];
+}
+
+export interface IVehicleProduct {
+    productId: string;
+    productName: string;
+    slug: string;
+    description: string | null;
+    sku: string;
+    tecDoc: string | null;
+    icIndex: string | null;
+    price: number;
+    currencyCode: string;
+    imagePreview: string | null;
+}
+
+export interface IVehicleProductsResponse {
+    success: boolean;
+    modelId: string;
+    ktype: string;
+    totalItems: number;
+    skip: number;
+    take: number;
+    items: IVehicleProduct[];
 }
 
 export const carApi = new CarApi();

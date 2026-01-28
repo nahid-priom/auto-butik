@@ -218,7 +218,7 @@ function ProductCard(props: Props) {
                             ))}
                         </div>
                     )}
-                    <AppLink href={url.product(product)}>{<FormattedMessage id="PRODUCT_NAME" />}</AppLink>
+                    <AppLink href={url.product(product)}>{product.name}</AppLink>
                 </div>
 
                 {!exclude.includes("meta") && (
