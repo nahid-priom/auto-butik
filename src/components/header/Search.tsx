@@ -49,7 +49,7 @@ export function Search() {
                 { theme: 'colored' }
             );
             setQuery('');
-            router.push('/catalog/products');
+            router.push('/catalog');
         } catch (e) {
             toast.error(intl.formatMessage({ id: 'ERROR_VIN_NOT_FOUND' }));
             // keep the query as-is so user can edit or submit for product search

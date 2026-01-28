@@ -36,8 +36,8 @@ function BlockVehicleSearchHero() {
                     ),
                     { theme: 'colored' }
                 );
-                // Navigate to products listing after successful search
-                router.push('/catalog/products');
+                // Navigate to catalog page after successful search
+                router.push('/catalog');
             } catch (error) {
                 console.error('Error adding vehicle to garage:', error);
                 toast.error(
