@@ -22,6 +22,11 @@ $local-breadcrumb-padding-y: $local-breadcrumb-padding-top +
     padding-top: $local-breadcrumb-padding-top;
     padding-bottom: $local-breadcrumb-padding-bottom;
 }
+
+// Reduce spacing on product pages but keep enough for clickability
+.block-header:has(+ .block-split--product-page) .block-header__breadcrumb {
+    padding-bottom: 12px;
+}
 .block-header__title {
     font-size: 2.25rem;
     font-weight: $font-weight-bold;
