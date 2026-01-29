@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 // application
 import BlockHeader from "~/components/blocks/BlockHeader";
 import BlockSpace from "~/components/blocks/BlockSpace";
+import BlockCatalogHero from "~/components/blocks/BlockCatalogHero";
 import VehicleProductsView from "~/components/shop/VehicleProductsView";
 import GraphQLProductsView from "~/components/shop/GraphQLProductsView";
 import ShopSidebar from "~/components/shop/ShopSidebar";
@@ -81,7 +82,6 @@ function PageContent() {
 
     const pageHeader = (
         <BlockHeader
-            pageTitle={categoryName || intl.formatMessage({ id: "HEADER_SHOP" })}
             breadcrumb={finalBreadcrumb}
         />
     );
@@ -114,9 +114,18 @@ function PageContent() {
         );
     }
 
+    // Get car name for hero subtitle
+    const carName = currentActiveCar?.data 
+        ? `${(currentActiveCar.data as any).C_merke || ''} ${(currentActiveCar.data as any).C_modell || ''}`.trim()
+        : null;
+
     return (
         <React.Fragment>
             <PageTitle>{categoryName || intl.formatMessage({ id: "HEADER_SHOP" })}</PageTitle>
+            <BlockCatalogHero 
+                title={categoryName || intl.formatMessage({ id: "HEADER_SHOP" })}
+                subtitle={carName || undefined}
+            />
             {pageHeader}
             <div className="block-split block-split--has-sidebar">
                 <div className="container">

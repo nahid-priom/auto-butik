@@ -8,7 +8,9 @@ import ShopPageCategory from '~/components/shop/ShopPageCategory';
 import SitePageNotFound from '~/components/site/SitePageNotFound';
 import BlockHeader from '~/components/blocks/BlockHeader';
 import BlockSpace from '~/components/blocks/BlockSpace';
+import BlockCatalogHero from '~/components/blocks/BlockCatalogHero';
 import PageTitle from '~/components/shared/PageTitle';
+import WidgetVehicleCategories from '~/components/widgets/WidgetVehicleCategories';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
 import { useVehicleCatalog } from '~/hooks/useVehicleCatalog';
 import { carApi } from '~/api/car.api';
@@ -116,92 +118,93 @@ function CatalogSlugPage(props: Props) {
         return <SitePageNotFound />;
     }
 
-    // Show loading state
-    if (loading) {
-        return (
-            <React.Fragment>
-                <PageTitle>{categoryInfo?.name || intl.formatMessage({ id: "HEADER_SHOP" })}</PageTitle>
-                <BlockHeader
-                    pageTitle={categoryInfo?.name || intl.formatMessage({ id: "HEADER_SHOP" })}
-                    breadcrumb={breadcrumb.length > 0 ? breadcrumb : [
-                        { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
-                        { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
-                    ]}
-                />
-                <div className="block">
-                    <div className="container">
-                        <div className="block-categories block-categories--loading-catalog" style={{ position: 'relative', minHeight: '500px' }}>
-                            <div className="block-categories__loader-overlay">
-                                <div className="block-categories__loader-spinner" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <BlockSpace layout="before-footer" />
-            </React.Fragment>
-        );
-    }
+    // Show loading state - but render sidebar immediately
+    const isLoadingContent = loading;
 
-    // If category not found or has no children (should have redirected)
-    if (!categoryInfo || (!categoryInfo.hasChildren && subcategories.length === 0)) {
+    // If loading is complete and category not found or has no children (should have redirected)
+    if (!loading && (!categoryInfo || (!categoryInfo.hasChildren && subcategories.length === 0))) {
         return <SitePageNotFound />;
     }
 
     // Ensure breadcrumb is set (fallback if not set yet)
-    const finalBreadcrumb = breadcrumb.length > 0 ? breadcrumb : [
+    const finalBreadcrumb = breadcrumb.length > 0 ? breadcrumb : (categoryInfo ? [
         { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
         { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
         { title: categoryInfo.name, url: `/catalog/${categoryInfo.slug}` },
-    ];
+    ] : [
+        { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
+        { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
+    ]);
 
-    // Only render content if we have subcategories loaded (prevent dummy data flash)
-    // If category has children but we don't have subcategories yet, show loader
-    if (loading || (categoryInfo.hasChildren && subcategories.length === 0)) {
-        return (
-            <React.Fragment>
-                <PageTitle>{categoryInfo.name}</PageTitle>
-                <BlockHeader
-                    pageTitle={categoryInfo.name}
-                    breadcrumb={finalBreadcrumb}
+    // Check if we should show loader in content area
+    const shouldShowContentLoader = isLoadingContent || (categoryInfo && categoryInfo.hasChildren && subcategories.length === 0);
+
+    // Get car name for hero subtitle
+    const carName = currentActiveCar?.data 
+        ? `${(currentActiveCar.data as any).C_merke || ''} ${(currentActiveCar.data as any).C_modell || ''}`.trim()
+        : null;
+
+    const loadingCarName = currentActiveCar?.data 
+        ? `${((currentActiveCar.data as any).C_merke || '')} ${((currentActiveCar.data as any).C_modell || '')}`.trim() || undefined
+        : undefined;
+
+    return (
+        <React.Fragment>
+            <PageTitle>{categoryInfo?.name || intl.formatMessage({ id: "HEADER_SHOP" })}</PageTitle>
+            {(categoryInfo || isLoadingContent) && (
+                <BlockCatalogHero 
+                    title={categoryInfo?.name || intl.formatMessage({ id: "HEADER_SHOP" })}
+                    subtitle={carName || loadingCarName || undefined}
                 />
-                <div className="block">
+            )}
+            <BlockHeader
+                breadcrumb={finalBreadcrumb.length > 0 ? finalBreadcrumb : [
+                    { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
+                    { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
+                ]}
+            />
+            {shouldShowContentLoader ? (
+                <div className="block block-split block-split--has-sidebar">
                     <div className="container">
-                        <div className="block-categories block-categories--loading-catalog" style={{ position: 'relative', minHeight: '500px' }}>
-                            <div className="block-categories__loader-overlay">
-                                <div className="block-categories__loader-spinner" />
+                        <div className="block-split__row row no-gutters">
+                            {/* Sidebar - always render it */}
+                            <div className="block-split__item block-split__item-sidebar col-auto">
+                                <WidgetVehicleCategories offcanvasSidebar="none" />
+                            </div>
+                            {/* Content area with loader */}
+                            <div className="block-split__item block-split__item-content col-auto flex-grow-1">
+                                <div className="block">
+                                    <div className="container">
+                                        <div className="block-categories block-categories--loading-catalog" style={{ position: 'relative', minHeight: '500px' }}>
+                                            <div className="block-categories__loader-overlay">
+                                                <div className="block-categories__loader-spinner" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <BlockSpace layout="before-footer" />
-            </React.Fragment>
-        );
-    }
-
-    return (
-        <React.Fragment>
-            <PageTitle>{categoryInfo.name}</PageTitle>
-            <BlockHeader
-                pageTitle={categoryInfo.name}
-                breadcrumb={finalBreadcrumb}
-            />
-            <ShopPageCategory
-                layout="columns-4-sidebar"
-                category={{
-                    id: parseInt(categoryInfo.id, 10),
-                    type: 'shop',
-                    name: categoryInfo.name,
-                    slug: categoryInfo.slug,
-                    image: categoryInfo.image,
-                    items: categoryInfo.productCount,
-                    layout: 'categories',
-                    parent: null,
-                    children: [],
-                    customFields: {},
-                }}
-                subcategories={subcategories}
-                hideHeader={true}
-            />
+            ) : (
+                <ShopPageCategory
+                    layout="columns-4-sidebar"
+                    category={{
+                        id: parseInt(categoryInfo.id, 10),
+                        type: 'shop',
+                        name: categoryInfo.name,
+                        slug: categoryInfo.slug,
+                        image: categoryInfo.image,
+                        items: categoryInfo.productCount,
+                        layout: 'categories',
+                        parent: null,
+                        children: [],
+                        customFields: {},
+                    }}
+                    subcategories={subcategories}
+                    hideHeader={true}
+                />
+            )}
         </React.Fragment>
     );
 }

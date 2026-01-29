@@ -100,8 +100,8 @@ function Filter(props: Props) {
     );
 
     return (
-        <div className="widget-filters__item">
-            <Collapse toggleClass="filter--opened" render={renderFn} />
+        <div className="">
+            {/* <Collapse toggleClass="filter--opened" render={renderFn} /> */}
         </div>
     );
 }

@@ -193,13 +193,14 @@ function ShopPageCategory(props: Props) {
 
     return (
         <React.Fragment>
-            <PageTitle>{pageTitle}</PageTitle>
-
             {!hideHeader && (
-                <BlockHeader
-                    pageTitle={pageTitle}
-                    breadcrumb={breadcrumb}
-                />
+                <React.Fragment>
+                    <PageTitle>{pageTitle}</PageTitle>
+                    <BlockHeader
+                        pageTitle={pageTitle}
+                        breadcrumb={breadcrumb}
+                    />
+                </React.Fragment>
             )}
 
             <div

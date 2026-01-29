@@ -4,10 +4,57 @@
 @import '../mixins/breakpoints';
 
 
+// Hide filters widget on product pages completely
+.block-split--product-page {
+    .widget-filters,
+    .sidebar .widget-filters {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    // Align sidebar and content at the same vertical level
+    .block-split__row {
+        align-items: flex-start;
+    }
+
+    .block-split__item-sidebar {
+        align-self: flex-start;
+    }
+
+    .block-split__item-content {
+        align-self: flex-start;
+        margin-top: 0;
+        padding-top: 0;
+    }
+
+    .product {
+        margin-top: 36px;
+        padding-top: 0;
+    }
+
+    .product__header {
+        padding-top: 0;
+        margin-top: 0;
+    }
+}
+
+// Also hide filters in the sidebar content area
+.block-split__item-sidebar .widget-filters {
+    display: none !important;
+}
+
 .product--layout--sidebar {
     // variables
     --product-gutter: 30px;
     --product-gallery-image-max-width: 400px;
+
+    // Remove top margin/padding to align with sidebar
+    margin-top: 0;
+    padding-top: 0;
 
     // grid
     .product__body {
@@ -47,7 +94,9 @@
         padding: 0 40px 40px;
     }
     .product__header {
-        padding: 36px 40px 16px;
+        padding: 0 40px 16px;
+        padding-top: 0;
+        margin-top: 0;
     }
     .product__info {
         @include direction {

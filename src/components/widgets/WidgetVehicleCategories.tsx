@@ -49,7 +49,7 @@ function WidgetVehicleCategories(props: Props) {
             <div className={rootClasses}>
                 <div className="widget-vehicle-categories__header">
                     <h4 className="widget-vehicle-categories__title">
-                        <FormattedMessage id="HEADER_SHOP" defaultMessage="Handla" />
+                        <FormattedMessage id="HEADER_SHOP" defaultMessage="Kategorier" />
                     </h4>
                 </div>
                 <div className="widget-vehicle-categories__body">
@@ -65,7 +65,7 @@ function WidgetVehicleCategories(props: Props) {
             <div className={rootClasses}>
                 <div className="widget-vehicle-categories__header">
                     <h4 className="widget-vehicle-categories__title">
-                        <FormattedMessage id="HEADER_SHOP" defaultMessage="Handla" />
+                        <FormattedMessage id="HEADER_SHOP" defaultMessage="Kategorier" />
                     </h4>
                 </div>
                 <div className="widget-vehicle-categories__body">

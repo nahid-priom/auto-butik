@@ -4,7 +4,10 @@ import React, { useEffect, useState } from 'react';
 import ShopPageCategory from '~/components/shop/ShopPageCategory';
 import BlockHeader from '~/components/blocks/BlockHeader';
 import BlockSpace from '~/components/blocks/BlockSpace';
+import BlockCatalogHero from '~/components/blocks/BlockCatalogHero';
 import PageTitle from '~/components/shared/PageTitle';
+import WidgetVehicleCategories from '~/components/widgets/WidgetVehicleCategories';
+import WidgetCategoriesList from '~/components/widgets/WidgetCategoriesList';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
 import { useVehicleCatalog } from '~/hooks/useVehicleCatalog';
 import { IVehicleCategory } from '~/api/car.api';
@@ -81,33 +84,67 @@ function CatalogPage(props: Props) {
         />
     );
 
-    // Show loader while fetching vehicle categories
-    // Also prevent rendering ShopPageCategory if we have an active car but categories are still loading
-    if (shouldShowLoader || (hasActiveCar && vehicleSubcategories === null)) {
-        return (
-            <React.Fragment>
-                <PageTitle>{intl.formatMessage({ id: "HEADER_SHOP" })}</PageTitle>
-                {pageHeader}
-                <div className="block">
+    // Show loader while fetching vehicle categories, but still render sidebar
+    const isLoadingContent = shouldShowLoader || (hasActiveCar && vehicleSubcategories === null);
+
+    // Get car name for hero subtitle
+    const carName = currentActiveCar?.data 
+        ? `${(currentActiveCar.data as any).C_merke || ''} ${(currentActiveCar.data as any).C_modell || ''}`.trim()
+        : null;
+
+    return (
+        <React.Fragment>
+            <PageTitle>{intl.formatMessage({ id: "HEADER_SHOP" })}</PageTitle>
+            <BlockCatalogHero 
+                title={intl.formatMessage({ id: "HEADER_SHOP" })}
+                subtitle={carName || undefined}
+            />
+            <BlockHeader
+                breadcrumb={[
+                    { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
+                    { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
+                ]}
+            />
+            {isLoadingContent ? (
+                <div className="block block-split block-split--has-sidebar">
                     <div className="container">
-                        <div className="block-categories block-categories--loading-catalog" style={{ position: 'relative', minHeight: '500px' }}>
-                            <div className="block-categories__loader-overlay">
-                                <div className="block-categories__loader-spinner" />
+                        <div className="block-split__row row no-gutters">
+                            {/* Sidebar - always render it */}
+                            <div className="block-split__item block-split__item-sidebar col-auto">
+                                {hasActiveCar ? (
+                                    <WidgetVehicleCategories offcanvasSidebar="none" />
+                                ) : (
+                                    subcategories.length > 0 && (
+                                        <WidgetCategoriesList
+                                            categories={subcategories}
+                                        />
+                                    )
+                                )}
+                            </div>
+                            {/* Content area with loader */}
+                            <div className="block-split__item block-split__item-content col-auto flex-grow-1">
+                                <div className="block">
+                                    <div className="container">
+                                        <div className="block-categories block-categories--loading-catalog" style={{ position: 'relative', minHeight: '500px' }}>
+                                            <div className="block-categories__loader-overlay">
+                                                <div className="block-categories__loader-spinner" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <BlockSpace layout="before-footer" />
-            </React.Fragment>
-        );
-    }
-
-    return (
-        <ShopPageCategory
-            layout="columns-4-sidebar"
-            category={null}
-            subcategories={subcategories}
-        />
+            ) : (
+                <ShopPageCategory
+                    layout="columns-4-sidebar"
+                    category={null}
+                    subcategories={subcategories}
+                    hideHeader={true}
+                />
+            )}
+        </React.Fragment>
     );
 }
 

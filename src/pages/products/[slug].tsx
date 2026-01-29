@@ -43,7 +43,8 @@ function Page(props: Props) {
     return (
         <ShopPageProduct
             product={product}
-            layout="full"
+            layout="sidebar"
+            sidebarPosition="start"
         />
     );
 }

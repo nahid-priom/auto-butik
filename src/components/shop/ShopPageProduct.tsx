@@ -19,6 +19,7 @@ import ProductForm from "~/components/shop/ProductForm";
 import ProductGallery, { IProductGalleryLayout } from "~/components/shop/ProductGallery";
 import ProductSidebar from "~/components/shop/ProductSidebar";
 import ProductTabs from "~/components/shop/ProductTabs";
+import WidgetVehicleCategories from "~/components/widgets/WidgetVehicleCategories";
 import Rating from "~/components/shared/Rating";
 import ShareLinks from "~/components/shared/ShareLinks";
 import StockStatusBadge from "~/components/shared/StockStatusBadge";
@@ -515,12 +516,12 @@ function ShopPageProduct(props: Props) {
 
             <BlockHeader breadcrumb={breadcrumb} />
 
-            <div className={classNames("block-split", { "block-split--has-sidebar": layout === "sidebar" })}>
+            <div className={classNames("block-split", "block-split--product-page", { "block-split--has-sidebar": layout === "sidebar" })}>
                 <div className="container">
                     <div className="block-split__row row no-gutters">
                         {layout === "sidebar" && sidebarPosition === "start" && (
                             <div className="block-split__item block-split__item-sidebar col-auto">
-                                <ProductSidebar />
+                                <WidgetVehicleCategories offcanvasSidebar="none" />
                             </div>
                         )}
 
@@ -887,7 +888,7 @@ function ShopPageProduct(props: Props) {
 
                         {layout === "sidebar" && sidebarPosition === "end" && (
                             <div className="block-split__item block-split__item-sidebar col-auto">
-                                <ProductSidebar />
+                                <WidgetVehicleCategories offcanvasSidebar="none" />
                             </div>
                         )}
                     </div>

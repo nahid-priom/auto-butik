@@ -24,6 +24,18 @@
     border-radius: 4px;
     margin-bottom: 24px;
 }
+
+// Hide filters widget on product pages
+.block-split--product-page .widget-filters,
+.product--layout--sidebar ~ * .widget-filters,
+.block-split__item-sidebar:has(+ .block-split__item-content .product--layout--sidebar) .widget-filters {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
 .widget-filters__item {
     padding: 8px $widget-padding;
     border-bottom: 1px solid map_get($card-scheme, divider);
