@@ -21,7 +21,7 @@ function WidgetVehicleCategories(props: Props) {
     const { offcanvasSidebar, onCategoryClick } = props;
     const intl = useIntl();
     const router = useRouter();
-    const { categories, loading, error, hasActiveCar } = useVehicleCatalog();
+    const { categories, categoriesLoading, error, hasActiveCar } = useVehicleCatalog();
     const selectedSlug = typeof router.query.collectionSlug === "string" ? router.query.collectionSlug : null;
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -43,8 +43,9 @@ function WidgetVehicleCategories(props: Props) {
         return null;
     }
 
-    // Show loading state
-    if (loading && !categories) {
+    // Always render the widget structure to prevent disappearing
+    // Show loading state - only when categories are loading, not products
+    if (categoriesLoading && !categories) {
         return (
             <div className={rootClasses}>
                 <div className="widget-vehicle-categories__header">
@@ -60,7 +61,7 @@ function WidgetVehicleCategories(props: Props) {
     }
 
     // Show error state
-    if (error) {
+    if (error && !categories) {
         return (
             <div className={rootClasses}>
                 <div className="widget-vehicle-categories__header">
@@ -75,8 +76,8 @@ function WidgetVehicleCategories(props: Props) {
         );
     }
 
-    // Show empty state
-    if (!categories || categories.categories.length === 0) {
+    // Show empty state only if we have no categories after loading is complete
+    if (!categoriesLoading && (!categories || categories.categories.length === 0)) {
         return null;
     }
 

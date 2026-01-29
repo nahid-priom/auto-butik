@@ -10,6 +10,7 @@ import { ApolloProvider } from '@apollo/client';
 import { AuthProvider } from '~/contexts/AuthContext';
 import { CarProvider } from '~/contexts/CarContext';
 import { GarageProvider } from '~/contexts/GarageContext';
+import { VehicleCatalogProvider } from '~/contexts/VehicleCatalogContext';
 import { graphqlClient } from '~/api/graphql/account.api';
 // application
 import config from '~/config';
@@ -132,12 +133,14 @@ function App(props: Props) {
                     <AuthProvider>
                         <CarProvider>
                             <GarageProvider>
-                                <CurrentVehicleGarageProvider>
-                                    <Layout>
-                                        <PageTitle />
-                                        {page}
-                                    </Layout>
-                                </CurrentVehicleGarageProvider>
+                                <VehicleCatalogProvider>
+                                    <CurrentVehicleGarageProvider>
+                                        <Layout>
+                                            <PageTitle />
+                                            {page}
+                                        </Layout>
+                                    </CurrentVehicleGarageProvider>
+                                </VehicleCatalogProvider>
                             </GarageProvider>
                         </CarProvider>
                     </AuthProvider>

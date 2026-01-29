@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { carApi, IVehicleCategoriesResponse, IVehicleProductsResponse } from '~/api/car.api';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
+import { useVehicleCatalogContext } from '~/contexts/VehicleCatalogContext';
 import { ICarData } from '~/interfaces/car';
 
 export interface UseVehicleCatalogOptions {
@@ -12,10 +13,11 @@ export interface UseVehicleCatalogOptions {
 
 export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
     const { currentActiveCar } = useCurrentActiveCar();
-    const [categories, setCategories] = useState<IVehicleCategoriesResponse | null>(null);
+    // Use shared context for categories
+    const catalogContext = useVehicleCatalogContext();
     const [products, setProducts] = useState<IVehicleProductsResponse | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [productsLoading, setProductsLoading] = useState(false);
+    const [productsError, setProductsError] = useState<string | null>(null);
 
     const { skip = 0, take = 24, term = "", collectionSlug = "" } = options;
 
@@ -24,46 +26,21 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
         ? currentActiveCar.data.modell_id 
         : null;
 
-    // Fetch categories when modelId is available
-    useEffect(() => {
-        if (!modelId) {
-            setCategories(null);
-            return;
-        }
-
-        let canceled = false;
-
-        const loadCategories = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const data = await carApi.getCategoriesForVehicle(modelId);
-                if (!canceled) {
-                    setCategories(data);
-                }
-            } catch (err) {
-                if (!canceled) {
-                    console.error('Error fetching vehicle categories:', err);
-                    setError(err instanceof Error ? err.message : 'Failed to fetch categories');
-                }
-            } finally {
-                if (!canceled) {
-                    setLoading(false);
-                }
-            }
-        };
-
-        loadCategories();
-
-        return () => {
-            canceled = true;
-        };
-    }, [modelId]);
-
-    // Fetch products when modelId is available
+    // Fetch products when modelId is available AND we have options that indicate we need products
+    // Only fetch products if we're actually on a products page (collectionSlug is provided or we explicitly want products)
     useEffect(() => {
         if (!modelId) {
             setProducts(null);
+            setProductsLoading(false);
+            return;
+        }
+
+        // Don't fetch products if we're just browsing categories (no collectionSlug and no explicit product request)
+        // Only fetch if collectionSlug is provided (we're on a products page) or if skip/take are set (pagination)
+        const shouldFetchProducts = collectionSlug !== "" || skip > 0 || take !== 24;
+
+        if (!shouldFetchProducts) {
+            // We're just browsing categories, don't fetch products
             return;
         }
 
@@ -71,8 +48,8 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
 
         const loadProducts = async () => {
             try {
-                setLoading(true);
-                setError(null);
+                setProductsLoading(true);
+                setProductsError(null);
                 const data = await carApi.getProductsForVehicle(modelId, {
                     skip,
                     take,
@@ -85,11 +62,11 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
             } catch (err) {
                 if (!canceled) {
                     console.error('Error fetching vehicle products:', err);
-                    setError(err instanceof Error ? err.message : 'Failed to fetch products');
+                    setProductsError(err instanceof Error ? err.message : 'Failed to fetch products');
                 }
             } finally {
                 if (!canceled) {
-                    setLoading(false);
+                    setProductsLoading(false);
                 }
             }
         };
@@ -101,11 +78,16 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
         };
     }, [modelId, skip, take, term, collectionSlug]);
 
+    // For backward compatibility, loading is true if categories are loading
+    const loading = catalogContext.categoriesLoading;
+
     return {
-        categories,
+        categories: catalogContext.categories,
         products,
         loading,
-        error,
+        categoriesLoading: catalogContext.categoriesLoading,
+        productsLoading,
+        error: catalogContext.error || productsError,
         modelId,
         hasActiveCar: !!currentActiveCar,
     };

@@ -91,7 +91,7 @@ function VehicleProductsView(props: Props) {
     // Fetch vehicle catalog data
     const {
         products: productsResponse,
-        loading: isLoading,
+        productsLoading: isLoading,
         error,
         hasActiveCar,
     } = useVehicleCatalog({
