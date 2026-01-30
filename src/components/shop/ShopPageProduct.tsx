@@ -181,6 +181,7 @@ function ShopPageProduct(props: Props) {
     const topButtonRef = useRef<HTMLDivElement>(null);
     const [stickyBarVisible, setStickyBarVisible] = useState(false);
     const [stickyQuantity, setStickyQuantity] = useState(1);
+    const [mainQuantity, setMainQuantity] = useState(1);
     const [isMounted, setIsMounted] = useState(false);
 
     // Section data
@@ -609,31 +610,34 @@ function ShopPageProduct(props: Props) {
                                                         )}
                                                     </div>
                                                     <div className="product-card__vat-and-shipping-info">
-                                                        <FormattedMessage id="TEXT_INCL_VAT" />
-                                                        <span> | </span>
-                                                        <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                                                        <span className="product-card__vat-and-shipping-info__left">
+                                                            <FormattedMessage id="TEXT_INCL_VAT" />
+                                                        </span>
+                                                        <span className="product-card__vat-and-shipping-info__right">
+                                                            <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                                                        </span>
                                                     </div>
 
                                                     <React.Fragment>
                                                         <React.Fragment>
                                                             <div className="product-card__quantity-and-cart" ref={topButtonRef}>
                                                                 <div className="product-card__quantity">
-                                                                    <select
-                                                                        className="product-card__quantity-select"
-                                                                        defaultValue="1"
-                                                                    >
-                                                                        {Array.from(
-                                                                            { length: 10 },
-                                                                            (_, i) => i + 1
-                                                                        ).map((number) => (
-                                                                            <option key={number} value={number}>
-                                                                                {number}
-                                                                            </option>
-                                                                        ))}
-                                                                    </select>
+                                                                    <InputNumber
+                                                                        min={1}
+                                                                        max={99}
+                                                                        value={mainQuantity}
+                                                                        onChange={(v) =>
+                                                                            setMainQuantity(
+                                                                                typeof v === "number" && !Number.isNaN(v)
+                                                                                    ? Math.max(1, Math.min(99, Math.floor(v)))
+                                                                                    : 1
+                                                                            )
+                                                                        }
+                                                                        className="product-card__quantity-input"
+                                                                    />
                                                                 </div>
                                                                 <AsyncAction
-                                                                    action={() => cartAddItem(product)}
+                                                                    action={() => cartAddItem(product, [], mainQuantity)}
                                                                     render={({ run, loading }) => (
                                                                         <button
                                                                             type="button"

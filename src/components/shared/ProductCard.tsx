@@ -9,6 +9,7 @@ import AppLink from "~/components/shared/AppLink";
 import AsyncAction from "~/components/shared/AsyncAction";
 import CompatibilityStatusBadge from "~/components/shared/CompatibilityStatusBadge";
 import CurrencyFormat from "~/components/shared/CurrencyFormat";
+import InputNumber from "~/components/shared/InputNumber";
 import { FaCalendarCheck } from "react-icons/fa";
 import Rating from "~/components/shared/Rating";
 import url from "~/services/url";
@@ -112,6 +113,7 @@ function ProductCard(props: Props) {
     ];
 
     const [showAllFeatures, setShowAllFeatures] = useState(false);
+    const [quantity, setQuantity] = useState(1);
 
     // Show only first 4 features initially, or all if showAllFeatures is true
     const displayedFeatures = showAllFeatures ? featuredAttributes : featuredAttributes.slice(0, 4);
@@ -330,9 +332,12 @@ function ProductCard(props: Props) {
                     </div>
                     {!exclude.includes("vat") && (
                         <div className="product-card__vat-and-shipping-info">
-                            <FormattedMessage id="TEXT_INCL_VAT" />
-                            <span> | </span>
-                            <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                            <span className="product-card__vat-and-shipping-info__left">
+                                <FormattedMessage id="TEXT_INCL_VAT" />
+                            </span>
+                            <span className="product-card__vat-and-shipping-info__right">
+                                <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                            </span>
                         </div>
                     )}
                     {!exclude.includes("buttons") && (
@@ -341,16 +346,20 @@ function ProductCard(props: Props) {
                                 <React.Fragment>
                                     <div className="product-card__quantity-and-cart">
                                         <div className="product-card__quantity">
-                                            <select className="product-card__quantity-select" defaultValue="1">
-                                                {Array.from({ length: 10 }, (_, i) => i + 1).map((number) => (
-                                                    <option key={number} value={number}>
-                                                        {number}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            <InputNumber
+                                                min={1}
+                                                max={99}
+                                                value={quantity}
+                                                onChange={(v) =>
+                                                    setQuantity(
+                                                        typeof v === "number" && !Number.isNaN(v) ? Math.max(1, Math.min(99, Math.floor(v))) : 1
+                                                    )
+                                                }
+                                                className="product-card__quantity-input"
+                                            />
                                         </div>
                                         <AsyncAction
-                                            action={() => cartAddItem(product)}
+                                            action={() => cartAddItem(product, [], quantity)}
                                             render={({ run, loading }) => (
                                                 <button
                                                     type="button"
