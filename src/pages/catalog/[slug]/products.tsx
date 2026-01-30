@@ -1,5 +1,5 @@
 // react
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 // third-party
 import { useRouter } from "next/router";
 // application
@@ -14,12 +14,9 @@ import { CurrentVehicleScopeProvider } from "~/services/current-vehicle";
 import { SidebarProvider } from "~/services/sidebar";
 import { useIntl } from "react-intl";
 import { useCurrentActiveCar } from "~/contexts/CarContext";
-import { carApi } from "~/api/car.api";
-import { IVehicleCategory } from "~/api/car.api";
+import { useCategoryTree } from "~/contexts/CategoryTreeContext";
 import PageTitle from "~/components/shared/PageTitle";
-import SitePageNotFound from "~/components/site/SitePageNotFound";
 import { GetServerSideProps } from "next";
-import { buildCategoryBreadcrumb } from "~/utils/categoryBreadcrumb";
 import { ILink } from "~/interfaces/link";
 
 interface Props {
@@ -30,59 +27,54 @@ function PageContent() {
     const intl = useIntl();
     const router = useRouter();
     const { currentActiveCar } = useCurrentActiveCar();
-    const [categoryName, setCategoryName] = useState<string>("");
-    const [loading, setLoading] = useState(true);
-    const [breadcrumb, setBreadcrumb] = useState<ILink[]>([]);
+    const { tree, loading: isLoadingTree, findCategoryById, getBreadcrumb } = useCategoryTree();
     const slug = typeof router.query.slug === "string" ? router.query.slug : null;
+
+    // Parse the slug as category ID
+    const categoryId = slug ? parseInt(slug, 10) : null;
 
     // Get modelId from current active car
     const modelId = currentActiveCar?.data && 'modell_id' in currentActiveCar.data 
         ? currentActiveCar.data.modell_id 
         : null;
 
-    // Fetch category name for breadcrumb
-    useEffect(() => {
-        if (!slug || !modelId) {
-            setLoading(false);
-            return;
+    // Find the current category in the tree
+    const currentCategory = useMemo(() => {
+        if (!categoryId || !tree) return null;
+        return findCategoryById(categoryId);
+    }, [categoryId, tree, findCategoryById]);
+
+    // Build breadcrumb from tree
+    const breadcrumbPath: ILink[] = useMemo(() => {
+        if (!categoryId || !tree) {
+            return [
+                { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
+                { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
+            ];
         }
 
-        const fetchCategoryName = async () => {
-            try {
-                // Get all categories to build breadcrumb path
-                const allCategoriesResponse = await carApi.getCategoriesForVehicle(modelId, 'all');
-                const matchingCategory = allCategoriesResponse.categories.find(cat => cat.slug === slug);
-                if (matchingCategory) {
-                    setCategoryName(matchingCategory.name);
-                    
-                    // Build breadcrumb path
-                    const breadcrumbPath = buildCategoryBreadcrumb(allCategoriesResponse.categories, matchingCategory);
-                    setBreadcrumb([
-                        { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
-                        { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
-                        ...breadcrumbPath,
-                    ]);
-                }
-            } catch (error) {
-                console.error('Error fetching category name:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+        const treeBreadcrumb = getBreadcrumb(categoryId);
+        const breadcrumbLinks: ILink[] = treeBreadcrumb.map((node, index) => {
+            // Last item is the current category (products page)
+            const isLast = index === treeBreadcrumb.length - 1;
+            return {
+                title: node.name,
+                url: isLast ? `/catalog/${node.id}/products` : `/catalog/${node.id}`,
+            };
+        });
 
-        fetchCategoryName();
-    }, [slug, modelId]);
+        return [
+            { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
+            { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
+            ...breadcrumbLinks,
+        ];
+    }, [categoryId, tree, getBreadcrumb, intl]);
 
-    // Build breadcrumb with full category path
-    const finalBreadcrumb = breadcrumb.length > 0 ? breadcrumb : [
-        { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
-        { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
-        ...(categoryName ? [{ title: categoryName, url: `/catalog/${slug}/products` }] : []),
-    ];
+    const categoryName = currentCategory?.name || "";
 
     const pageHeader = (
         <BlockHeader
-            breadcrumb={finalBreadcrumb}
+            breadcrumb={breadcrumbPath}
         />
     );
 
@@ -152,17 +144,25 @@ function Page(props: Props) {
     const router = useRouter();
     const slug = typeof router.query.slug === "string" ? router.query.slug : props.slug;
 
-    // Update router query to include collectionSlug for VehicleProductsView
-    // VehicleProductsView reads collectionSlug from router.query
+    // Update router query to include collectionId or collectionSlug for VehicleProductsView
+    // VehicleProductsView reads these from router.query
     useEffect(() => {
-        if (slug && router.query.collectionSlug !== slug) {
-            // Use replace to update query without adding to history
-            const newQuery = { ...router.query };
-            newQuery.collectionSlug = slug;
-            router.replace({
-                pathname: router.pathname,
-                query: newQuery,
-            }, undefined, { shallow: true });
+        if (slug) {
+            const isNumericId = /^\d+$/.test(slug);
+            const targetKey = isNumericId ? 'collectionId' : 'collectionSlug';
+            const otherKey = isNumericId ? 'collectionSlug' : 'collectionId';
+            
+            if (router.query[targetKey] !== slug) {
+                // Use replace to update query without adding to history
+                const newQuery = { ...router.query };
+                newQuery[targetKey] = slug;
+                // Remove the other key if present to avoid confusion
+                delete newQuery[otherKey];
+                router.replace({
+                    pathname: router.pathname,
+                    query: newQuery,
+                }, undefined, { shallow: true });
+            }
         }
     }, [slug]);
 

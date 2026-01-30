@@ -81,12 +81,22 @@ function VehicleProductsView(props: Props) {
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(24);
     
-    // Get search query and collection slug from URL
-    // collectionSlug can come from query.collectionSlug or query.slug (when on /catalog/[slug]/products)
+    // Get search query and collection identifier from URL
+    // The value can come from query.collectionSlug, query.collectionId, or query.slug (when on /catalog/[slug]/products)
     const searchQuery = typeof router.query.search === "string" ? router.query.search : "";
-    const collectionSlug = typeof router.query.collectionSlug === "string" 
-        ? router.query.collectionSlug 
-        : (typeof router.query.slug === "string" ? router.query.slug : "");
+    
+    // Get the collection identifier from URL - could be an ID (numeric) or a slug (text)
+    const collectionValue = typeof router.query.collectionId === "string" 
+        ? router.query.collectionId
+        : typeof router.query.collectionSlug === "string" 
+            ? router.query.collectionSlug 
+            : (typeof router.query.slug === "string" ? router.query.slug : "");
+    
+    // Determine if the value is a numeric ID or a text slug
+    // If it's numeric, use collectionId; otherwise use collectionSlug
+    const isNumericId = collectionValue !== "" && /^\d+$/.test(collectionValue);
+    const collectionId = isNumericId ? collectionValue : undefined;
+    const collectionSlug = isNumericId ? "" : collectionValue;
 
     const skip = (page - 1) * limit;
 
@@ -101,6 +111,7 @@ function VehicleProductsView(props: Props) {
         take: limit,
         term: searchQuery,
         collectionSlug,
+        collectionId,
         modelIdOverride,
     });
 

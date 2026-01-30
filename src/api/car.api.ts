@@ -249,9 +249,43 @@ export class CarApi {
     }
 
     /**
+     * Get the full category tree (all categories nested)
+     * @returns Promise with category tree data
+     */
+    async getCategoryTree(): Promise<ICategoryTreeResponse> {
+        const baseUrl = getApiUrl();
+        const url = `${baseUrl}/car/categories/tree`;
+        console.log("Car API - Category Tree URL:", url);
+        try {
+            const res = await fetch(url, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!res.ok) {
+                console.error("Car API - Category Tree HTTP error:", res.status, res.statusText);
+                throw new Error(`Failed to load category tree: ${res.status} ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            if (!data.success) throw new Error("Failed to load category tree");
+            return data;
+        } catch (error) {
+            console.error("Car API - Category Tree error:", error);
+            if (error instanceof TypeError && error.message.includes("fetch")) {
+                throw new Error(
+                    "Network error: Check CORS configuration on backend. Ensure https://api.autobutik.se allows credentials from your origin.",
+                );
+            }
+            throw error;
+        }
+    }
+
+    /**
      * Get products for a specific vehicle model
      * @param modelId - The TecDoc KTYPE / model ID from car lookup
-     * @param options - Query options (skip, take, term, collectionSlug)
+     * @param options - Query options (skip, take, term, collectionSlug, collectionId)
      * @returns Promise with products data
      */
     async getProductsForVehicle(
@@ -261,16 +295,22 @@ export class CarApi {
             take?: number;
             term?: string;
             collectionSlug?: string;
+            collectionId?: string | number;
         } = {}
     ): Promise<IVehicleProductsResponse> {
         const baseUrl = getApiUrl();
-        const { skip = 0, take = 24, term = "", collectionSlug = "" } = options;
+        const { skip = 0, take = 24, term = "", collectionSlug = "", collectionId } = options;
         
         const params = new URLSearchParams();
         if (skip > 0) params.append("skip", skip.toString());
         if (take !== 24) params.append("take", take.toString());
         if (term) params.append("term", term);
-        if (collectionSlug) params.append("collectionSlug", collectionSlug);
+        // Prefer collectionId over collectionSlug when both are provided
+        if (collectionId !== undefined && collectionId !== "") {
+            params.append("collectionId", String(collectionId));
+        } else if (collectionSlug) {
+            params.append("collectionSlug", collectionSlug);
+        }
 
         const url = `${baseUrl}/car/products/${modelId}${params.toString() ? `?${params.toString()}` : ""}`;
         console.log("Car API - Products URL:", url);
@@ -400,6 +440,20 @@ export interface IVehicleProductsResponse {
     skip: number;
     take: number;
     items: IVehicleProduct[];
+}
+
+// Category tree interfaces
+export interface ICategoryTreeNode {
+    id: number;
+    name: string;
+    children: ICategoryTreeNode[];
+}
+
+export interface ICategoryTreeResponse {
+    success: boolean;
+    totalCategories: number;
+    rootCategories: number;
+    categories: ICategoryTreeNode[];
 }
 
 export const carApi = new CarApi();

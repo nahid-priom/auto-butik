@@ -5,11 +5,11 @@ import classNames from "classnames";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useRouter } from "next/router";
 // application
-import { useVehicleCatalog } from "~/hooks/useVehicleCatalog";
-import { IVehicleCategory } from "~/api/car.api";
+import { useCategoryTree } from "~/contexts/CategoryTreeContext";
+import { useCurrentActiveCar } from "~/contexts/CarContext";
+import { ICategoryTreeNode } from "~/api/car.api";
 import { IShopPageOffCanvasSidebar } from "~/interfaces/pages";
 import AppLink from "~/components/shared/AppLink";
-import url from "~/services/url";
 import { Search20Svg } from "~/svg";
 
 interface Props {
@@ -21,31 +21,55 @@ function WidgetVehicleCategories(props: Props) {
     const { offcanvasSidebar, onCategoryClick } = props;
     const intl = useIntl();
     const router = useRouter();
-    const { categories, categoriesLoading, error, hasActiveCar } = useVehicleCatalog();
-    const selectedSlug = typeof router.query.collectionSlug === "string" ? router.query.collectionSlug : null;
+    const { tree, loading: categoriesLoading, error } = useCategoryTree();
+    const { currentActiveCar } = useCurrentActiveCar();
     const [searchQuery, setSearchQuery] = useState("");
+
+    // Check if there's an active car
+    const hasActiveCar = !!currentActiveCar?.data && 'modell_id' in currentActiveCar.data;
+
+    // Get the current category ID from the URL
+    const currentSlug = typeof router.query.slug === "string" ? router.query.slug : null;
+    const currentCategoryId = currentSlug ? parseInt(currentSlug, 10) : null;
 
     const rootClasses = classNames("widget", "widget-vehicle-categories", `widget-vehicle-categories--offcanvas--${offcanvasSidebar}`);
 
-    // Filter categories based on search query
-    const filteredCategories = useMemo(() => {
-        if (!categories || !categories.categories) return [];
-        if (!searchQuery.trim()) return categories.categories;
-        
-        const query = searchQuery.toLowerCase().trim();
-        return categories.categories.filter((category: IVehicleCategory) =>
-            category.name.toLowerCase().includes(query)
-        );
-    }, [categories, searchQuery]);
+    // Flatten tree for search functionality
+    const flattenTree = (nodes: ICategoryTreeNode[]): ICategoryTreeNode[] => {
+        let result: ICategoryTreeNode[] = [];
+        for (const node of nodes) {
+            result.push(node);
+            if (node.children && node.children.length > 0) {
+                result = result.concat(flattenTree(node.children));
+            }
+        }
+        return result;
+    };
+
+    // Get categories to display (either root or current category's siblings/children)
+    const displayCategories = useMemo(() => {
+        if (!tree) return [];
+
+        // If searching, search through all categories
+        if (searchQuery.trim()) {
+            const allCategories = flattenTree(tree);
+            const query = searchQuery.toLowerCase().trim();
+            return allCategories.filter((category: ICategoryTreeNode) =>
+                category.name.toLowerCase().includes(query)
+            );
+        }
+
+        // Otherwise show root categories
+        return tree;
+    }, [tree, searchQuery]);
 
     // Don't show widget if no active car
     if (!hasActiveCar) {
         return null;
     }
 
-    // Always render the widget structure to prevent disappearing
-    // Show loading state - only when categories are loading, not products
-    if (categoriesLoading && !categories) {
+    // Show loading state
+    if (categoriesLoading && !tree) {
         return (
             <div className={rootClasses}>
                 <div className="widget-vehicle-categories__header">
@@ -61,7 +85,7 @@ function WidgetVehicleCategories(props: Props) {
     }
 
     // Show error state
-    if (error && !categories) {
+    if (error && !tree) {
         return (
             <div className={rootClasses}>
                 <div className="widget-vehicle-categories__header">
@@ -77,7 +101,7 @@ function WidgetVehicleCategories(props: Props) {
     }
 
     // Show empty state only if we have no categories after loading is complete
-    if (!categoriesLoading && (!categories || categories.categories.length === 0)) {
+    if (!categoriesLoading && (!tree || tree.length === 0)) {
         return null;
     }
 
@@ -108,8 +132,9 @@ function WidgetVehicleCategories(props: Props) {
                     />
                 </div>
                 <div className="widget-vehicle-categories__list">
-                    {filteredCategories.map((category: IVehicleCategory) => {
-                        const isActive = selectedSlug === category.slug;
+                    {displayCategories.map((category: ICategoryTreeNode) => {
+                        const isActive = currentCategoryId === category.id;
+                        const hasChildren = category.children.length > 0;
                         const itemClasses = classNames("widget-vehicle-categories__item", {
                             "widget-vehicle-categories__item--active": isActive,
                         });
@@ -118,20 +143,22 @@ function WidgetVehicleCategories(props: Props) {
                             <div key={category.id} className={itemClasses}>
                                 <AppLink
                                     href={
-                                        category.hasChildren
-                                            ? `/catalog/${category.slug}`
-                                            : url.products({ collectionSlug: category.slug })
+                                        hasChildren
+                                            ? `/catalog/${category.id}`
+                                            : `/catalog/${category.id}/products`
                                     }
                                     className="widget-vehicle-categories__link"
                                     onClick={handleCategoryClick}
                                 >
                                     <span className="widget-vehicle-categories__name">{category.name}</span>
-                                    <span className="widget-vehicle-categories__arrow">›</span>
+                                    {hasChildren && (
+                                        <span className="widget-vehicle-categories__arrow">›</span>
+                                    )}
                                 </AppLink>
                             </div>
                         );
                     })}
-                    {filteredCategories.length === 0 && searchQuery && (
+                    {displayCategories.length === 0 && searchQuery && (
                         <div className="widget-vehicle-categories__no-results">
                             <FormattedMessage id="TEXT_NO_CATEGORIES_FOUND" defaultMessage="Inga kategorier hittades" />
                         </div>
