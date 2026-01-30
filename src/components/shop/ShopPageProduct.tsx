@@ -19,7 +19,6 @@ import ProductForm from "~/components/shop/ProductForm";
 import ProductGallery, { IProductGalleryLayout } from "~/components/shop/ProductGallery";
 import ProductSidebar from "~/components/shop/ProductSidebar";
 import ProductTabs from "~/components/shop/ProductTabs";
-import WidgetVehicleCategories from "~/components/widgets/WidgetVehicleCategories";
 import Rating from "~/components/shared/Rating";
 import ShareLinks from "~/components/shared/ShareLinks";
 import StockStatusBadge from "~/components/shared/StockStatusBadge";
@@ -41,16 +40,12 @@ import {
     Wishlist16Svg,
 } from "~/svg";
 import { useCartAddItem } from "~/store/cart/cartHooks";
-import { FaBoxes, FaCalendarCheck, FaCheckCircle } from "react-icons/fa";
+import { FaBoxes, FaCalendarCheck, FaCheckCircle, FaShippingFast, FaInfoCircle } from "react-icons/fa";
 import ProductQuestion from "./ProductQuestion";
 import ProductInformation from "./ProductInformation";
 import CompatibleVehicles from "./CompatibleVehiclies";
 import OriginalPartNumber from "./OriginalPartNumber";
-import { BiLogoVisa } from "react-icons/bi";
-import { RiMastercardFill } from "react-icons/ri";
-import { FaCcPaypal } from "react-icons/fa";
-import { FaApplePay } from "react-icons/fa";
-import BlockVehicleHero from "../blocks/BlockVehicleHero";
+// Payment method logos are imported as images
 
 interface Props {
     product: IProduct;
@@ -512,18 +507,11 @@ function ShopPageProduct(props: Props) {
                 brand={product.brand?.name}
                 structuredData={combinedStructuredData}
             />
-            <BlockVehicleHero />
-
             <BlockHeader breadcrumb={breadcrumb} />
 
-            <div className={classNames("block-split", "block-split--product-page", { "block-split--has-sidebar": layout === "sidebar" })}>
+            <div className={classNames("block-split", "block-split--product-page")}>
                 <div className="container">
                     <div className="block-split__row row no-gutters">
-                        {layout === "sidebar" && sidebarPosition === "start" && (
-                            <div className="block-split__item block-split__item-sidebar col-auto">
-                                <WidgetVehicleCategories offcanvasSidebar="none" />
-                            </div>
-                        )}
 
                         <div className="block-split__item block-split__item-content col-auto">
                             <div className={`product product--layout--${layout}`}>
@@ -700,15 +688,15 @@ function ShopPageProduct(props: Props) {
                                                     <div className="product-card__shipping-details">
                                                         <div className="product-card__shipping-info__content">
                                                             <div className="product-card__shipping-info__icon">
-                                                                <FaCalendarCheck />
+                                                                <FaShippingFast />
                                                             </div>
                                                             <div className="product-card__shipping-info__text">
                                                                 <div className="shipping-title">
                                                                     <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
-                                                                    <span>:</span>
+                                                                    <FaInfoCircle className="shipping-info-icon" />
                                                                 </div>
                                                                 <div className="product-card__shipping-info__date">
-                                                                    Tomorrow, 2025-10-29
+                                                                    Måndag (2026-02-02) <span className="shipping-price">från 69 kr</span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -717,18 +705,47 @@ function ShopPageProduct(props: Props) {
                                                     {/* Right Side - Payment Icons */}
                                                     <div className="product-card__payment-methods">
                                                         <div className="payment-icons">
-                                                            {/* Replace these with your actual SVG components */}
-                                                            <div className="payment-icon" title="Visa">
-                                                                <BiLogoVisa />
-                                                            </div>
-                                                            <div className="payment-icon" title="Mastercard">
-                                                                <RiMastercardFill />
-                                                            </div>
-                                                            <div className="payment-icon" title="PayPal">
-                                                                <FaCcPaypal />
+                                                            <div className="payment-icon" title="Klarna">
+                                                                <img 
+                                                                    src="/Payment link images/Klarna-Logo.wine.svg" 
+                                                                    alt="Klarna" 
+                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
+                                                                />
                                                             </div>
                                                             <div className="payment-icon" title="Apple Pay">
-                                                                <FaApplePay />
+                                                                <img 
+                                                                    src="/Payment link images/Apple_Pay-Logo.wine.svg" 
+                                                                    alt="Apple Pay" 
+                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
+                                                                />
+                                                            </div>
+                                                            <div className="payment-icon" title="Mastercard">
+                                                                <img 
+                                                                    src="/Payment link images/Mastercard-Logo.wine.svg" 
+                                                                    alt="Mastercard" 
+                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
+                                                                />
+                                                            </div>
+                                                            <div className="payment-icon" title="Visa">
+                                                                <img 
+                                                                    src="/Payment link images/Visa_Inc.-Logo.wine.svg" 
+                                                                    alt="Visa" 
+                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
+                                                                />
+                                                            </div>
+                                                            <div className="payment-icon" title="PayPal">
+                                                                <img 
+                                                                    src="/Payment link images/PayPal-Logo.wine.svg" 
+                                                                    alt="PayPal" 
+                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
+                                                                />
+                                                            </div>
+                                                            <div className="payment-icon" title="Swish">
+                                                                <img 
+                                                                    src="/Payment link images/Swish_(payment)-Logo.wine.svg" 
+                                                                    alt="Swish" 
+                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
+                                                                />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -885,12 +902,6 @@ function ShopPageProduct(props: Props) {
                                 </div>
                             </div>
                         </div>
-
-                        {layout === "sidebar" && sidebarPosition === "end" && (
-                            <div className="block-split__item block-split__item-sidebar col-auto">
-                                <WidgetVehicleCategories offcanvasSidebar="none" />
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
