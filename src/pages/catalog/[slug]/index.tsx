@@ -1,5 +1,5 @@
 // react
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 // third-party
 import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
@@ -7,39 +7,35 @@ import { useRouter } from 'next/router';
 import ShopPageCategory from '~/components/shop/ShopPageCategory';
 import SitePageNotFound from '~/components/site/SitePageNotFound';
 import BlockHeader from '~/components/blocks/BlockHeader';
-import BlockSpace from '~/components/blocks/BlockSpace';
 import BlockCatalogHero from '~/components/blocks/BlockCatalogHero';
 import PageTitle from '~/components/shared/PageTitle';
-import WidgetVehicleCategories from '~/components/widgets/WidgetVehicleCategories';
+import WidgetCategoriesList from '~/components/widgets/WidgetCategoriesList';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
-import { useVehicleCatalog } from '~/hooks/useVehicleCatalog';
-import { carApi } from '~/api/car.api';
-import { IVehicleCategory } from '~/api/car.api';
+import { useCategoryTree } from '~/contexts/CategoryTreeContext';
+import { ICategoryTreeNode } from '~/api/car.api';
 import { IShopCategory } from '~/interfaces/category';
-import { shopApi } from '~/api';
 import { useIntl } from 'react-intl';
 import url from '~/services/url';
-import { buildCategoryBreadcrumb } from '~/utils/categoryBreadcrumb';
 import { ILink } from '~/interfaces/link';
 
 interface Props {
     slug: string | null;
 }
 
-// Convert vehicle category to IShopCategory format
-const convertVehicleCategoryToShopCategory = (vc: IVehicleCategory): IShopCategory & { hasChildren?: boolean } => {
+// Convert tree category node to IShopCategory format
+const convertTreeNodeToShopCategory = (node: ICategoryTreeNode): IShopCategory & { hasChildren?: boolean } => {
     return {
-        id: parseInt(vc.id, 10) || 0,
+        id: node.id,
         type: 'shop',
-        name: vc.name,
-        slug: vc.slug,
-        image: vc.image,
-        items: vc.productCount,
-        layout: vc.hasChildren ? 'categories' : 'products',
+        name: node.name,
+        slug: String(node.id), // Use ID as slug for routing
+        image: null,
+        items: 0,
+        layout: node.children.length > 0 ? 'categories' : 'products',
         parent: null,
         children: [],
         customFields: {},
-        hasChildren: vc.hasChildren,
+        hasChildren: node.children.length > 0,
     };
 };
 
@@ -48,128 +44,91 @@ function CatalogSlugPage(props: Props) {
     const intl = useIntl();
     const router = useRouter();
     const { currentActiveCar } = useCurrentActiveCar();
-    const [subcategories, setSubcategories] = useState<IShopCategory[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [categoryInfo, setCategoryInfo] = useState<IVehicleCategory | null>(null);
-    const [parentId, setParentId] = useState<number | null>(null);
-    const [allCategories, setAllCategories] = useState<IVehicleCategory[]>([]);
-    const [breadcrumb, setBreadcrumb] = useState<ILink[]>([]);
+    const { tree, loading: isLoadingTree, findCategoryById, getBreadcrumb } = useCategoryTree();
 
-    // Get modelId from current active car
-    const modelId = currentActiveCar?.data && 'modell_id' in currentActiveCar.data 
-        ? currentActiveCar.data.modell_id 
-        : null;
+    // Parse the slug as category ID
+    const categoryId = slug ? parseInt(slug, 10) : null;
 
-    // Find parent category ID by slug
-    useEffect(() => {
-        if (!slug || !modelId) {
-            setLoading(false);
-            return;
+    // Check if we have an active car
+    const hasActiveCar = !!currentActiveCar?.data;
+
+    // Find the current category in the tree
+    const currentCategory = useMemo(() => {
+        if (!categoryId || !tree) return null;
+        return findCategoryById(categoryId);
+    }, [categoryId, tree, findCategoryById]);
+
+    // Get subcategories (children of current category)
+    const subcategories: IShopCategory[] = useMemo(() => {
+        if (!currentCategory) return [];
+        return currentCategory.children.map(convertTreeNodeToShopCategory);
+    }, [currentCategory]);
+
+    // Build breadcrumb from tree
+    const breadcrumbPath: ILink[] = useMemo(() => {
+        if (!categoryId || !tree) {
+            return [
+                { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
+                { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
+            ];
         }
 
-        const findCategoryAndLoadSubcategories = async () => {
-            try {
-                setLoading(true);
-                // First, get all categories (flat list) to build breadcrumb path
-                const allCategoriesResponse = await carApi.getCategoriesForVehicle(modelId, 'all');
-                setAllCategories(allCategoriesResponse.categories);
-                
-                // Find the category matching the slug
-                const matchingCategory = allCategoriesResponse.categories.find(cat => cat.slug === slug);
-                
-                if (!matchingCategory) {
-                    setLoading(false);
-                    return;
-                }
+        const treeBreadcrumb = getBreadcrumb(categoryId);
+        const breadcrumbLinks: ILink[] = treeBreadcrumb.map((node, index) => ({
+            title: node.name,
+            url: `/catalog/${node.id}`,
+        }));
 
-                setCategoryInfo(matchingCategory);
-                setParentId(parseInt(matchingCategory.id, 10));
+        return [
+            { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
+            { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
+            ...breadcrumbLinks,
+        ];
+    }, [categoryId, tree, getBreadcrumb, intl]);
 
-                // Build breadcrumb path
-                const breadcrumbPath = buildCategoryBreadcrumb(allCategoriesResponse.categories, matchingCategory);
-                setBreadcrumb([
-                    { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
-                    { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
-                    ...breadcrumbPath,
-                ]);
-
-                // If category has children, fetch subcategories
-                if (matchingCategory.hasChildren) {
-                    const subcategoriesResponse = await carApi.getCategoriesForVehicle(modelId, matchingCategory.id);
-                    const converted = subcategoriesResponse.categories.map(convertVehicleCategoryToShopCategory);
-                    setSubcategories(converted);
-                } else {
-                    // No children, redirect to products page
-                    router.replace(`/catalog/${slug}/products`);
-                    return;
-                }
-            } catch (error) {
-                console.error('Error loading category:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        findCategoryAndLoadSubcategories();
-    }, [slug, modelId, router]);
+    // Redirect to products page if this is a leaf category (no children)
+    useEffect(() => {
+        if (!isLoadingTree && currentCategory && currentCategory.children.length === 0) {
+            // This is a leaf category, redirect to products
+            router.replace(`/catalog/${slug}/products`);
+        }
+    }, [isLoadingTree, currentCategory, slug, router]);
 
     // If no active car, show 404
-    if (!modelId) {
+    if (!hasActiveCar) {
         return <SitePageNotFound />;
     }
 
-    // Show loading state - but render sidebar immediately
-    const isLoadingContent = loading;
+    // Show loading state
+    const isLoadingContent = isLoadingTree;
 
-    // If loading is complete and category not found or has no children (should have redirected)
-    if (!loading && (!categoryInfo || (!categoryInfo.hasChildren && subcategories.length === 0))) {
+    // If loading is complete and category not found
+    if (!isLoadingTree && !currentCategory) {
         return <SitePageNotFound />;
     }
-
-    // Ensure breadcrumb is set (fallback if not set yet)
-    const finalBreadcrumb = breadcrumb.length > 0 ? breadcrumb : (categoryInfo ? [
-        { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
-        { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
-        { title: categoryInfo.name, url: `/catalog/${categoryInfo.slug}` },
-    ] : [
-        { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
-        { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
-    ]);
-
-    // Check if we should show loader in content area
-    const shouldShowContentLoader = isLoadingContent || (categoryInfo && categoryInfo.hasChildren && subcategories.length === 0);
 
     // Get car name for hero subtitle
     const carName = currentActiveCar?.data 
         ? `${(currentActiveCar.data as any).C_merke || ''} ${(currentActiveCar.data as any).C_modell || ''}`.trim()
         : null;
 
-    const loadingCarName = currentActiveCar?.data 
-        ? `${((currentActiveCar.data as any).C_merke || '')} ${((currentActiveCar.data as any).C_modell || '')}`.trim() || undefined
-        : undefined;
-
     return (
         <React.Fragment>
-            <PageTitle>{categoryInfo?.name || intl.formatMessage({ id: "HEADER_SHOP" })}</PageTitle>
-            {(categoryInfo || isLoadingContent) && (
-                <BlockCatalogHero 
-                    title={categoryInfo?.name || intl.formatMessage({ id: "HEADER_SHOP" })}
-                    subtitle={carName || loadingCarName || undefined}
-                />
-            )}
-            <BlockHeader
-                breadcrumb={finalBreadcrumb.length > 0 ? finalBreadcrumb : [
-                    { title: intl.formatMessage({ id: "LINK_HOME" }), url: url.home() },
-                    { title: intl.formatMessage({ id: "LINK_SHOP" }), url: url.shop() },
-                ]}
+            <PageTitle>{currentCategory?.name || intl.formatMessage({ id: "HEADER_SHOP" })}</PageTitle>
+            <BlockCatalogHero 
+                title={currentCategory?.name || intl.formatMessage({ id: "HEADER_SHOP" })}
+                subtitle={carName || undefined}
             />
-            {shouldShowContentLoader ? (
+            <BlockHeader breadcrumb={breadcrumbPath} />
+            {isLoadingContent ? (
                 <div className="block block-split block-split--has-sidebar">
                     <div className="container">
                         <div className="block-split__row row no-gutters">
-                            {/* Sidebar - always render it */}
+                            {/* Sidebar */}
                             <div className="block-split__item block-split__item-sidebar col-auto">
-                                <WidgetVehicleCategories offcanvasSidebar="none" />
+                                {subcategories.length > 0 && (
+                                    <WidgetCategoriesList categories={subcategories} />
+                                )}
                             </div>
                             {/* Content area with loader */}
                             <div className="block-split__item block-split__item-content col-auto flex-grow-1">
@@ -186,16 +145,16 @@ function CatalogSlugPage(props: Props) {
                         </div>
                     </div>
                 </div>
-            ) : (
+            ) : currentCategory && currentCategory.children.length > 0 ? (
                 <ShopPageCategory
                     layout="columns-4-sidebar"
                     category={{
-                        id: parseInt(categoryInfo.id, 10),
+                        id: currentCategory.id,
                         type: 'shop',
-                        name: categoryInfo.name,
-                        slug: categoryInfo.slug,
-                        image: categoryInfo.image,
-                        items: categoryInfo.productCount,
+                        name: currentCategory.name,
+                        slug: String(currentCategory.id),
+                        image: null,
+                        items: 0,
                         layout: 'categories',
                         parent: null,
                         children: [],
@@ -204,7 +163,7 @@ function CatalogSlugPage(props: Props) {
                     subcategories={subcategories}
                     hideHeader={true}
                 />
-            )}
+            ) : null}
         </React.Fragment>
     );
 }

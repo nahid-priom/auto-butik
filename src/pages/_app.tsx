@@ -11,6 +11,7 @@ import { AuthProvider } from '~/contexts/AuthContext';
 import { CarProvider } from '~/contexts/CarContext';
 import { GarageProvider } from '~/contexts/GarageContext';
 import { VehicleCatalogProvider } from '~/contexts/VehicleCatalogContext';
+import { CategoryTreeProvider } from '~/contexts/CategoryTreeContext';
 import { graphqlClient } from '~/api/graphql/account.api';
 // application
 import config from '~/config';
@@ -134,12 +135,14 @@ function App(props: Props) {
                         <CarProvider>
                             <GarageProvider>
                                 <VehicleCatalogProvider>
-                                    <CurrentVehicleGarageProvider>
-                                        <Layout>
-                                            <PageTitle />
-                                            {page}
-                                        </Layout>
-                                    </CurrentVehicleGarageProvider>
+                                    <CategoryTreeProvider>
+                                        <CurrentVehicleGarageProvider>
+                                            <Layout>
+                                                <PageTitle />
+                                                {page}
+                                            </Layout>
+                                        </CurrentVehicleGarageProvider>
+                                    </CategoryTreeProvider>
                                 </VehicleCatalogProvider>
                             </GarageProvider>
                         </CarProvider>

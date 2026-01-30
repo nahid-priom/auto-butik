@@ -1,0 +1,171 @@
+---
+description: Autobutik backend infrastructure - EC2 instances, databases, TecDoc data access, and documentation sources
+alwaysApply: true
+---
+
+# Autobutik Backend Infrastructure Guide
+
+## AWS EC2 Instances
+
+### Production Server (Vendure Backend)
+- **Instance ID**: `i-0a5cfe93e2df8ad04`
+- **Host**: EC2 (eu-north-1)
+- **SSH**: `ssh -i ~/.ssh/autobutik-backend.pem ec2-user@<public-ip>`
+- **Running**: Vendure e-commerce backend (Node.js)
+- **Port**: 3000
+- **Admin UI**: Port 4200 (optional, skip with `SKIP_ADMIN_UI=true`)
+
+**Start/Stop Commands on EC2:**
+```bash
+cd ~/Autobutik-backend
+npm run build
+npm run start           # Production
+npm run dev             # Development (with hot reload)
+SKIP_ADMIN_UI=true npm run dev  # Dev without Admin UI
+```
+
+## Databases (AWS RDS PostgreSQL)
+
+### Vendure Database (autobutik)
+- **Host**: `autobutik-db.c1gikimo68uz.eu-north-1.rds.amazonaws.com`
+- **Port**: 5432
+- **Database**: `autobutik`
+- **Username**: `autobutik`
+- **Password**: `LZscDsLvotTZ`
+- **Schema**: `public`
+- **SSL**: Required
+
+**Contains**: Products, Collections, Orders, Customers, Assets (Vendure schema)
+
+### TecDoc Database (tecdoc)
+- **Host**: Same as above
+- **Database**: `tecdoc`
+- **Same credentials as Vendure DB**
+
+**Contains**: TecDoc reference data (vehicles, parts, categories, linkages)
+
+### Connect via psql
+```bash
+# Vendure DB
+PGPASSWORD=LZscDsLvotTZ psql -h autobutik-db.c1gikimo68uz.eu-north-1.rds.amazonaws.com -U autobutik -d autobutik
+
+# TecDoc DB  
+PGPASSWORD=LZscDsLvotTZ psql -h autobutik-db.c1gikimo68uz.eu-north-1.rds.amazonaws.com -U autobutik -d tecdoc
+```
+
+## TecDoc Data Structure
+
+### Key Tables in TecDoc Database
+
+| Table | Description | Key Columns |
+|-------|-------------|-------------|
+| `"301"` | Search Tree Structure | `node_id`, `parentnodeid`, `treelevel` |
+| `"302"` | GenArt to Search Tree Mapping | `genartno`, `node_id` |
+| `"030"` | Language Descriptions | `termno`, `langno`, `text` |
+| `"320"` | Generic Articles | `genartno`, descriptions |
+| `"120"` | Vehicle Types (Passenger Cars) | `ktypnr`, `moddes` |
+| `"400"` | Article Linkages | Article to vehicle links |
+
+### Getting Categories (Swedish)
+```sql
+SELECT 
+  s.node_id,
+  d.text as name,
+  s.parentnodeid as parent_id,
+  s.treelevel
+FROM "301" s
+JOIN "030" d ON d.termno = s.termno AND d.langno = '37'  -- 37 = Swedish
+ORDER BY s.treelevel, d.text;
+```
+
+### Get GenArt → Category Mapping
+```sql
+SELECT genartno, node_id FROM "302";
+```
+
+### Find Products for a KTYPE (Vehicle)
+In Vendure DB, products have `customFieldsTecdocmeta` JSONB with `ktypeList`:
+```sql
+SELECT * FROM product 
+WHERE "customFieldsTecdocmeta"::jsonb @> '{"ktypeList": ["000111073"]}'::jsonb;
+```
+
+## Important Custom Fields
+
+### Product Entity
+- `customFieldsTecdocmeta`: JSONB containing `ktypeList`, `genartList`
+- `customFieldsTecDoc`: TecDoc article number
+- `customFieldsIcindex`: InterCars index
+
+### Collection Entity
+- `customFieldsTecdocnodeid`: TecDoc node_id from table 301
+- `customFieldsTecdocpath`: Full category path string
+
+## Useful Scripts
+
+Located in `src/scripts/`:
+
+```bash
+# Import TecDoc categories as Vendure Collections
+npx ts-node src/scripts/import-tecdoc-collections.ts
+
+# Link products to leaf collections based on genartList
+npx ts-node src/scripts/link-products-to-leaf-collections.ts
+
+# Assign collection images from products
+SKIP_ADMIN_UI=true npx ts-node src/scripts/assign-collection-images.ts
+
+# Sync pricing and inventory
+npx ts-node src/scripts/sync-pricing-inventory.ts
+```
+
+## External APIs
+
+### Carlinkment (Car Lookup)
+- **Docs**: https://api.carlinkment.se/swagger/
+- **Search Credentials**: `auto_reg_wheels` / `Pass_yt_2@`
+- **Dropdown Credentials**: `auto_Scroll_wheels` / `Scroll_@1pas`
+
+### InterCars (Product Data)
+- **Base URL**: https://data.webapi.intercars.eu/customer/V53030/
+- **Credentials**: `V53030` / `XAWg88MJL7lSMHdg`
+
+## Documentation Sources
+
+### Vendure Documentation
+Use the **Vendure MCP Server** (`user-vendure-local-mcp`) to fetch official Vendure docs.
+```
+Available via MCP tools - check mcps/user-vendure-local-mcp/
+```
+
+### TecDoc Data Format
+See `docs/TecDoc-Data-Format.pdf` (207 pages) for complete TecDoc schema reference.
+
+Key sections:
+- Tables 301-307: Search Structure
+- Tables 320-340: Generic Articles
+- Tables 400-432: Linkage Data
+- Tables 120-164: Vehicle Data
+
+## S3 Asset Storage
+
+- **Bucket**: `autobutik-assets-prod`
+- **Region**: `eu-north-1`
+- **Image Prefix**: `tecdoc-images/PIC_FILES/`
+- **URL Pattern**: `https://autobutik-assets-prod.s3.eu-north-1.amazonaws.com/`
+
+## Quick Reference Commands
+
+```bash
+# Check if Vendure is running on EC2
+curl http://localhost:3000/health
+
+# Test car lookup endpoint
+curl "http://localhost:3000/car/ABC123"
+
+# Test products for vehicle
+curl "http://localhost:3000/car/products/111073?take=5"
+
+# Get category tree
+curl "http://localhost:3000/car/categories/tree"
+```

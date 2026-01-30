@@ -249,6 +249,40 @@ export class CarApi {
     }
 
     /**
+     * Get the full category tree (all categories nested)
+     * @returns Promise with category tree data
+     */
+    async getCategoryTree(): Promise<ICategoryTreeResponse> {
+        const baseUrl = getApiUrl();
+        const url = `${baseUrl}/car/categories/tree`;
+        console.log("Car API - Category Tree URL:", url);
+        try {
+            const res = await fetch(url, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!res.ok) {
+                console.error("Car API - Category Tree HTTP error:", res.status, res.statusText);
+                throw new Error(`Failed to load category tree: ${res.status} ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            if (!data.success) throw new Error("Failed to load category tree");
+            return data;
+        } catch (error) {
+            console.error("Car API - Category Tree error:", error);
+            if (error instanceof TypeError && error.message.includes("fetch")) {
+                throw new Error(
+                    "Network error: Check CORS configuration on backend. Ensure https://api.autobutik.se allows credentials from your origin.",
+                );
+            }
+            throw error;
+        }
+    }
+
+    /**
      * Get products for a specific vehicle model
      * @param modelId - The TecDoc KTYPE / model ID from car lookup
      * @param options - Query options (skip, take, term, collectionSlug)
@@ -345,6 +379,20 @@ export interface IVehicleProductsResponse {
     skip: number;
     take: number;
     items: IVehicleProduct[];
+}
+
+// Category tree interfaces
+export interface ICategoryTreeNode {
+    id: number;
+    name: string;
+    children: ICategoryTreeNode[];
+}
+
+export interface ICategoryTreeResponse {
+    success: boolean;
+    totalCategories: number;
+    rootCategories: number;
+    categories: ICategoryTreeNode[];
 }
 
 export const carApi = new CarApi();
