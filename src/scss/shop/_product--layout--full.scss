@@ -1515,6 +1515,9 @@
     .product-info-navigation {
         position: sticky;
         top: 20px;
+        z-index: 100;
+        align-self: start;
+        height: fit-content;
     }
 
     .navigation-menu {

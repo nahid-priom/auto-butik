@@ -853,7 +853,7 @@ function ShopPageProduct(props: Props) {
                                             </div>
 
                                             {/* Right Column - Navigation Menu */}
-                                            <div className="product-info-navigation">
+                                            <div className="product-info-navigation" style={{ position: 'sticky', top: '10px', alignSelf: 'start', zIndex: 100 }}>
                                                 <nav className="navigation-menu">
                                                     <ul className="menu-list">
                                                         {menuItems.map((item) => (
