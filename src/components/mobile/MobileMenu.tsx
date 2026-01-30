@@ -16,7 +16,12 @@ import url from '~/services/url';
 import { Cross12Svg } from '~/svg';
 import { useMobileMenu, useMobileMenuClose } from '~/store/mobile-menu/mobileMenuHooks';
 // data
-import dataMobileMenuLinks from '~/data/mobileMenuLinks';
+import getMobileMenuLinksFromDesktop from '~/data/mobileMenuFromDesktop';
+
+const mobileMenuLinksFromDesktop = [
+    { title: 'LINK_HOME', url: '/' as const },
+    ...getMobileMenuLinksFromDesktop(),
+];
 
 function MobileMenu() {
     const mobileMenu = useMobileMenu();
@@ -49,18 +54,25 @@ function MobileMenu() {
                 </button>
 
                 <MobileMenuConveyor controllerRef={conveyorRef}>
-                    <MobileMenuPanel label="Menu">
+                    <MobileMenuPanel label={<FormattedMessage id="TEXT_MOBILE_MENU_TITLE" defaultMessage="Menu" />}>
                         <MobileMenuSettings />
                         <div className="mobile-menu__divider" />
                         <MobileMenuIndicators />
                         <div className="mobile-menu__divider" />
-                        <MobileMenuLinks items={dataMobileMenuLinks} />
+                        <MobileMenuLinks
+                            items={mobileMenuLinksFromDesktop}
+                            onItemClick={(item) => {
+                                if (!item.submenu || item.submenu.length === 0) {
+                                    mobileMenuClose();
+                                }
+                            }}
+                        />
 
                         <div className="mobile-menu__spring" />
                         <div className="mobile-menu__divider" />
-                        <AppLink href={url.pageContactUs()} className="mobile-menu__contacts">
+                        <AppLink href={url.pageContactUs()} className="mobile-menu__contacts" onClick={mobileMenuClose}>
                             <div className="mobile-menu__contacts-subtitle">
-                                <FormattedMessage id="TEXT_MOBILE_MENU_PHONE_TITLE" />
+                                <FormattedMessage id="BUTTON_CONTACT_US" />
                             </div>
                             <div className="mobile-menu__contacts-title">800 060-0730</div>
                         </AppLink>
