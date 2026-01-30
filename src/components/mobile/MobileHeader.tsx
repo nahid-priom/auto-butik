@@ -8,22 +8,18 @@ import { useRouter } from 'next/router';
 import AppLink from '~/components/shared/AppLink';
 import url from '~/services/url';
 import VehiclePickerModal from '~/components/shared/VehiclePickerModal';
-import { IVehicle } from '~/interfaces/vehicle';
-import { useCart } from '~/store/cart/cartHooks';
 import { useGarage } from '~/contexts/GarageContext';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
-import { useGarageCurrent, useGarageSetCurrent } from '~/store/garage/garageHooks';
+import { useGarageSetCurrent } from '~/store/garage/garageHooks';
 import { useGlobalMousedown } from '~/services/hooks';
 import { useMobileMenuOpen } from '~/store/mobile-menu/mobileMenuHooks';
-import { useWishlist } from '~/store/wishlist/wishlistHooks';
 import { carApi } from '~/api/car.api';
 import { addCarSearchToHistory } from '~/services/car-search-history';
 import { toast } from 'react-toastify';
+import { CarDropdown } from '~/components/header/CarIndicator';
 import {
     Car20Svg,
-    Cart20Svg,
     Cross20Svg,
-    Heart20Svg,
     Menu18x14Svg,
     Person20Svg,
     Search20Svg,
@@ -33,19 +29,18 @@ function MobileHeader() {
     const intl = useIntl();
     const router = useRouter();
     const mobileMenuOpen = useMobileMenuOpen();
-    const wishlist = useWishlist();
-    const cart = useCart();
-    const vehicle: IVehicle | null = useGarageCurrent();
+    const { vehicles, currentCarId, addVehicle } = useGarage();
     const garageSetCurrent = useGarageSetCurrent();
-    const { addVehicle } = useGarage();
     const { setCurrentActiveCar } = useCurrentActiveCar();
     const searchFormRef = useRef<HTMLDivElement | null>(null);
     const searchInputRef = useRef<HTMLInputElement | null>(null);
     const searchIndicatorRef = useRef<HTMLDivElement | null>(null);
+    const garageDropdownRef = useRef<HTMLDivElement | null>(null);
     const [searchIsOpen, setSearchIsOpen] = useState(false);
     const [vehiclePickerIsOpen, setVehiclePickerIsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
+    const [garageOpen, setGarageOpen] = useState(false);
 
     const openSearch = () => {
         setSearchIsOpen(true);
@@ -134,30 +129,38 @@ function MobileHeader() {
     };
 
     useGlobalMousedown((event) => {
-        const outsideIndicator = (
-            searchIndicatorRef.current
-            && !searchIndicatorRef.current.contains(event.target as HTMLElement)
-        );
         const outsideForm = (
             searchFormRef.current
             && !searchFormRef.current.contains(event.target as HTMLElement)
         );
+        const outsideIndicator = (
+            searchIndicatorRef.current
+            && !searchIndicatorRef.current.contains(event.target as HTMLElement)
+        );
+        const outsideGarage = (
+            garageDropdownRef.current
+            && !garageDropdownRef.current.contains(event.target as HTMLElement)
+        );
 
-        if (outsideIndicator && outsideForm) {
-            if (searchIsOpen && !vehiclePickerIsOpen) {
-                closeSearch();
-            }
+        if (outsideForm && outsideIndicator && searchIsOpen && !vehiclePickerIsOpen) {
+            closeSearch();
         }
-    }, [searchFormRef, searchIndicatorRef, searchIsOpen, vehiclePickerIsOpen]);
+        if (outsideGarage) {
+            setGarageOpen(false);
+        }
+    }, [searchFormRef, searchIsOpen, vehiclePickerIsOpen]);
 
-    const searchPlaceholder = vehicle
-        ? intl.formatMessage({ id: 'INPUT_SEARCH_PLACEHOLDER_VEHICLE' }, { ...vehicle })
+    const currentVehicle = currentCarId
+        ? vehicles.find((v) => v.id === currentCarId)
+        : vehicles[0];
+    const searchPlaceholder = currentVehicle
+        ? intl.formatMessage({ id: 'INPUT_SEARCH_PLACEHOLDER_VEHICLE' }, { ...(currentVehicle.data as any) })
         : intl.formatMessage({ id: 'INPUT_SEARCH_PLACEHOLDER' });
 
     return (
         <div className="mobile-header">
             <VehiclePickerModal
-                value={vehicle}
+                value={currentVehicle as any}
                 isOpen={vehiclePickerIsOpen}
                 onClose={onVehiclePickerClose}
                 onSelect={onVehiclePickerSelect}
@@ -223,7 +226,7 @@ function MobileHeader() {
                             <div className="mobile-search__field" />
                         </form>
                     </div>
-                    <div className="mobile-header__indicators">
+                    <div className="mobile-header__indicators" ref={garageDropdownRef}>
                         <div className="mobile-indicator mobile-indicator--search" ref={searchIndicatorRef}>
                             <button type="button" className="mobile-indicator__button" onClick={openSearch}>
                                 <span className="mobile-indicator__icon">
@@ -238,29 +241,37 @@ function MobileHeader() {
                                 </span>
                             </AppLink>
                         </div>
-                        <div className="mobile-indicator">
-                            <AppLink href={url.wishlist()} className="mobile-indicator__button">
-                                <span className="mobile-indicator__icon">
-                                    <Heart20Svg />
-                                    {wishlist.items.length > 0 && (
-                                        <span className="mobile-indicator__counter">
-                                            {wishlist.items.length}
-                                        </span>
+                        <div
+                            className={classNames('mobile-header__garage', {
+                                'mobile-header__garage--open': garageOpen,
+                            })}
+                        >
+                            <button
+                                type="button"
+                                className={classNames('mobile-header__garage-button', {
+                                    'mobile-header__garage-button--empty': !currentVehicle,
+                                })}
+                                onClick={() => setGarageOpen((prev) => !prev)}
+                                aria-expanded={garageOpen}
+                                aria-haspopup="true"
+                            >
+                                <span className="mobile-header__garage-icon">
+                                    <img src="/images/vehicle-garage.svg" alt="" aria-hidden />
+                                    {!currentVehicle && vehicles.length === 0 && (
+                                        <span className="mobile-header__garage-warn" aria-hidden>!</span>
                                     )}
                                 </span>
-                            </AppLink>
-                        </div>
-                        <div className="mobile-indicator">
-                            <AppLink href={url.cart()} className="mobile-indicator__button">
-                                <span className="mobile-indicator__icon">
-                                    <Cart20Svg />
-                                    {cart.quantity > 0 && (
-                                        <span className="mobile-indicator__counter">
-                                            {cart.quantity}
-                                        </span>
-                                    )}
+                                <span className="mobile-header__garage-label">
+                                    {currentVehicle
+                                        ? `${(currentVehicle.data as any).C_merke} ${(currentVehicle.data as any).C_modell}`
+                                        : <FormattedMessage id="TEXT_NO_VEHICLES" defaultMessage="No vehicle" />}
                                 </span>
-                            </AppLink>
+                            </button>
+                            {garageOpen && (
+                                <div className="mobile-header__garage-dropdown">
+                                    <CarDropdown onCloseMenu={() => setGarageOpen(false)} />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

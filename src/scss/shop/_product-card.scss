@@ -7,6 +7,7 @@
 @import '../mixins/direction';
 @import '../mixins/product-card';
 @import '../mixins/status-badge';
+@import '../mixins/breakpoints';
 
 
 .product-card {
@@ -17,4 +18,11 @@
 }
 .product-card--layout--horizontal {
     @include product-card-horizontal-base;
+}
+
+// Mobile: hide zoom/quickview button on product card image
+@include media-breakpoint-down(sm) {
+    .product-card .product-card__action--quickview {
+        display: none;
+    }
 }

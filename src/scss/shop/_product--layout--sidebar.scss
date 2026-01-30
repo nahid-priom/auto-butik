@@ -480,8 +480,6 @@
     }
 
     .product-card__vat-and-shipping-info {
-        display: flex;
-        gap: 8px;
         font-size: 12px;
         color: map_get($card-scheme, muted);
         margin-top: 4px;
@@ -505,17 +503,16 @@
         flex-shrink: 0;
     }
 
-    .product-card__quantity-select {
-        padding: 10px;
+    .product-card__quantity .input-number__input {
+        padding: 10px 24px;
         border: 1px solid #ddd;
         border-radius: 4px;
         background-color: white;
         font-size: 16px;
         min-width: 60px;
-        cursor: pointer;
     }
 
-    .product-card__quantity-select:focus {
+    .product-card__quantity .input-number__input:focus {
         outline: none;
         border-color: #007bff;
     }
@@ -948,8 +945,7 @@
         }
 
         .product-info-navigation {
-            position: static;
-            order: -1;
+            display: none;
         }
 
         .product-info-section {

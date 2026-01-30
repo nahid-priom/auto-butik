@@ -41,6 +41,43 @@ $local-gutter: 20px;
     .product-card {
         @include product-card-grid-base;
     }
+
+    // Mobile grid: 2 cards per row, reduced info (image, name, tag, price, VAT only – no quantity/add to cart)
+    @include media-breakpoint-down(sm) {
+        .product-card {
+            padding: 10px;
+            .product-card__shipping-info,
+            .product-card__quantity-and-cart,
+            .product-card__addtocart-full,
+            .checkbox-container {
+                display: none !important;
+            }
+            .product-card__features {
+                display: none !important;
+            }
+            .product-card__name {
+                padding-left: 0;
+                padding-right: 0;
+            }
+            .product-card__meta {
+                padding-left: 0;
+                padding-right: 0;
+            }
+            .product-card__footer {
+                padding: 8px 0 10px;
+                gap: 4px;
+            }
+            .product-card__prices-and-buttons {
+                gap: 4px;
+            }
+            .product-card__prices {
+                font-size: 16px;
+            }
+            .product-card__vat-and-shipping-info {
+                font-size: 11px;
+            }
+        }
+    }
 }
 
 .products-list--grid--3[data-layout="grid"] {
@@ -57,7 +94,7 @@ $local-gutter: 20px;
         @include local-layout(2, 16px);
     }
     @media (max-width: 419px) {
-        @include local-layout(1, 16px);
+        @include local-layout(2, 12px);
     }
 }
 
@@ -75,7 +112,7 @@ $local-gutter: 20px;
         @include local-layout(2, 16px);
     }
     @media (max-width: 419px) {
-        @include local-layout(1, 16px);
+        @include local-layout(2, 12px);
     }
 }
 
@@ -96,7 +133,7 @@ $local-gutter: 20px;
         @include local-layout(2, 16px);
     }
     @media (max-width: 419px) {
-        @include local-layout(1, 16px);
+        @include local-layout(2, 12px);
     }
 }
 
@@ -120,7 +157,7 @@ $local-gutter: 20px;
         @include local-layout(2, 16px);
     }
     @media (max-width: 419px) {
-        @include local-layout(1, 16px);
+        @include local-layout(2, 12px);
     }
 }
 
