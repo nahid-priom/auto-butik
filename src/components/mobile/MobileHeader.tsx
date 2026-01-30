@@ -152,7 +152,7 @@ function MobileHeader() {
 
     const currentVehicle = currentCarId
         ? vehicles.find((v) => v.id === currentCarId)
-        : vehicles[0];
+        : undefined;
     const searchPlaceholder = currentVehicle
         ? intl.formatMessage({ id: 'INPUT_SEARCH_PLACEHOLDER_VEHICLE' }, { ...(currentVehicle.data as any) })
         : intl.formatMessage({ id: 'INPUT_SEARCH_PLACEHOLDER' });
