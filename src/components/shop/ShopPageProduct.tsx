@@ -13,7 +13,6 @@ import BlockProductsCarousel from "~/components/blocks/BlockProductsCarousel";
 import BlockSpace from "~/components/blocks/BlockSpace";
 import CompatibilityStatusBadge from "~/components/shared/CompatibilityStatusBadge";
 import CurrencyFormat from "~/components/shared/CurrencyFormat";
-import InputNumber from "~/components/shared/InputNumber";
 import PageTitle from "~/components/shared/PageTitle";
 import SEO from "~/components/shared/SEO";
 import ProductForm from "~/components/shop/ProductForm";
@@ -99,7 +98,7 @@ function ShopPageProduct(props: Props) {
     const sections = [
         {
             id: "product-information",
-            title: "Product information",
+            title: "Produktinformation",
             component: (
                 <ProductInformation 
                     productName={product?.name} 
@@ -110,7 +109,7 @@ function ShopPageProduct(props: Props) {
         },
         {
             id: "compatible-vehicles",
-            title: "Compatible vehicles",
+            title: "Kompatibla fordon",
             component: (
                 <CompatibleVehicles 
                     compatibleVehicles={tecdocData?.compatibleVehicles} 
@@ -120,7 +119,7 @@ function ShopPageProduct(props: Props) {
         },
         {
             id: "original-part-number",
-            title: "Original part number",
+            title: "Originaldelsnummer",
             component: (
                 <OriginalPartNumber 
                     productName={product?.name} 
@@ -148,37 +147,37 @@ function ShopPageProduct(props: Props) {
     const sectionData = [
         {
             id: "product-information",
-            title: "Product information",
-            content: "Product information content goes here...",
+            title: "Produktinformation",
+            content: "Produktinformation...",
         },
         {
             id: "compatible-vehicles",
-            title: "Compatible vehicles",
-            content: "Compatible vehicles content goes here...",
+            title: "Kompatibla fordon",
+            content: "Kompatibla fordon...",
         },
         {
             id: "original-part-number",
-            title: "Original part number",
-            content: "Original part number content goes here...",
+            title: "Originaldelsnummer",
+            content: "Originaldelsnummer...",
         },
         {
             id: "related-products",
-            title: "Related products",
-            content: "Related products content goes here...",
+            title: "Relaterade produkter",
+            content: "Relaterade produkter...",
         },
         {
             id: "questions-about-product",
-            title: "Questions about the product",
-            content: "Questions about the product content goes here...",
+            title: "Frågor om produkten",
+            content: "Frågor om produkten...",
         },
     ];
 
     const menuItems = [
-        { id: "product-information", label: "Product information" },
-        { id: "compatible-vehicles", label: "Compatible vehicles" },
-        { id: "original-part-number", label: "Original part number" },
-        { id: "related-products", label: "Related products" },
-        { id: "questions-about-product", label: "Questions about the product" },
+        { id: "product-information", label: "Produktinformation" },
+        { id: "compatible-vehicles", label: "Kompatibla fordon" },
+        { id: "original-part-number", label: "Originaldelsnummer" },
+        { id: "related-products", label: "Relaterade produkter" },
+        { id: "questions-about-product", label: "Frågor om produkten" },
     ];
 
     const handleMenuClick = (sectionId: string) => {
@@ -403,7 +402,19 @@ function ShopPageProduct(props: Props) {
                             name="quantity"
                             rules={{ required: true }}
                             render={({ field: { ref: fieldRef, ...fieldProps } }) => (
-                                <InputNumber min={1} inputRef={fieldRef} {...fieldProps} />
+                                <select
+                                    ref={fieldRef}
+                                    className="quickview__quantity-select"
+                                    value={fieldProps.value}
+                                    onChange={(e) => fieldProps.onChange(Number(e.target.value))}
+                                    aria-label={intl.formatMessage({ id: "INPUT_QUANTITY", defaultMessage: "Quantity" })}
+                                >
+                                    {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                                        <option key={n} value={n}>
+                                            {n}
+                                        </option>
+                                    ))}
+                                </select>
                             )}
                         />
                     </div>
@@ -582,19 +593,18 @@ function ShopPageProduct(props: Props) {
                                                         <React.Fragment>
                                                             <div className="product-card__quantity-and-cart" ref={topButtonRef}>
                                                                 <div className="product-card__quantity">
-                                                                    <InputNumber
-                                                                        min={1}
-                                                                        max={99}
+                                                                    <select
+                                                                        className="product-card__quantity-select"
                                                                         value={mainQuantity}
-                                                                        onChange={(v) =>
-                                                                            setMainQuantity(
-                                                                                typeof v === "number" && !Number.isNaN(v)
-                                                                                    ? Math.max(1, Math.min(99, Math.floor(v)))
-                                                                                    : 1
-                                                                            )
-                                                                        }
-                                                                        className="product-card__quantity-input"
-                                                                    />
+                                                                        onChange={(e) => setMainQuantity(Number(e.target.value))}
+                                                                        aria-label={intl.formatMessage({ id: "INPUT_QUANTITY", defaultMessage: "Quantity" })}
+                                                                    >
+                                                                        {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                                                                            <option key={n} value={n}>
+                                                                                {n}
+                                                                            </option>
+                                                                        ))}
+                                                                    </select>
                                                                 </div>
                                                                 <AsyncAction
                                                                     action={() => cartAddItem(product, [], mainQuantity)}

@@ -308,7 +308,7 @@ function ProductCard(props: Props) {
                         <div className="product-card__shipping-info__text">
                             <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
                             {": "}
-                            <span className="product-card__shipping-info__date">Tomorrow, 2025-10-29</span>
+                            <span className="product-card__shipping-info__date">i morgon, 2025-10-29</span>
                         </div>
                     </div>
                 )}
