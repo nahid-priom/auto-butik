@@ -45,6 +45,8 @@ import ProductQuestion from "./ProductQuestion";
 import ProductInformation from "./ProductInformation";
 import CompatibleVehicles from "./CompatibleVehiclies";
 import OriginalPartNumber from "./OriginalPartNumber";
+import { useTecdocProduct } from "~/hooks/useTecdocProduct";
+import { TechnicalSpec } from "~/interfaces/tecdoc";
 // Payment method logos are imported as images
 
 interface Props {
@@ -70,98 +72,56 @@ function ShopPageProduct(props: Props) {
     const addToWishlist = () => wishlistAddItem(product);
     const addToCompare = () => compareAddItem(product);
 
-    const features = [
-        {
-            name: "LOCATION",
-            values: [{ name: "Rear axle" }],
-        },
-        {
-            name: "EAN",
-            values: [{ name: "4047024749801" }],
-        },
-        {
-            name: "OUTER_DIAMETER_MM",
-            values: [{ name: "272" }],
-        },
-        {
-            name: "BRAKE_DISC_THICKNESS_MM",
-            values: [{ name: "10" }],
-        },
-        {
-            name: "MINIMUM_THICKNESS_MM",
-            values: [{ name: "8" }],
-        },
-        {
-            name: "HEIGHT_MM",
-            values: [{ name: "48.3" }],
-        },
-        {
-            name: "HOLE_CIRCLE_DIAMETER_MM",
-            values: [{ name: "112" }],
-        },
-        {
-            name: "BRAKE_DISC_TYPE",
-            values: [{ name: "full" }],
-        },
-        {
-            name: "CENTERING_DIAMETER_MM",
-            values: [{ name: "65" }],
-        },
-        {
-            name: "NUMBER_OF_HOLES",
-            values: [{ name: "9" }],
-        },
-        {
-            name: "SURFACE",
-            values: [{ name: "oiled" }],
-        },
-        {
-            name: "MEETS_ECE_STANDARD",
-            values: [{ name: "ECE-R90" }],
-        },
-        {
-            name: "DRILLING_DIAMETER_TO_MM",
-            values: [{ name: "15.3" }],
-        },
-        {
-            name: "PRODUCT_LINE",
-            values: [{ name: "BD1515, E1 90 R - 02C0355/0231" }],
-        },
-        {
-            name: "BRAND_QUALITY",
-            values: [{ name: "Premium" }],
-        },
-        {
-            name: "MANUFACTURER",
-            values: [{ name: "BOSCH" }],
-        },
-        {
-            name: "ITEM_NO",
-            values: [{ name: "0 986 479 677" }],
-        },
-    ];
+    // Fetch TecDoc product data
+    const { 
+        data: tecdocData, 
+        isLoading: tecdocLoading, 
+        hasSpecs, 
+        hasVehicles, 
+        hasOeRefs 
+    } = useTecdocProduct(product?.id || null);
+
+    // Convert TecDoc specs to feature format for display in the quick features section
+    const features: TechnicalSpec[] = tecdocData?.technicalSpecs || [];
 
     const sections = [
         {
             id: "product-information",
             title: "Product information",
-            component: <ProductInformation />,
+            component: (
+                <ProductInformation 
+                    productName={product?.name} 
+                    technicalSpecs={tecdocData?.technicalSpecs} 
+                    isLoading={tecdocLoading} 
+                />
+            ),
         },
         {
             id: "compatible-vehicles",
             title: "Compatible vehicles",
-            component: <CompatibleVehicles />,
+            component: (
+                <CompatibleVehicles 
+                    compatibleVehicles={tecdocData?.compatibleVehicles} 
+                    isLoading={tecdocLoading} 
+                />
+            ),
         },
         {
             id: "original-part-number",
             title: "Original part number",
-            component: <OriginalPartNumber />,
+            component: (
+                <OriginalPartNumber 
+                    productName={product?.name} 
+                    oeReferences={tecdocData?.oeReferences} 
+                    isLoading={tecdocLoading} 
+                />
+            ),
         },
     ];
 
     const [showAllFeatures, setShowAllFeatures] = useState(false);
 
-    const displayedFeatures = showAllFeatures ? features : features.slice(0, 4);
+    const displayedFeatures: TechnicalSpec[] = showAllFeatures ? features : features.slice(0, 4);
     const hasMoreFeatures = features.length > 4;
 
     const [activeSection, setActiveSection] = useState("product-information");
@@ -751,76 +711,87 @@ function ShopPageProduct(props: Props) {
                                                     </div>
                                                 </div>
 
-                                                <div className="product-card__features">
-                                                    <div
-                                                        className={`product-card__features-columns ${
-                                                            showAllFeatures ? "two-columns" : "one-column"
-                                                        }`}
-                                                    >
-                                                        <div className="product-card__features-column">
-                                                            {displayedFeatures
-                                                                .slice(
-                                                                    0,
-                                                                    showAllFeatures
-                                                                        ? Math.ceil(displayedFeatures.length / 2)
-                                                                        : 4
-                                                                )
-                                                                .map((attribute, index) => (
-                                                                    <div
-                                                                        key={index}
-                                                                        className="product-card__feature-item"
-                                                                    >
-                                                                        <FormattedMessage id={attribute.name} />
-                                                                        {": "}
-                                                                        <span className="product-card__feature-value">
-                                                                            {attribute.values
-                                                                                .map((x) => x.name)
-                                                                                .join(", ")}
-                                                                        </span>
+                                                {/* Technical Features from TecDoc */}
+                                                {tecdocLoading ? (
+                                                    <div className="product-card__features">
+                                                        <div className="product-card__features-columns one-column">
+                                                            <div className="product-card__features-column">
+                                                                {Array.from({ length: 4 }).map((_, index) => (
+                                                                    <div key={index} className="product-card__feature-item">
+                                                                        <span style={{ display: 'inline-block', width: '60%', height: '1rem', backgroundColor: '#e0e0e0', borderRadius: '4px' }} />
                                                                     </div>
                                                                 ))}
+                                                            </div>
                                                         </div>
-
-                                                        {showAllFeatures && (
+                                                    </div>
+                                                ) : features.length > 0 ? (
+                                                    <div className="product-card__features">
+                                                        <div
+                                                            className={`product-card__features-columns ${
+                                                                showAllFeatures ? "two-columns" : "one-column"
+                                                            }`}
+                                                        >
                                                             <div className="product-card__features-column">
                                                                 {displayedFeatures
-                                                                    .slice(Math.ceil(displayedFeatures.length / 2))
-                                                                    .map((attribute, index) => (
+                                                                    .slice(
+                                                                        0,
+                                                                        showAllFeatures
+                                                                            ? Math.ceil(displayedFeatures.length / 2)
+                                                                            : 4
+                                                                    )
+                                                                    .map((spec, index) => (
                                                                         <div
-                                                                            key={
-                                                                                index +
-                                                                                Math.ceil(displayedFeatures.length / 2)
-                                                                            }
+                                                                            key={index}
                                                                             className="product-card__feature-item"
                                                                         >
-                                                                            <FormattedMessage id={attribute.name} />
+                                                                            {spec.name}
                                                                             {": "}
                                                                             <span className="product-card__feature-value">
-                                                                                {attribute.values
-                                                                                    .map((x) => x.name)
-                                                                                    .join(", ")}
+                                                                                {spec.value}
                                                                             </span>
                                                                         </div>
                                                                     ))}
                                                             </div>
+
+                                                            {showAllFeatures && (
+                                                                <div className="product-card__features-column">
+                                                                    {displayedFeatures
+                                                                        .slice(Math.ceil(displayedFeatures.length / 2))
+                                                                        .map((spec, index) => (
+                                                                            <div
+                                                                                key={
+                                                                                    index +
+                                                                                    Math.ceil(displayedFeatures.length / 2)
+                                                                                }
+                                                                                className="product-card__feature-item"
+                                                                            >
+                                                                                {spec.name}
+                                                                                {": "}
+                                                                                <span className="product-card__feature-value">
+                                                                                    {spec.value}
+                                                                                </span>
+                                                                            </div>
+                                                                        ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {hasMoreFeatures && (
+                                                            <button
+                                                                className="product-card__show-more-btn"
+                                                                onClick={() => setShowAllFeatures(!showAllFeatures)}
+                                                            >
+                                                                <FormattedMessage
+                                                                    id={
+                                                                        showAllFeatures
+                                                                            ? "BUTTON_HIDE_ALL_FEATURES"
+                                                                            : "BUTTON_SHOW_ALL_FEATURES"
+                                                                    }
+                                                                />
+                                                            </button>
                                                         )}
                                                     </div>
-
-                                                    {hasMoreFeatures && (
-                                                        <button
-                                                            className="product-card__show-more-btn"
-                                                            onClick={() => setShowAllFeatures(!showAllFeatures)}
-                                                        >
-                                                            <FormattedMessage
-                                                                id={
-                                                                    showAllFeatures
-                                                                        ? "BUTTON_HIDE_ALL_FEATURES"
-                                                                        : "BUTTON_SHOW_ALL_FEATURES"
-                                                                }
-                                                            />
-                                                        </button>
-                                                    )}
-                                                </div>
+                                                ) : null}
 
                                                 <div className="safety-info-link">
                                                     <div className="safety-info-text">
@@ -894,7 +865,7 @@ function ShopPageProduct(props: Props) {
                                             }`}
                                         >
                                             <div className="section-content">
-                                                <ProductQuestion productName="Brake caliper KAMOKA JBC0206" />
+                                                <ProductQuestion productName={product.name} />
                                             </div>
                                         </section>
                                     </div>{" "}
