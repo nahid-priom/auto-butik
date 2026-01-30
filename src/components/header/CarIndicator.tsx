@@ -14,7 +14,7 @@ interface CarDropdownProps {
 }
 
 export function CarDropdown({ onCloseMenu }: CarDropdownProps) {
-    const { setCurrentActiveCar } = useCurrentActiveCar();
+    const { setCurrentActiveCar, clearCurrentActiveCar } = useCurrentActiveCar();
     const { vehicles, currentCarId, removeVehicle, setCurrentCar } = useGarage();
 
     const handleSelectVehicle = (vehicle: any) => {
@@ -166,6 +166,7 @@ export function CarDropdown({ onCloseMenu }: CarDropdownProps) {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setCurrentCar(null);
+                                                    clearCurrentActiveCar();
                                                 }}
                                                 aria-label="Deselect current car (keep in garage)"
                                                 title="Deselect current car (keep in garage)"
