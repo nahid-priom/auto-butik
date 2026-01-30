@@ -1,5 +1,6 @@
 // react
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 // third-party
 import classNames from "classnames";
 import { Controller, FormProvider } from "react-hook-form";
@@ -40,6 +41,7 @@ import {
     Wishlist16Svg,
 } from "~/svg";
 import { useCartAddItem } from "~/store/cart/cartHooks";
+import { useGarage } from "~/contexts/GarageContext";
 import { FaBoxes, FaCalendarCheck, FaCheckCircle, FaShippingFast, FaInfoCircle } from "react-icons/fa";
 import ProductQuestion from "./ProductQuestion";
 import ProductInformation from "./ProductInformation";
@@ -66,6 +68,16 @@ function ShopPageProduct(props: Props) {
     const productForm = useProductForm(product);
 
     const cartAddItem = useCartAddItem();
+    const { vehicles, currentCarId } = useGarage();
+
+    const currentVehicleName = (() => {
+        const current = currentCarId ? vehicles.find((v) => v.id === currentCarId) : vehicles[0];
+        if (!current?.data) return null;
+        const d = current.data as { C_merke?: string; C_modell?: string };
+        const make = d.C_merke || "";
+        const model = d.C_modell || "";
+        return [make, model].filter(Boolean).join(" ") || null;
+    })();
 
     const addToWishlist = () => wishlistAddItem(product);
     const addToCompare = () => compareAddItem(product);
@@ -166,6 +178,9 @@ function ShopPageProduct(props: Props) {
 
     const [activeSection, setActiveSection] = useState("product-information");
     const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
+    const topButtonRef = useRef<HTMLDivElement>(null);
+    const [stickyBarVisible, setStickyBarVisible] = useState(false);
+    const [stickyQuantity, setStickyQuantity] = useState(1);
 
     // Section data
     const sectionData = [
@@ -217,6 +232,27 @@ function ShopPageProduct(props: Props) {
         sectionData.forEach((section) => {
             sectionRefs.current[section.id] = document.getElementById(section.id);
         });
+    }, []);
+
+    // Show sticky bar only when the top red button has scrolled above the viewport (user scrolled past it).
+    // Don't show when the button is below the viewport (user hasn't reached it yet).
+    useEffect(() => {
+        const el = topButtonRef.current;
+        if (!el) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setStickyBarVisible(false);
+                } else {
+                    const rect = entry.boundingClientRect;
+                    const isAboveViewport = rect.bottom < 0;
+                    setStickyBarVisible(isAboveViewport);
+                }
+            },
+            { threshold: 0, rootMargin: "0px" }
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
     }, []);
 
     useEffect(() => {
@@ -573,7 +609,7 @@ function ShopPageProduct(props: Props) {
 
                                                     <React.Fragment>
                                                         <React.Fragment>
-                                                            <div className="product-card__quantity-and-cart">
+                                                            <div className="product-card__quantity-and-cart" ref={topButtonRef}>
                                                                 <div className="product-card__quantity">
                                                                     <select
                                                                         className="product-card__quantity-select"
@@ -607,50 +643,6 @@ function ShopPageProduct(props: Props) {
                                                                         </button>
                                                                     )}
                                                                 />
-                                                                <div>
-                                                                    <AsyncAction
-                                                                        action={() => addToWishlist()}
-                                                                        render={({ run, loading }) => (
-                                                                            <button
-                                                                                type="button"
-                                                                                className={classNames(
-                                                                                    "product-card__wishlist",
-                                                                                    {
-                                                                                        "product-card__wishlist--loading":
-                                                                                            loading,
-                                                                                    }
-                                                                                )}
-                                                                                onClick={run}
-                                                                            >
-                                                                                <Wishlist16Svg />
-                                                                                <span>
-                                                                                    <FormattedMessage id="BUTTON_ADD_TO_WISHLIST" />
-                                                                                </span>
-                                                                            </button>
-                                                                        )}
-                                                                    />
-                                                                    <AsyncAction
-                                                                        action={() => addToCompare()}
-                                                                        render={({ run, loading }) => (
-                                                                            <button
-                                                                                type="button"
-                                                                                className={classNames(
-                                                                                    "product-card__compare",
-                                                                                    {
-                                                                                        "product-card__compare--loading":
-                                                                                            loading,
-                                                                                    }
-                                                                                )}
-                                                                                onClick={run}
-                                                                            >
-                                                                                <Compare16Svg />
-                                                                                <span>
-                                                                                    <FormattedMessage id="BUTTON_ADD_TO_COMPARE" />
-                                                                                </span>
-                                                                            </button>
-                                                                        )}
-                                                                    />
-                                                                </div>
                                                             </div>
                                                         </React.Fragment>
                                                     </React.Fragment>
@@ -662,7 +654,10 @@ function ShopPageProduct(props: Props) {
                                                             <FaCheckCircle />
                                                         </div>
                                                         <div className="compatibility-text">
-                                                            <FormattedMessage id="VEHICLE_COMPATIBILITY_TEXT" />{" "}
+                                                            <FormattedMessage
+                                                                id="VEHICLE_COMPATIBILITY_TEXT"
+                                                                values={{ vehicleName: currentVehicleName ?? "" }}
+                                                            />{" "}
                                                             <button className="compatibility-link">
                                                                 <FormattedMessage id="WILL_IT_REALLY_FIT" />
                                                             </button>
@@ -670,17 +665,65 @@ function ShopPageProduct(props: Props) {
                                                     </div>
                                                 </div>
 
-                                                <div className="stock-info">
-                                                    <div className="stock-icon">
-                                                        <FaBoxes />
+                                                <div className="product-card__stock-row">
+                                                    <div className="stock-info">
+                                                        <div className="stock-icon">
+                                                            <FaBoxes />
+                                                        </div>
+                                                        <span className="stock-status">
+                                                            <FormattedMessage id="STOCK_IN_STOCK" />
+                                                        </span>
+                                                        <span className="stock-separator">.</span>
+                                                        <span className="price-valid">
+                                                            <FormattedMessage id="PRICE_VALID_UNTIL" />: 2025-10-30
+                                                        </span>
                                                     </div>
-                                                    <span className="stock-status">
-                                                        <FormattedMessage id="STOCK_IN_STOCK" />
-                                                    </span>
-                                                    <span className="stock-separator">.</span>
-                                                    <span className="price-valid">
-                                                        <FormattedMessage id="PRICE_VALID_UNTIL" />: 2025-10-30
-                                                    </span>
+                                                    <div className="product-card__actions-secondary">
+                                                        <AsyncAction
+                                                            action={() => addToWishlist()}
+                                                            render={({ run, loading }) => (
+                                                                <button
+                                                                    type="button"
+                                                                    className={classNames(
+                                                                        "product-card__wishlist",
+                                                                        {
+                                                                            "product-card__wishlist--loading":
+                                                                                loading,
+                                                                        }
+                                                                    )}
+                                                                    onClick={run}
+                                                                    aria-label={intl.formatMessage({ id: "BUTTON_ADD_TO_WISHLIST" })}
+                                                                >
+                                                                    <Wishlist16Svg />
+                                                                    <span className="product-card__action-label">
+                                                                        <FormattedMessage id="BUTTON_ADD_TO_WISHLIST" />
+                                                                    </span>
+                                                                </button>
+                                                            )}
+                                                        />
+                                                        <AsyncAction
+                                                            action={() => addToCompare()}
+                                                            render={({ run, loading }) => (
+                                                                <button
+                                                                    type="button"
+                                                                    className={classNames(
+                                                                        "product-card__compare",
+                                                                        {
+                                                                            "product-card__compare--loading":
+                                                                                loading,
+                                                                        }
+                                                                    )}
+                                                                    onClick={run}
+                                                                    aria-label={intl.formatMessage({ id: "BUTTON_ADD_TO_COMPARE" })}
+                                                                >
+                                                                    <Compare16Svg />
+                                                                    <span className="product-card__action-label">
+                                                                        <FormattedMessage id="BUTTON_ADD_TO_COMPARE" />
+                                                                    </span>
+                                                                </button>
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
 
                                                 <div className="product-card__shipping-info">
@@ -905,6 +948,80 @@ function ShopPageProduct(props: Props) {
                     </div>
                 </div>
             </div>
+
+            {/* Mobile-only sticky buy bar – portaled to body so it’s fixed to viewport */}
+            {typeof document !== "undefined" &&
+                createPortal(
+                    <div
+                        className={classNames("product-sticky-bar", {
+                            "product-sticky-bar--visible": stickyBarVisible,
+                        })}
+                        aria-hidden={!stickyBarVisible}
+                        style={{
+                            minHeight: 140,
+                            padding: "20px 28px",
+                            paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+                            background: "#fff",
+                            boxSizing: "border-box",
+                        }}
+                    >
+                        <div className="product-sticky-bar__inner">
+                                <div className="product-sticky-bar__price-row">
+                                    <div className="product-sticky-bar__price">
+                                        <CurrencyFormat value={product.price} />
+                                    </div>
+                                    <div className="product-sticky-bar__meta">
+                                        <span className="product-sticky-bar__meta-left">
+                                            <FormattedMessage id="TEXT_INCL_VAT" />
+                                        </span>
+                                        <span className="product-sticky-bar__meta-divider" />
+                                        <span className="product-sticky-bar__meta-right">
+                                            exkl. fraktkostnader
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="product-sticky-bar__actions">
+                                    {product.stock !== "out-of-stock" ? (
+                                        <>
+                                            <div className="product-sticky-bar__quantity">
+                                                <select
+                                                    className="product-sticky-bar__quantity-select"
+                                                    value={stickyQuantity}
+                                                    onChange={(e) => setStickyQuantity(Number(e.target.value))}
+                                                    aria-label={intl.formatMessage({ id: "INPUT_QUANTITY", defaultMessage: "Quantity" })}
+                                                >
+                                                    {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                                                        <option key={n} value={n}>
+                                                            {n}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <AsyncAction
+                                                action={() => cartAddItem(product, [], stickyQuantity)}
+                                                render={({ run, loading }) => (
+                                                    <button
+                                                        type="button"
+                                                        className={classNames("product-sticky-bar__btn", {
+                                                            "product-sticky-bar__btn--loading": loading,
+                                                        })}
+                                                        onClick={run}
+                                                    >
+                                                        <FormattedMessage id="BUTTON_ADD_TO_CART" />
+                                                    </button>
+                                                )}
+                                            />
+                                        </>
+                                    ) : (
+                                        <span className="product-sticky-bar__out-of-stock">
+                                            <FormattedMessage id="TEXT_OUT_OF_STOCK" defaultMessage="Out of stock" />
+                                        </span>
+                                    )}
+                                </div>
+                        </div>
+                    </div>,
+                    document.body
+                )}
 
             <BlockSpace layout="before-footer" />
         </React.Fragment>
