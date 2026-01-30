@@ -9,6 +9,7 @@ export interface UseVehicleCatalogOptions {
     take?: number;
     term?: string;
     collectionSlug?: string;
+    collectionId?: string | number;
 }
 
 export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
@@ -19,7 +20,7 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
     const [productsLoading, setProductsLoading] = useState(false);
     const [productsError, setProductsError] = useState<string | null>(null);
 
-    const { skip = 0, take = 24, term = "", collectionSlug = "" } = options;
+    const { skip = 0, take = 24, term = "", collectionSlug = "", collectionId } = options;
 
     // Get modelId from current active car
     const modelId = currentActiveCar?.data && 'modell_id' in currentActiveCar.data 
@@ -27,7 +28,7 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
         : null;
 
     // Fetch products when modelId is available AND we have options that indicate we need products
-    // Only fetch products if we're actually on a products page (collectionSlug is provided or we explicitly want products)
+    // Only fetch products if we're actually on a products page (collectionSlug/collectionId is provided or we explicitly want products)
     useEffect(() => {
         if (!modelId) {
             setProducts(null);
@@ -35,9 +36,10 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
             return;
         }
 
-        // Don't fetch products if we're just browsing categories (no collectionSlug and no explicit product request)
-        // Only fetch if collectionSlug is provided (we're on a products page) or if skip/take are set (pagination)
-        const shouldFetchProducts = collectionSlug !== "" || skip > 0 || take !== 24;
+        // Don't fetch products if we're just browsing categories (no collection filter and no explicit product request)
+        // Only fetch if collectionSlug/collectionId is provided (we're on a products page) or if skip/take are set (pagination)
+        const hasCollectionFilter = collectionSlug !== "" || (collectionId !== undefined && collectionId !== "");
+        const shouldFetchProducts = hasCollectionFilter || skip > 0 || take !== 24;
 
         if (!shouldFetchProducts) {
             // We're just browsing categories, don't fetch products
@@ -55,6 +57,7 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
                     take,
                     term,
                     collectionSlug,
+                    collectionId,
                 });
                 if (!canceled) {
                     setProducts(data);
@@ -76,7 +79,7 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
         return () => {
             canceled = true;
         };
-    }, [modelId, skip, take, term, collectionSlug]);
+    }, [modelId, skip, take, term, collectionSlug, collectionId]);
 
     // For backward compatibility, loading is true if categories are loading
     const loading = catalogContext.categoriesLoading;

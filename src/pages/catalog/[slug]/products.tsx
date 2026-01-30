@@ -144,17 +144,25 @@ function Page(props: Props) {
     const router = useRouter();
     const slug = typeof router.query.slug === "string" ? router.query.slug : props.slug;
 
-    // Update router query to include collectionSlug for VehicleProductsView
-    // VehicleProductsView reads collectionSlug from router.query
+    // Update router query to include collectionId or collectionSlug for VehicleProductsView
+    // VehicleProductsView reads these from router.query
     useEffect(() => {
-        if (slug && router.query.collectionSlug !== slug) {
-            // Use replace to update query without adding to history
-            const newQuery = { ...router.query };
-            newQuery.collectionSlug = slug;
-            router.replace({
-                pathname: router.pathname,
-                query: newQuery,
-            }, undefined, { shallow: true });
+        if (slug) {
+            const isNumericId = /^\d+$/.test(slug);
+            const targetKey = isNumericId ? 'collectionId' : 'collectionSlug';
+            const otherKey = isNumericId ? 'collectionSlug' : 'collectionId';
+            
+            if (router.query[targetKey] !== slug) {
+                // Use replace to update query without adding to history
+                const newQuery = { ...router.query };
+                newQuery[targetKey] = slug;
+                // Remove the other key if present to avoid confusion
+                delete newQuery[otherKey];
+                router.replace({
+                    pathname: router.pathname,
+                    query: newQuery,
+                }, undefined, { shallow: true });
+            }
         }
     }, [slug]);
 

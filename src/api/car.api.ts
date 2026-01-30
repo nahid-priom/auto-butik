@@ -285,7 +285,7 @@ export class CarApi {
     /**
      * Get products for a specific vehicle model
      * @param modelId - The TecDoc KTYPE / model ID from car lookup
-     * @param options - Query options (skip, take, term, collectionSlug)
+     * @param options - Query options (skip, take, term, collectionSlug, collectionId)
      * @returns Promise with products data
      */
     async getProductsForVehicle(
@@ -295,16 +295,22 @@ export class CarApi {
             take?: number;
             term?: string;
             collectionSlug?: string;
+            collectionId?: string | number;
         } = {}
     ): Promise<IVehicleProductsResponse> {
         const baseUrl = getApiUrl();
-        const { skip = 0, take = 24, term = "", collectionSlug = "" } = options;
+        const { skip = 0, take = 24, term = "", collectionSlug = "", collectionId } = options;
         
         const params = new URLSearchParams();
         if (skip > 0) params.append("skip", skip.toString());
         if (take !== 24) params.append("take", take.toString());
         if (term) params.append("term", term);
-        if (collectionSlug) params.append("collectionSlug", collectionSlug);
+        // Prefer collectionId over collectionSlug when both are provided
+        if (collectionId !== undefined && collectionId !== "") {
+            params.append("collectionId", String(collectionId));
+        } else if (collectionSlug) {
+            params.append("collectionSlug", collectionSlug);
+        }
 
         const url = `${baseUrl}/car/products/${modelId}${params.toString() ? `?${params.toString()}` : ""}`;
         console.log("Car API - Products URL:", url);
