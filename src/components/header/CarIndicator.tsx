@@ -13,7 +13,7 @@ interface CarDropdownProps {
     onCloseMenu: () => void;
 }
 
-function CarDropdown({ onCloseMenu }: CarDropdownProps) {
+export function CarDropdown({ onCloseMenu }: CarDropdownProps) {
     const { setCurrentActiveCar } = useCurrentActiveCar();
     const { vehicles, currentCarId, removeVehicle, setCurrentCar } = useGarage();
 
