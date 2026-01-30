@@ -250,11 +250,16 @@ export class CarApi {
 
     /**
      * Get the full category tree (all categories nested)
+     * @param modelId - Optional TecDoc KTYPE / model ID to filter categories for a specific vehicle
      * @returns Promise with category tree data
      */
-    async getCategoryTree(): Promise<ICategoryTreeResponse> {
+    async getCategoryTree(modelId?: string): Promise<ICategoryTreeResponse> {
         const baseUrl = getApiUrl();
-        const url = `${baseUrl}/car/categories/tree`;
+        const params = new URLSearchParams();
+        if (modelId) {
+            params.append("modelId", modelId);
+        }
+        const url = `${baseUrl}/car/categories/tree${params.toString() ? `?${params.toString()}` : ""}`;
         console.log("Car API - Category Tree URL:", url);
         try {
             const res = await fetch(url, {

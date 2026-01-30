@@ -1,8 +1,11 @@
 // noinspection JSUnusedGlobalSymbols
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BASE_PATH || 'http://localhost:3000';
+
 module.exports = {
     env: {
-        // Replace with your actual API URL
-        NEXT_PUBLIC_API_URL: process.env.BASE_PATH || 'https://fa2b9fd9b3e1.ngrok-free.app',
+        // Expose backend URL to client-side code
+        NEXT_PUBLIC_API_URL: BACKEND_URL,
+        NEXT_PUBLIC_BACKEND_URL: BACKEND_URL,
     },
     eslint: {
         ignoreDuringBuilds: true,
@@ -14,7 +17,7 @@ module.exports = {
         return [
             {
                 source: '/shop-api/:path*',
-                destination: `${process.env.NEXT_PUBLIC_API_URL || process.env.BASE_PATH || 'http://localhost:3000'}/shop-api/:path*`,
+                destination: `${BACKEND_URL}/shop-api/:path*`,
             },
         ];
     },

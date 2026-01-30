@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { carApi, ICategoryTreeNode, ICategoryTreeResponse } from '~/api/car.api';
+import { useCurrentActiveCar } from '~/contexts/CarContext';
+import { ICarData } from '~/interfaces/car';
 
 interface CategoryTreeContextValue {
     tree: ICategoryTreeNode[] | null;
@@ -7,6 +9,7 @@ interface CategoryTreeContextValue {
     error: string | null;
     totalCategories: number;
     rootCategories: number;
+    currentModelId: string | null;
     findCategoryById: (id: number) => ICategoryTreeNode | null;
     getChildren: (categoryId: number) => ICategoryTreeNode[];
     getBreadcrumb: (categoryId: number) => ICategoryTreeNode[];
@@ -22,8 +25,12 @@ export function CategoryTreeProvider({ children }: { children: React.ReactNode }
     const [error, setError] = useState<string | null>(null);
     const [totalCategories, setTotalCategories] = useState(0);
     const [rootCategories, setRootCategories] = useState(0);
+    const [currentModelId, setCurrentModelId] = useState<string | null>(null);
     const loadingRef = useRef(false);
-    const loadedRef = useRef(false);
+    const lastModelIdRef = useRef<string | null>(null);
+    
+    // Get the current active car
+    const { currentActiveCar } = useCurrentActiveCar();
 
     // Helper function to find a category by ID in the tree (recursive)
     const findInTree = useCallback((nodes: ICategoryTreeNode[], id: number): ICategoryTreeNode | null => {
@@ -83,9 +90,28 @@ export function CategoryTreeProvider({ children }: { children: React.ReactNode }
         return category ? category.children.length === 0 : true;
     }, [findCategoryById]);
 
+    // Extract modelId from active car
+    const getModelIdFromCar = useCallback((): string | null => {
+        if (!currentActiveCar?.data) return null;
+        
+        // Check if it's ICarData (has modell_id) or IWheelData (has WHEELID)
+        const carData = currentActiveCar.data as ICarData;
+        if (carData.modell_id) {
+            return carData.modell_id;
+        }
+        
+        return null;
+    }, [currentActiveCar]);
+
     // Load the category tree
-    const loadTree = useCallback(async () => {
-        if (loadingRef.current || loadedRef.current) {
+    const loadTree = useCallback(async (modelId?: string | null) => {
+        // Prevent duplicate requests for the same modelId
+        if (loadingRef.current) {
+            return;
+        }
+
+        // If we already have data for this modelId, skip
+        if (lastModelIdRef.current === (modelId || null) && tree !== null) {
             return;
         }
 
@@ -93,13 +119,14 @@ export function CategoryTreeProvider({ children }: { children: React.ReactNode }
         try {
             setLoading(true);
             setError(null);
-            console.log('CategoryTreeContext - Loading category tree...');
-            const data: ICategoryTreeResponse = await carApi.getCategoryTree();
-            console.log('CategoryTreeContext - Tree loaded:', data.totalCategories, 'categories');
+            console.log('CategoryTreeContext - Loading category tree...', modelId ? `for modelId: ${modelId}` : '(all categories)');
+            const data: ICategoryTreeResponse = await carApi.getCategoryTree(modelId || undefined);
+            console.log('CategoryTreeContext - Tree loaded:', data.totalCategories, 'categories', modelId ? `for vehicle ${modelId}` : '(all)');
             setTree(data.categories);
             setTotalCategories(data.totalCategories);
             setRootCategories(data.rootCategories);
-            loadedRef.current = true;
+            setCurrentModelId(modelId || null);
+            lastModelIdRef.current = modelId || null;
         } catch (err) {
             console.error('CategoryTreeContext - Error loading tree:', err);
             setError(err instanceof Error ? err.message : 'Failed to load category tree');
@@ -107,18 +134,25 @@ export function CategoryTreeProvider({ children }: { children: React.ReactNode }
             setLoading(false);
             loadingRef.current = false;
         }
-    }, []);
+    }, [tree]);
 
     // Force refresh the tree
     const refreshTree = useCallback(async () => {
-        loadedRef.current = false;
-        await loadTree();
-    }, [loadTree]);
+        const modelId = getModelIdFromCar();
+        lastModelIdRef.current = null; // Force refresh
+        await loadTree(modelId);
+    }, [loadTree, getModelIdFromCar]);
 
-    // Load tree on mount
+    // Load tree when active car changes
     useEffect(() => {
-        loadTree();
-    }, [loadTree]);
+        const modelId = getModelIdFromCar();
+        
+        // Only reload if modelId changed
+        if (modelId !== lastModelIdRef.current) {
+            console.log('CategoryTreeContext - Active car changed, reloading tree for modelId:', modelId);
+            loadTree(modelId);
+        }
+    }, [currentActiveCar, getModelIdFromCar, loadTree]);
 
     return (
         <CategoryTreeContext.Provider
@@ -128,6 +162,7 @@ export function CategoryTreeProvider({ children }: { children: React.ReactNode }
                 error,
                 totalCategories,
                 rootCategories,
+                currentModelId,
                 findCategoryById,
                 getChildren,
                 getBreadcrumb,
@@ -158,6 +193,7 @@ export function useCategoryTreeSafe() {
             error: null,
             totalCategories: 0,
             rootCategories: 0,
+            currentModelId: null,
             findCategoryById: () => null,
             getChildren: () => [],
             getBreadcrumb: () => [],
