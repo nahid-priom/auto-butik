@@ -26,6 +26,8 @@ interface Props {
     offCanvasSidebar: IShopPageOffCanvasSidebar;
     /** When set (e.g. from /catalog/products/[carModelID]), fetch products for this car instead of current active car */
     modelIdOverride?: string | null;
+    /** If true, allow fetching products by collection even without an active car (uses "all" as modelId) */
+    allowWithoutCar?: boolean;
 }
 
 // Convert vehicle product to IProduct format
@@ -73,7 +75,7 @@ const convertVehicleProductToIProduct = (vp: IVehicleProduct, index: number): IP
 };
 
 function VehicleProductsView(props: Props) {
-    const { layout: layoutProps, gridLayout, offCanvasSidebar, modelIdOverride } = props;
+    const { layout: layoutProps, gridLayout, offCanvasSidebar, modelIdOverride, allowWithoutCar = false } = props;
     const intl = useIntl();
     const router = useRouter();
     const [, setSidebarIsOpen] = useContext(SidebarContext);
@@ -100,12 +102,16 @@ function VehicleProductsView(props: Props) {
 
     const skip = (page - 1) * limit;
 
+    // Check if we have a collection filter (needed for allowWithoutCar logic)
+    const hasCollectionFilter = collectionSlug !== "" || (collectionId !== undefined && collectionId !== "");
+
     // Fetch vehicle catalog data
     const {
         products: productsResponse,
         productsLoading: isLoading,
         error,
         hasActiveCar,
+        canFetchProducts,
     } = useVehicleCatalog({
         skip,
         take: limit,
@@ -113,6 +119,8 @@ function VehicleProductsView(props: Props) {
         collectionSlug,
         collectionId,
         modelIdOverride,
+        // Allow fetching without car if we have a collection filter and the prop is set
+        allowWithoutCar: allowWithoutCar && hasCollectionFilter,
     });
 
     // Convert vehicle products to IProduct format
@@ -193,8 +201,8 @@ function VehicleProductsView(props: Props) {
         "products-list--grid--3": gridLayout === "grid-3-sidebar",
     });
 
-    // Don't show if no active car and no modelId from URL
-    if (!hasActiveCar) {
+    // Don't show if we can't fetch products (no active car, no modelId override, and no allowWithoutCar with collection filter)
+    if (!canFetchProducts) {
         return null;
     }
 

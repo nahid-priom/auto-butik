@@ -80,8 +80,8 @@ function PageContent() {
 
     const sidebar = <ShopSidebar offcanvas="mobile" />;
 
-    // If no active car, show regular products view
-    if (!modelId || !slug) {
+    // If no slug (category), show regular GraphQL products view
+    if (!slug) {
         return (
             <React.Fragment>
                 {pageHeader}
@@ -106,11 +106,14 @@ function PageContent() {
         );
     }
 
-    // Get car name for hero subtitle
+    // Get car name for hero subtitle (only if active car)
     const carName = currentActiveCar?.data 
         ? `${(currentActiveCar.data as any).C_merke || ''} ${(currentActiveCar.data as any).C_modell || ''}`.trim()
         : null;
 
+    // Show VehicleProductsView for category browsing
+    // - With active car: filters products by vehicle compatibility (modelId from car)
+    // - Without active car: shows all products in category (uses modelId="all")
     return (
         <React.Fragment>
             <PageTitle>{categoryName || intl.formatMessage({ id: "HEADER_SHOP" })}</PageTitle>
@@ -129,6 +132,7 @@ function PageContent() {
                                     layout="list"
                                     gridLayout="grid-3-sidebar"
                                     offCanvasSidebar="mobile"
+                                    allowWithoutCar={true}
                                 />
                             </div>
                         </div>

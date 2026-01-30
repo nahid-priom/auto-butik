@@ -12,6 +12,8 @@ export interface UseVehicleCatalogOptions {
     collectionId?: string | number;
     /** When set (e.g. from URL /catalog/products/[carModelID]), use this instead of current active car */
     modelIdOverride?: string | null;
+    /** If true, fetch products even without an active car (uses "all" as modelId) */
+    allowWithoutCar?: boolean;
 }
 
 export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
@@ -22,14 +24,20 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
     const [productsLoading, setProductsLoading] = useState(false);
     const [productsError, setProductsError] = useState<string | null>(null);
 
-    const { skip = 0, take = 24, term = "", collectionSlug = "", collectionId, modelIdOverride } = options;
+    const { skip = 0, take = 24, term = "", collectionSlug = "", collectionId, modelIdOverride, allowWithoutCar = false } = options;
 
     // Get modelId: URL override (e.g. /catalog/products/18027) or current active car
-    const modelId = modelIdOverride !== undefined && modelIdOverride !== null
+    const carModelId = modelIdOverride !== undefined && modelIdOverride !== null
         ? modelIdOverride
         : (currentActiveCar?.data && 'modell_id' in currentActiveCar.data
             ? currentActiveCar.data.modell_id
             : null);
+    
+    // Check if we have a collection filter
+    const hasCollectionFilter = collectionSlug !== "" || (collectionId !== undefined && collectionId !== "");
+    
+    // Use "all" as modelId when no car is selected but we have a collection filter and allowWithoutCar is true
+    const modelId = carModelId || (allowWithoutCar && hasCollectionFilter ? "all" : null);
 
     // Fetch products when modelId is available AND we have options that indicate we need products
     // Only fetch products if we're actually on a products page (collectionSlug/collectionId is provided or we explicitly want products)
@@ -42,7 +50,6 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
 
         // Don't fetch products if we're just browsing categories (no collection filter and no explicit product request)
         // Only fetch if collectionSlug/collectionId is provided (we're on a products page) or if skip/take are set (pagination)
-        const hasCollectionFilter = collectionSlug !== "" || (collectionId !== undefined && collectionId !== "");
         const shouldFetchProducts = hasCollectionFilter || skip > 0 || take !== 24;
 
         if (!shouldFetchProducts) {
@@ -83,7 +90,7 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
         return () => {
             canceled = true;
         };
-    }, [modelId, skip, take, term, collectionSlug, collectionId]);
+    }, [modelId, skip, take, term, collectionSlug, collectionId, hasCollectionFilter]);
 
     // For backward compatibility, loading is true if categories are loading
     const loading = catalogContext.categoriesLoading;
@@ -97,5 +104,7 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
         error: catalogContext.error || productsError,
         modelId,
         hasActiveCar: !!currentActiveCar || (modelIdOverride !== undefined && modelIdOverride !== null),
+        // True if we can fetch products (either has car or browsing by collection without car)
+        canFetchProducts: !!modelId,
     };
 };
