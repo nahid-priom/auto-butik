@@ -181,6 +181,7 @@ function ShopPageProduct(props: Props) {
     const topButtonRef = useRef<HTMLDivElement>(null);
     const [stickyBarVisible, setStickyBarVisible] = useState(false);
     const [stickyQuantity, setStickyQuantity] = useState(1);
+    const [isMounted, setIsMounted] = useState(false);
 
     // Section data
     const sectionData = [
@@ -234,9 +235,15 @@ function ShopPageProduct(props: Props) {
         });
     }, []);
 
+    // Only render sticky bar portal after mount to avoid hydration mismatch (server has no document.body).
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     // Show sticky bar only when the top red button has scrolled above the viewport (user scrolled past it).
     // Don't show when the button is below the viewport (user hasn't reached it yet).
     useEffect(() => {
+        if (!isMounted) return;
         const el = topButtonRef.current;
         if (!el) return;
         const observer = new IntersectionObserver(
@@ -253,7 +260,7 @@ function ShopPageProduct(props: Props) {
         );
         observer.observe(el);
         return () => observer.disconnect();
-    }, []);
+    }, [isMounted]);
 
     useEffect(() => {
         let canceled = false;
@@ -950,7 +957,8 @@ function ShopPageProduct(props: Props) {
             </div>
 
             {/* Mobile-only sticky buy bar – portaled to body so it’s fixed to viewport */}
-            {typeof document !== "undefined" &&
+            {isMounted &&
+                typeof document !== "undefined" &&
                 createPortal(
                     <div
                         className={classNames("product-sticky-bar", {
