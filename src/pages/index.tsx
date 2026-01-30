@@ -5,7 +5,7 @@ import { useIntl } from 'react-intl';
 // application
 import BlockBanners from '~/components/blocks/BlockBanners';
 import BlockBrands from '~/components/blocks/BlockBrands';
-import BlockCategories from '~/components/blocks/BlockCategories';
+import BlockCategoryTabs from '~/components/blocks/BlockCategoryTabs';
 import BlockFeatures from '~/components/blocks/BlockFeatures';
 import BlockBenefits from '~/components/blocks/BlockBenefits';
 import BlockSale from '~/components/blocks/BlockSale';
@@ -16,6 +16,7 @@ import BlockProductsColumns from '~/components/blocks/BlockProductsColumns';
 import BlockSlideshow from '~/components/blocks/BlockSlideshow';
 import BlockSpace from '~/components/blocks/BlockSpace';
 import BlockVehicleSearchHero from '~/components/blocks/BlockVehicleSearchHero';
+import BlockCategoryNavigation from '~/components/blocks/BlockCategoryNavigation';
 import SEO from '~/components/shared/SEO';
 import url from '~/services/url';
 import { AppDispatch } from '~/store/types';
@@ -77,18 +78,6 @@ function Page() {
     const brands = useDeferredData(() => shopApi.getBrands({ limit: 48 }), []);
     const blockSale = useDeferredData(() => shopApi.getSpecialOffers(8), []);
 
-    const popularCategories = useDeferredData(() => shopApi.getCategories({
-        slugs: [
-            'headlights-lighting',
-            'fuel-system',
-            'body-parts',
-            'interior-parts',
-            'tires-wheels',
-            'engine-drivetrain',
-        ],
-        depth: 1,
-    }), []);
-
     /**
      * Featured products.
      */
@@ -149,13 +138,12 @@ function Page() {
                 structuredData={structuredData}
             />
             <BlockVehicleSearchHero />
+            <BlockCategoryNavigation />
+            <BlockBanners />
             <BlockSpace layout="divider-xs" />
             <BlockSlideshow slides={slides} />
-            <BlockSpace layout="divider-nl" />
-            <BlockCategories
-                blockTitle={intl.formatMessage({ id: 'HEADER_POPULAR_CATEGORIES' })}
-                categories={popularCategories.data}
-            />
+            {/* <BlockSpace layout="divider-nl" /> */}
+            <BlockCategoryTabs />
             <BlockSpace layout="divider-nl" />
             <BlockProductsCarousel
                 blockTitle={intl.formatMessage({ id: 'HEADER_FEATURED_PRODUCTS' })}
@@ -166,8 +154,6 @@ function Page() {
                 currentGroup={featuredProducts.tabs.find((x) => x.current)}
                 onChangeGroup={featuredProducts.handleTabChange}
             />
-            <BlockSpace layout="divider-nl" />
-            <BlockBanners />
             <BlockSpace layout="divider-nl" />
             <BlockSale products={blockSale.data} loading={blockSale.isLoading} showHeader={false} />
             <BlockSpace layout="divider-nl" />
