@@ -28,17 +28,17 @@
     flex: 1;
     min-width: 0;
     
-    // White card with border and rounded corners
+    // Match product card / category tabs: border, shadow, thickness
     background-color: #ffffff;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #dfe3e8;
+    box-shadow: 0 1px 3px rgba(#000, 0.09);
     border-radius: 10px;
     padding: 24px 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     
     &:hover {
         transform: translateY(-4px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border-color: #d1d5db;
+        box-shadow: 0 1px 3px rgba(#000, 0.09);
+        border-color: #dfe3e8;
     }
 }
 

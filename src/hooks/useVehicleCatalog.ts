@@ -9,6 +9,8 @@ export interface UseVehicleCatalogOptions {
     take?: number;
     term?: string;
     collectionSlug?: string;
+    /** When set (e.g. from URL /catalog/products/[carModelID]), use this instead of current active car */
+    modelIdOverride?: string | null;
 }
 
 export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
@@ -19,12 +21,14 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
     const [productsLoading, setProductsLoading] = useState(false);
     const [productsError, setProductsError] = useState<string | null>(null);
 
-    const { skip = 0, take = 24, term = "", collectionSlug = "" } = options;
+    const { skip = 0, take = 24, term = "", collectionSlug = "", modelIdOverride } = options;
 
-    // Get modelId from current active car
-    const modelId = currentActiveCar?.data && 'modell_id' in currentActiveCar.data 
-        ? currentActiveCar.data.modell_id 
-        : null;
+    // Get modelId: URL override (e.g. /catalog/products/18027) or current active car
+    const modelId = modelIdOverride !== undefined && modelIdOverride !== null
+        ? modelIdOverride
+        : (currentActiveCar?.data && 'modell_id' in currentActiveCar.data
+            ? currentActiveCar.data.modell_id
+            : null);
 
     // Fetch products when modelId is available AND we have options that indicate we need products
     // Only fetch products if we're actually on a products page (collectionSlug is provided or we explicitly want products)
@@ -89,6 +93,6 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
         productsLoading,
         error: catalogContext.error || productsError,
         modelId,
-        hasActiveCar: !!currentActiveCar,
+        hasActiveCar: !!currentActiveCar || (modelIdOverride !== undefined && modelIdOverride !== null),
     };
 };

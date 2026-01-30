@@ -8,13 +8,12 @@ import { useRouter } from 'next/router';
 import AppLink from '~/components/shared/AppLink';
 import url from '~/services/url';
 import VehiclePickerModal from '~/components/shared/VehiclePickerModal';
+import { IVehicle } from '~/interfaces/vehicle';
 import { useGarage } from '~/contexts/GarageContext';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
 import { useGarageSetCurrent } from '~/store/garage/garageHooks';
 import { useGlobalMousedown } from '~/services/hooks';
 import { useMobileMenuOpen } from '~/store/mobile-menu/mobileMenuHooks';
-import { carApi } from '~/api/car.api';
-import { addCarSearchToHistory } from '~/services/car-search-history';
 import { toast } from 'react-toastify';
 import { CarDropdown } from '~/components/header/CarIndicator';
 import {
@@ -29,9 +28,9 @@ function MobileHeader() {
     const intl = useIntl();
     const router = useRouter();
     const mobileMenuOpen = useMobileMenuOpen();
-    const { vehicles, currentCarId, addVehicle } = useGarage();
+    const { vehicles, currentCarId } = useGarage();
     const garageSetCurrent = useGarageSetCurrent();
-    const { setCurrentActiveCar } = useCurrentActiveCar();
+    const { currentActiveCar } = useCurrentActiveCar();
     const searchFormRef = useRef<HTMLDivElement | null>(null);
     const searchInputRef = useRef<HTMLInputElement | null>(null);
     const searchIndicatorRef = useRef<HTMLDivElement | null>(null);
@@ -39,7 +38,6 @@ function MobileHeader() {
     const [searchIsOpen, setSearchIsOpen] = useState(false);
     const [vehiclePickerIsOpen, setVehiclePickerIsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [isSearching, setIsSearching] = useState(false);
     const [garageOpen, setGarageOpen] = useState(false);
 
     const openSearch = () => {
@@ -70,61 +68,35 @@ function MobileHeader() {
         garageSetCurrent(selectedVehicle?.id || null);
     };
 
-    const vinSearch = async (cleanedRegNumber: string, originalQuery: string) => {
-        if (isSearching) return;
-        setIsSearching(true);
-        try {
-            const response = await carApi.getCarByRegistration(cleanedRegNumber);
-            const carData = response.data;
-            addCarSearchToHistory(carData, 'registration', { registrationNumber: cleanedRegNumber });
-            addVehicle(carData);
-            setCurrentActiveCar({
-                regNr: (carData as any).RegNr,
-                data: carData as any,
-                fetchedAt: Date.now(),
-            });
-            const carName = (carData as any).C_merke + ' ' + (carData as any).C_modell;
-            toast.success(
-                intl.formatMessage(
-                    { id: 'TEXT_VEHICLE_ADDED_TO_GARAGE', defaultMessage: '{vehicleName} added to garage' },
-                    { vehicleName: carName }
-                ),
-                { theme: 'colored' }
-            );
-            setSearchQuery('');
-            closeSearch();
-            router.push('/catalog');
-        } catch (e) {
-            toast.error(intl.formatMessage({ id: 'ERROR_VIN_NOT_FOUND' }));
-        } finally {
-            setIsSearching(false);
-        }
-    };
+    const MIN_SEARCH_LENGTH = 2;
 
     const onSearchInputChange = (event: React.FormEvent<HTMLInputElement>) => {
-        const valueRaw = event.currentTarget.value;
-        let formatted = valueRaw.toUpperCase().replace(/\s+/g, '').substring(0, 6);
-        if (formatted.length > 3) {
-            formatted = formatted.substring(0, 3) + ' ' + formatted.substring(3);
-        }
-        setSearchQuery(formatted);
-        const cleaned = formatted.replace(/\s+/g, '');
-        if (cleaned.length === 6) {
-            vinSearch(cleaned, valueRaw);
-        }
+        setSearchQuery(event.currentTarget.value);
     };
 
     const onSearchSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         const trimmed = searchQuery.trim();
         if (!trimmed) return;
-        const cleaned = trimmed.replace(/\s+/g, '').toUpperCase();
-        const isRegNumber = cleaned.length === 6;
-        if (isRegNumber) {
-            vinSearch(cleaned, trimmed);
+        if (trimmed.length < MIN_SEARCH_LENGTH) {
+            toast.info(
+                intl.formatMessage(
+                    { id: 'TEXT_SEARCH_MIN_CHARS', defaultMessage: 'Enter at least {count} characters to search' },
+                    { count: MIN_SEARCH_LENGTH }
+                )
+            );
+            return;
+        }
+        closeSearch();
+        const searchSegment = `search=${encodeURIComponent(trimmed)}`;
+        const modelId =
+            currentActiveCar?.data && 'modell_id' in currentActiveCar.data
+                ? (currentActiveCar.data as { modell_id: string }).modell_id
+                : null;
+        if (modelId) {
+            router.push(`/catalog/products/${modelId}?${searchSegment}`);
         } else {
-            closeSearch();
-            router.push(`/catalog/products?search=${encodeURIComponent(trimmed)}`);
+            router.push(`/catalog/products?${searchSegment}`);
         }
     };
 

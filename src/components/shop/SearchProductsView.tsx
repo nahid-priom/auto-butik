@@ -10,7 +10,7 @@ import ProductCard from "~/components/shared/ProductCard";
 import { isEmptyList } from "~/services/utils";
 import { IShopPageGridLayout, IShopPageLayout, IShopPageOffCanvasSidebar } from "~/interfaces/pages";
 import { SidebarContext } from "~/services/sidebar";
-import { useVehicleCatalog } from "~/hooks/useVehicleCatalog";
+import { useProductSearch } from "~/hooks/useProductSearch";
 import { Filters16Svg, LayoutGrid16Svg, LayoutList16Svg } from "~/svg";
 import { IVehicleProduct } from "~/api/car.api";
 import { IProduct } from "~/interfaces/product";
@@ -21,22 +21,20 @@ interface LayoutButton {
 }
 
 interface Props {
+    term: string;
+    modelId?: string | null;
     layout: IShopPageLayout;
     gridLayout: IShopPageGridLayout;
     offCanvasSidebar: IShopPageOffCanvasSidebar;
-    /** When set (e.g. from /catalog/products/[carModelID]), fetch products for this car instead of current active car */
-    modelIdOverride?: string | null;
 }
 
-// Convert vehicle product to IProduct format
 const convertVehicleProductToIProduct = (vp: IVehicleProduct, index: number): IProduct => {
     const images: string[] = [];
     if (vp.imagePreview) {
         images.push(vp.imagePreview);
     } else {
-        images.push('/images/products/product-placeholder.jpg');
+        images.push("/images/products/product-placeholder.jpg");
     }
-
     return {
         id: parseInt(vp.productId, 10) || index,
         name: vp.productName,
@@ -45,20 +43,20 @@ const convertVehicleProductToIProduct = (vp: IVehicleProduct, index: number): IP
         slug: vp.slug,
         sku: vp.sku,
         partNumber: vp.sku,
-        stock: 'in-stock' as const,
+        stock: "in-stock" as const,
         price: vp.price,
         compareAtPrice: null,
         images,
         badges: [],
         rating: 5,
         reviews: 0,
-        availability: 'in-stock' as const,
-        compatibility: 'all' as const,
+        availability: "in-stock" as const,
+        compatibility: "all" as const,
         brand: null,
         tags: [],
         type: {
-            name: 'Auto Part',
-            slug: 'auto-part',
+            name: "Auto Part",
+            slug: "auto-part",
             attributeGroups: [],
             customFields: {},
         },
@@ -72,58 +70,36 @@ const convertVehicleProductToIProduct = (vp: IVehicleProduct, index: number): IP
     };
 };
 
-function VehicleProductsView(props: Props) {
-    const { layout: layoutProps, gridLayout, offCanvasSidebar, modelIdOverride } = props;
+function SearchProductsView(props: Props) {
+    const { term, modelId, layout: layoutProps, gridLayout, offCanvasSidebar } = props;
     const intl = useIntl();
     const router = useRouter();
     const [, setSidebarIsOpen] = useContext(SidebarContext);
     const [layout, setLayout] = useState(layoutProps);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(24);
-    
-    // Get search query and collection slug from URL
-    // collectionSlug can come from query.collectionSlug or query.slug (when on /catalog/[slug]/products)
-    const searchQuery = typeof router.query.search === "string" ? router.query.search : "";
-    const collectionSlug = typeof router.query.collectionSlug === "string" 
-        ? router.query.collectionSlug 
-        : (typeof router.query.slug === "string" ? router.query.slug : "");
 
     const skip = (page - 1) * limit;
 
-    // Fetch vehicle catalog data
-    const {
-        products: productsResponse,
-        productsLoading: isLoading,
-        error,
-        hasActiveCar,
-    } = useVehicleCatalog({
+    const { data: searchResponse, loading: isLoading, error } = useProductSearch({
+        term,
+        modelId,
         skip,
         take: limit,
-        term: searchQuery,
-        collectionSlug,
-        modelIdOverride,
     });
 
-    // Convert vehicle products to IProduct format
     const productsList = useMemo(() => {
-        if (!productsResponse) {
-            return null;
-        }
-
-        const convertedProducts = productsResponse.items.map((vp, index) =>
-            convertVehicleProductToIProduct(vp, index)
-        );
-
-        const totalPages = Math.ceil(productsResponse.totalItems / limit);
+        if (!searchResponse) return null;
+        const items = searchResponse.items.map((vp, index) => convertVehicleProductToIProduct(vp, index));
+        const totalPages = Math.ceil(searchResponse.totalItems / limit);
         const from = skip + 1;
-        const to = Math.min(skip + limit, productsResponse.totalItems);
-
+        const to = Math.min(skip + limit, searchResponse.totalItems);
         return {
-            items: convertedProducts,
+            items,
             page,
             limit,
-            sort: "name_asc",
-            total: productsResponse.totalItems,
+            sort: "name_asc" as const,
+            total: searchResponse.totalItems,
             pages: totalPages,
             from,
             to,
@@ -133,18 +109,18 @@ function VehicleProductsView(props: Props) {
                 page,
                 from,
                 to,
-                total: productsResponse.totalItems,
+                total: searchResponse.totalItems,
                 limit,
                 pages: totalPages,
             },
         };
-    }, [productsResponse, page, limit, skip]);
+    }, [searchResponse, page, limit, skip]);
 
     const navigation = productsList?.navigation;
 
     const handleLimitChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
         setLimit(parseInt(event.target.value, 10));
-        setPage(1); // Reset to first page when limit changes
+        setPage(1);
     }, []);
 
     const onNavigate = useCallback((event: INavigationEvent) => {
@@ -182,18 +158,30 @@ function VehicleProductsView(props: Props) {
         "products-list--grid--3": gridLayout === "grid-3-sidebar",
     });
 
-    // Don't show if no active car and no modelId from URL
-    if (!hasActiveCar) {
-        return null;
+    if (term.trim().length < 2) {
+        return (
+            <div className={rootClasses}>
+                <div className="products-view__body">
+                    <div className="products-view__empty">
+                        <div className="products-view__empty-title">
+                            <FormattedMessage
+                                id="TEXT_SEARCH_MIN_CHARS"
+                                defaultMessage="Enter at least {count} characters to search"
+                                values={{ count: 2 }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
-    // Show error message if there's an error
     if (error) {
         return (
             <div className={rootClasses}>
                 <div className="products-view__body">
                     <div className="products-view__empty">
-                        <div className="products-view__empty-title">Error Loading Products</div>
+                        <div className="products-view__empty-title">Error Loading Results</div>
                         <div className="products-view__empty-subtitle">{error}</div>
                     </div>
                 </div>
@@ -201,7 +189,6 @@ function VehicleProductsView(props: Props) {
         );
     }
 
-    // Show loading state or empty state
     if (isLoading || !productsList || !navigation) {
         return (
             <div className={rootClasses}>
@@ -220,10 +207,10 @@ function VehicleProductsView(props: Props) {
                 {isEmptyList(navigation) && (
                     <div className="products-view__empty">
                         <div className="products-view__empty-title">
-                            <FormattedMessage id="TEXT_CATEGORY_IS_EMPTY_TITLE" />
+                            <FormattedMessage id="TEXT_NO_SEARCH_RESULTS" defaultMessage="No products found" />
                         </div>
                         <div className="products-view__empty-subtitle">
-                            <FormattedMessage id="TEXT_CATEGORY_IS_EMPTY_SUBTITLE" />
+                            <FormattedMessage id="TEXT_TRY_DIFFERENT_SEARCH" defaultMessage="Try a different search term" />
                         </div>
                     </div>
                 )}
@@ -252,7 +239,6 @@ function VehicleProductsView(props: Props) {
                                             const buttonClasses = classNames("layout-switcher__button", {
                                                 "layout-switcher__button--active": button.layout === layout,
                                             });
-
                                             return (
                                                 <button
                                                     key={button.layout}
@@ -283,11 +269,11 @@ function VehicleProductsView(props: Props) {
                                 <div className="view-options__spring" />
 
                                 <div className="view-options__select">
-                                    <label htmlFor="view-option-limit">
+                                    <label htmlFor="search-view-option-limit">
                                         <FormattedMessage id="INPUT_LIMIT_LABEL" />:
                                     </label>
                                     <select
-                                        id="view-option-limit"
+                                        id="search-view-option-limit"
                                         className="form-control form-control-sm"
                                         value={limit}
                                         onChange={handleLimitChange}
@@ -356,4 +342,4 @@ function VehicleProductsView(props: Props) {
     );
 }
 
-export default VehicleProductsView;
+export default SearchProductsView;

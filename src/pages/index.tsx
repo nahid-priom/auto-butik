@@ -140,24 +140,21 @@ function Page() {
             <BlockVehicleSearchHero />
             <BlockCategoryNavigation />
             <BlockBanners />
-            <BlockSpace layout="divider-xs" />
+            <BlockCategoryTabs />
+            {/* <BlockSpace layout="divider-xs" /> */}
             <BlockSlideshow slides={slides} />
             {/* <BlockSpace layout="divider-nl" /> */}
-            <BlockCategoryTabs />
             <BlockSpace layout="divider-nl" />
             <BlockProductsCarousel
                 blockTitle={intl.formatMessage({ id: 'HEADER_FEATURED_PRODUCTS' })}
                 layout="grid-5"
                 loading={featuredProducts.isLoading}
                 products={featuredProducts.data}
-                groups={featuredProducts.tabs}
-                currentGroup={featuredProducts.tabs.find((x) => x.current)}
-                onChangeGroup={featuredProducts.handleTabChange}
             />
             <BlockSpace layout="divider-nl" />
-            <BlockSale products={blockSale.data} loading={blockSale.isLoading} showHeader={false} />
-            <BlockSpace layout="divider-nl" />
             <BlockBenefits />
+            <BlockSpace layout="divider-nl" />
+            <BlockSale products={blockSale.data} loading={blockSale.isLoading} showHeader={false} />
             <BlockSpace layout="divider-nl" />
             <BlockPosts
                 blockTitle={intl.formatMessage({ id: 'HEADER_LATEST_NEWS' })}
