@@ -9,7 +9,6 @@ import SitePageNotFound from '~/components/site/SitePageNotFound';
 import BlockHeader from '~/components/blocks/BlockHeader';
 import BlockCatalogHero from '~/components/blocks/BlockCatalogHero';
 import PageTitle from '~/components/shared/PageTitle';
-import WidgetCategoriesList from '~/components/widgets/WidgetCategoriesList';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
 import { useCategoryTree } from '~/contexts/CategoryTreeContext';
 import { ICategoryTreeNode } from '~/api/car.api';
@@ -28,9 +27,9 @@ const convertTreeNodeToShopCategory = (node: ICategoryTreeNode): IShopCategory &
         id: node.id,
         type: 'shop',
         name: node.name,
-        slug: String(node.id), // Use ID as slug for routing
-        image: null,
-        items: 0,
+        slug: node.slug || String(node.id),
+        image: node.image,
+        items: node.productCount || 0,
         layout: node.children.length > 0 ? 'categories' : 'products',
         parent: null,
         children: [],
@@ -48,9 +47,6 @@ function CatalogSlugPage(props: Props) {
 
     // Parse the slug as category ID
     const categoryId = slug ? parseInt(slug, 10) : null;
-
-    // Check if we have an active car
-    const hasActiveCar = !!currentActiveCar?.data;
 
     // Find the current category in the tree
     const currentCategory = useMemo(() => {
@@ -93,11 +89,6 @@ function CatalogSlugPage(props: Props) {
             router.replace(`/catalog/${slug}/products`);
         }
     }, [isLoadingTree, currentCategory, slug, router]);
-
-    // If no active car, show 404
-    if (!hasActiveCar) {
-        return <SitePageNotFound />;
-    }
 
     // Show loading state
     const isLoadingContent = isLoadingTree;

@@ -451,6 +451,9 @@ export interface IVehicleProductsResponse {
 export interface ICategoryTreeNode {
     id: number;
     name: string;
+    slug: string;
+    image: string | null;
+    productCount: number;
     children: ICategoryTreeNode[];
 }
 

@@ -143,16 +143,16 @@ export function CategoryTreeProvider({ children }: { children: React.ReactNode }
         await loadTree(modelId);
     }, [loadTree, getModelIdFromCar]);
 
-    // Load tree when active car changes
+    // Load tree on initial mount and when active car changes
     useEffect(() => {
         const modelId = getModelIdFromCar();
         
-        // Only reload if modelId changed
-        if (modelId !== lastModelIdRef.current) {
-            console.log('CategoryTreeContext - Active car changed, reloading tree for modelId:', modelId);
+        // Load on initial mount (tree is null) or when modelId changed
+        if (tree === null || modelId !== lastModelIdRef.current) {
+            console.log('CategoryTreeContext - Loading tree for modelId:', modelId);
             loadTree(modelId);
         }
-    }, [currentActiveCar, getModelIdFromCar, loadTree]);
+    }, [currentActiveCar, getModelIdFromCar, loadTree, tree]);
 
     return (
         <CategoryTreeContext.Provider

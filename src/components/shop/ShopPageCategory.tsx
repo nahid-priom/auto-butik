@@ -11,14 +11,12 @@ import BlockHeader from '~/components/blocks/BlockHeader';
 import BlockSpace from '~/components/blocks/BlockSpace';
 import PageTitle from '~/components/shared/PageTitle';
 import url from '~/services/url';
-import WidgetCategoriesList from '~/components/widgets/WidgetCategoriesList';
 import WidgetVehicleCategories from '~/components/widgets/WidgetVehicleCategories';
 import { getCategoryPath } from '~/services/utils';
 import { IBrand } from '~/interfaces/brand';
 import { IShopCategoryPageLayout, IShopCategoryPageSidebarPosition } from '~/interfaces/pages';
 import { IShopCategory } from '~/interfaces/category';
 import { shopApi } from '~/api';
-import { useCurrentActiveCar } from '~/contexts/CarContext';
 
 interface Props {
     layout: IShopCategoryPageLayout;
@@ -34,10 +32,6 @@ function ShopPageCategory(props: Props) {
     let { subcategories } = props;
     const hasSidebar = layout.endsWith('-sidebar');
     const [brands, setBrands] = useState<IBrand[]>([]);
-    const { currentActiveCar } = useCurrentActiveCar();
-    
-    // Check if there's an active car
-    const hasActiveCar = !!currentActiveCar?.data && 'modell_id' in currentActiveCar.data;
 
     if (category && subcategories === undefined) {
         subcategories = category.children || [];
@@ -76,17 +70,7 @@ function ShopPageCategory(props: Props) {
     if (hasSidebar) {
         sidebar = (
             <div className="block-split__item block-split__item-sidebar col-auto">
-                {hasActiveCar ? (
-                    // Use WidgetVehicleCategories when there's an active car
-                    <WidgetVehicleCategories offcanvasSidebar="none" />
-                ) : (
-                    // Use WidgetCategoriesList for default categories
-                    subcategories.length > 0 && (
-                        <WidgetCategoriesList
-                            categories={subcategories}
-                        />
-                    )
-                )}
+                <WidgetVehicleCategories offcanvasSidebar="none" />
             </div>
         );
     }

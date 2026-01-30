@@ -88,3 +88,54 @@ $local-bottom-decor-height: 24px;
 @media (max-width: 474px) {
     @include local-layout(1, 16px);
 }
+
+// Layout with sidebar - smaller cards (more columns)
+.block-categories--layout--columns-4-sidebar {
+    @include media-breakpoint-up(xxl) {
+        @include local-layout(6, 16px);
+    }
+    @include media-breakpoint-only(xl) {
+        @include local-layout(5, 12px);
+    }
+    @include media-breakpoint-only(lg) {
+        @include local-layout(4, 12px);
+    }
+    @include media-breakpoint-only(md) {
+        @include local-layout(4, 12px);
+    }
+    @include media-breakpoint-down(sm) {
+        @include local-layout(3, 10px);
+    }
+    @media (max-width: 474px) {
+        @include local-layout(2, 10px);
+    }
+    
+    // Smaller card styling
+    .category-card--layout--classic {
+        .category-card__body {
+            padding: 8px;
+        }
+        
+        .category-card__image {
+            margin-bottom: 8px;
+            background: #fff;
+            
+            .category-card__image-tag {
+                padding: 0;
+                object-fit: cover;
+            }
+        }
+        
+        .category-card__image-placeholder {
+            svg {
+                width: 40px;
+                height: 40px;
+            }
+        }
+        
+        .category-card__name {
+            font-size: 12px;
+            line-height: 1.3;
+        }
+    }
+}

@@ -25,6 +25,11 @@ function PageContent() {
     const searchQuery = typeof router.query.search === "string" ? router.query.search.trim() : "";
     const hasActiveCar = !!currentActiveCar;
     const isSearchPage = searchQuery.length >= MIN_SEARCH_LENGTH;
+    
+    // Check if there's a collection filter from megamenu (collectionSlug or collectionId)
+    const hasCollectionFilter = 
+        typeof router.query.collectionSlug === "string" || 
+        typeof router.query.collectionId === "string";
 
     const pageHeader = (
         <BlockHeader
@@ -45,7 +50,11 @@ function PageContent() {
         ? `Browse auto parts matching "${searchQuery}". Quality products with fast delivery.`
         : "Shop quality auto parts for all makes and models. Browse our extensive catalog of brake pads, filters, engine parts, and more.";
 
-    // When search query is present (global search), use search API and SearchProductsView
+    // Determine which view to use:
+    // 1. Search query present → SearchProductsView (REST API)
+    // 2. Collection filter from megamenu → VehicleProductsView (REST API, with or without car)
+    // 3. Active car → VehicleProductsView (REST API, filtered by car)
+    // 4. No car, no collection → GraphQLProductsView (fallback)
     const content =
         isSearchPage ? (
             <SearchProductsView
@@ -54,11 +63,15 @@ function PageContent() {
                 gridLayout="grid-3-sidebar"
                 offCanvasSidebar="mobile"
             />
-        ) : hasActiveCar ? (
+        ) : hasCollectionFilter || hasActiveCar ? (
+            // Use REST API for collection browsing (with or without car)
+            // If car is active, products are filtered by vehicle compatibility
+            // If no car, allowWithoutCar=true uses "all" to show all products in collection
             <VehicleProductsView
                 layout="list"
                 gridLayout="grid-3-sidebar"
                 offCanvasSidebar="mobile"
+                allowWithoutCar={hasCollectionFilter}
             />
         ) : (
             <GraphQLProductsView

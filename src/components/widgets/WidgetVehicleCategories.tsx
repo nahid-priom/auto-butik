@@ -6,7 +6,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { useRouter } from "next/router";
 // application
 import { useCategoryTree } from "~/contexts/CategoryTreeContext";
-import { useCurrentActiveCar } from "~/contexts/CarContext";
 import { ICategoryTreeNode } from "~/api/car.api";
 import { IShopPageOffCanvasSidebar } from "~/interfaces/pages";
 import AppLink from "~/components/shared/AppLink";
@@ -22,11 +21,7 @@ function WidgetVehicleCategories(props: Props) {
     const intl = useIntl();
     const router = useRouter();
     const { tree, loading: categoriesLoading, error } = useCategoryTree();
-    const { currentActiveCar } = useCurrentActiveCar();
     const [searchQuery, setSearchQuery] = useState("");
-
-    // Check if there's an active car
-    const hasActiveCar = !!currentActiveCar?.data && 'modell_id' in currentActiveCar.data;
 
     // Get the current category ID from the URL
     const currentSlug = typeof router.query.slug === "string" ? router.query.slug : null;
@@ -62,11 +57,6 @@ function WidgetVehicleCategories(props: Props) {
         // Otherwise show root categories
         return tree;
     }, [tree, searchQuery]);
-
-    // Don't show widget if no active car
-    if (!hasActiveCar) {
-        return null;
-    }
 
     // Show loading state
     if (categoriesLoading && !tree) {

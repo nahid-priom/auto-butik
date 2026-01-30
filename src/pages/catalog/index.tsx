@@ -25,9 +25,9 @@ const convertTreeNodeToShopCategory = (node: ICategoryTreeNode): IShopCategory &
         id: node.id,
         type: 'shop',
         name: node.name,
-        slug: String(node.id), // Use ID as slug for routing
-        image: null, // Tree doesn't have images
-        items: 0, // Tree doesn't have product counts
+        slug: node.slug || String(node.id),
+        image: node.image,
+        items: node.productCount || 0,
         layout: node.children.length > 0 ? 'categories' : 'products',
         parent: null,
         children: [],
@@ -50,13 +50,11 @@ function CatalogPage(props: Props) {
         ? tree.map(convertTreeNodeToShopCategory) 
         : [];
 
-    // Determine which categories to show:
-    // - If there's an active car and tree is loaded, show tree root categories
-    // - If no active car, show default categories (fallback)
-    const subcategories = hasActiveCar ? treeCategories : defaultSubcategories;
+    // Always use the TecDoc category tree - fall back to default only if tree fails to load
+    const subcategories = treeCategories.length > 0 ? treeCategories : defaultSubcategories;
 
-    // Show loader while loading tree (only when car is active)
-    const isLoadingContent = hasActiveCar && isLoadingTree;
+    // Show loader while loading tree
+    const isLoadingContent = isLoadingTree && treeCategories.length === 0;
 
     // Get car name for hero subtitle
     const carName = currentActiveCar?.data 
@@ -101,7 +99,7 @@ function CatalogPage(props: Props) {
                         </div>
                     </div>
                 </div>
-            ) : treeError && hasActiveCar ? (
+            ) : treeError && subcategories.length === 0 ? (
                 <div className="block block-split">
                     <div className="container">
                         <div className="alert alert-danger">
