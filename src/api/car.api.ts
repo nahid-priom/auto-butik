@@ -339,6 +339,61 @@ export class CarApi {
             throw error;
         }
     }
+
+    /**
+     * Product search (GET /car/search).
+     * Without modelId: global search. With modelId: products compatible with that vehicle.
+     * @param params - term (min 2 chars), optional modelId, skip, take
+     */
+    async searchProducts(params: {
+        term: string;
+        modelId?: string;
+        skip?: number;
+        take?: number;
+        collectionId?: number;
+        collectionSlug?: string;
+    }): Promise<IProductSearchResponse> {
+        const baseUrl = getApiUrl();
+        const { term, modelId, skip = 0, take = 24, collectionId, collectionSlug } = params;
+        const searchParams = new URLSearchParams();
+        searchParams.set("term", term);
+        if (modelId) searchParams.set("modelId", modelId);
+        if (skip > 0) searchParams.append("skip", skip.toString());
+        if (take !== 24) searchParams.append("take", take.toString());
+        if (collectionId != null) searchParams.append("collectionId", collectionId.toString());
+        if (collectionSlug) searchParams.append("collectionSlug", collectionSlug);
+
+        const url = `${baseUrl}/car/search?${searchParams.toString()}`;
+        try {
+            const res = await fetch(url, {
+                headers: { "Content-Type": "application/json" },
+            });
+            if (!res.ok) {
+                throw new Error(`Search failed: ${res.status} ${res.statusText}`);
+            }
+            const data = await res.json();
+            if (!data.success) throw new Error("Search failed");
+            return data;
+        } catch (error) {
+            console.error("Car API - Search error:", error);
+            throw error;
+        }
+    }
+}
+
+// Product search response (GET /car/search)
+export interface IProductSearchResponse {
+    success: boolean;
+    search: {
+        term: string;
+        vehicleFiltered: boolean;
+        ktype: string | null;
+    };
+    totalItems: number;
+    skip: number;
+    take: number;
+    collection: { id: number; name: string; slug: string } | null;
+    items: IVehicleProduct[];
 }
 
 // Vehicle catalog interfaces

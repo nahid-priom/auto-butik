@@ -4,7 +4,6 @@ import React from "react";
 import BlockHeader from "~/components/blocks/BlockHeader";
 import BlockSpace from "~/components/blocks/BlockSpace";
 import SEO from "~/components/shared/SEO";
-import GraphQLProductsView from "~/components/shop/GraphQLProductsView";
 import VehicleProductsView from "~/components/shop/VehicleProductsView";
 import SearchProductsView from "~/components/shop/SearchProductsView";
 import ShopSidebar from "~/components/shop/ShopSidebar";
@@ -14,16 +13,15 @@ import { SidebarProvider } from "~/services/sidebar";
 import { useIntl } from "react-intl";
 import { useRouter } from "next/router";
 import BlockVehicleHero from "~/components/blocks/BlockVehicleHero";
-import { useCurrentActiveCar } from "~/contexts/CarContext";
+import { GetServerSideProps } from "next";
 
 const MIN_SEARCH_LENGTH = 2;
 
 function PageContent() {
     const intl = useIntl();
     const router = useRouter();
-    const { currentActiveCar } = useCurrentActiveCar();
+    const carModelID = typeof router.query.carModelID === "string" ? router.query.carModelID : null;
     const searchQuery = typeof router.query.search === "string" ? router.query.search.trim() : "";
-    const hasActiveCar = !!currentActiveCar;
     const isSearchPage = searchQuery.length >= MIN_SEARCH_LENGTH;
 
     const pageHeader = (
@@ -38,42 +36,40 @@ function PageContent() {
 
     const sidebar = <ShopSidebar offcanvas="mobile" />;
 
-    // Dynamic title and description based on search
-    const pageTitle = searchQuery ? `Search Results for "${searchQuery}"` : intl.formatMessage({ id: "HEADER_SHOP" });
-
+    const pageTitle = searchQuery
+        ? `Search Results for "${searchQuery}"`
+        : intl.formatMessage({ id: "HEADER_SHOP" });
     const pageDescription = searchQuery
-        ? `Browse auto parts matching "${searchQuery}". Quality products with fast delivery.`
-        : "Shop quality auto parts for all makes and models. Browse our extensive catalog of brake pads, filters, engine parts, and more.";
+        ? `Products matching "${searchQuery}" for your vehicle.`
+        : "Browse products for your vehicle.";
 
-    // When search query is present (global search), use search API and SearchProductsView
-    const content =
-        isSearchPage ? (
-            <SearchProductsView
-                term={searchQuery}
-                layout="list"
-                gridLayout="grid-3-sidebar"
-                offCanvasSidebar="mobile"
-            />
-        ) : hasActiveCar ? (
-            <VehicleProductsView
-                layout="list"
-                gridLayout="grid-3-sidebar"
-                offCanvasSidebar="mobile"
-            />
-        ) : (
-            <GraphQLProductsView
-                layout="list"
-                gridLayout="grid-3-sidebar"
-                offCanvasSidebar="mobile"
-            />
-        );
+    if (!carModelID) {
+        return null;
+    }
+
+    const content = isSearchPage ? (
+        <SearchProductsView
+            term={searchQuery}
+            modelId={carModelID}
+            layout="list"
+            gridLayout="grid-3-sidebar"
+            offCanvasSidebar="mobile"
+        />
+    ) : (
+        <VehicleProductsView
+            layout="list"
+            gridLayout="grid-3-sidebar"
+            offCanvasSidebar="mobile"
+            modelIdOverride={carModelID}
+        />
+    );
 
     return (
         <React.Fragment>
             <SEO
                 title={pageTitle}
                 description={pageDescription}
-                keywords="auto parts catalog, car parts shop, vehicle parts, automotive parts, brake pads, filters, engine parts"
+                keywords="auto parts, vehicle parts, car parts"
                 type="website"
             />
             <BlockVehicleHero />
@@ -105,5 +101,9 @@ function Page() {
         </SidebarProvider>
     );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+    return { props: {} };
+};
 
 export default Page;
