@@ -2,6 +2,7 @@
 import React from 'react';
 // third-party
 import classNames from 'classnames';
+import { FormattedMessage } from 'react-intl';
 // application
 import AppImage from '~/components/shared/AppImage';
 import AppLink from '~/components/shared/AppLink';
@@ -29,6 +30,13 @@ function MobileMenuLinks(props: Props) {
         }
     };
 
+    const renderTitle = (title: string | React.ReactNode) => {
+        if (typeof title === 'string') {
+            return <FormattedMessage id={title} defaultMessage={title} />;
+        }
+        return title;
+    };
+
     return (
         <div className="mobile-menu__links">
             <ul>
@@ -43,7 +51,7 @@ function MobileMenuLinks(props: Props) {
                                     <AppImage src={item.image} />
                                 </div>
                             )}
-                            {item.title}
+                            {renderTitle(item.title)}
                             {hasSubmenu && <ArrowRoundedRight7x11Svg />}
                         </React.Fragment>
                     );
@@ -78,7 +86,7 @@ function MobileMenuLinks(props: Props) {
                         <li key={itemIdx}>
                             {hasSubmenu && (
                                 <MobileMenuPanelController
-                                    label={item.title}
+                                    label={renderTitle(item.title)}
                                     content={<MobileMenuLinks items={item.submenu} onItemClick={onItemClick} />}
                                 >
                                     {(open) => renderLink(

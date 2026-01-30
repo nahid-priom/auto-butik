@@ -3,17 +3,22 @@ import React, { useRef, useState } from 'react';
 // third-party
 import classNames from 'classnames';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useRouter } from 'next/router';
 // application
 import AppLink from '~/components/shared/AppLink';
-import MobileLogo from '~/components/mobile/MobileLogo';
 import url from '~/services/url';
 import VehiclePickerModal from '~/components/shared/VehiclePickerModal';
 import { IVehicle } from '~/interfaces/vehicle';
 import { useCart } from '~/store/cart/cartHooks';
+import { useGarage } from '~/contexts/GarageContext';
+import { useCurrentActiveCar } from '~/contexts/CarContext';
 import { useGarageCurrent, useGarageSetCurrent } from '~/store/garage/garageHooks';
 import { useGlobalMousedown } from '~/services/hooks';
 import { useMobileMenuOpen } from '~/store/mobile-menu/mobileMenuHooks';
 import { useWishlist } from '~/store/wishlist/wishlistHooks';
+import { carApi } from '~/api/car.api';
+import { addCarSearchToHistory } from '~/services/car-search-history';
+import { toast } from 'react-toastify';
 import {
     Car20Svg,
     Cart20Svg,
@@ -26,16 +31,21 @@ import {
 
 function MobileHeader() {
     const intl = useIntl();
+    const router = useRouter();
     const mobileMenuOpen = useMobileMenuOpen();
     const wishlist = useWishlist();
     const cart = useCart();
     const vehicle: IVehicle | null = useGarageCurrent();
     const garageSetCurrent = useGarageSetCurrent();
+    const { addVehicle } = useGarage();
+    const { setCurrentActiveCar } = useCurrentActiveCar();
     const searchFormRef = useRef<HTMLDivElement | null>(null);
     const searchInputRef = useRef<HTMLInputElement | null>(null);
     const searchIndicatorRef = useRef<HTMLDivElement | null>(null);
     const [searchIsOpen, setSearchIsOpen] = useState(false);
     const [vehiclePickerIsOpen, setVehiclePickerIsOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
 
     const openSearch = () => {
         setSearchIsOpen(true);
@@ -65,8 +75,62 @@ function MobileHeader() {
         garageSetCurrent(selectedVehicle?.id || null);
     };
 
+    const vinSearch = async (cleanedRegNumber: string, originalQuery: string) => {
+        if (isSearching) return;
+        setIsSearching(true);
+        try {
+            const response = await carApi.getCarByRegistration(cleanedRegNumber);
+            const carData = response.data;
+            addCarSearchToHistory(carData, 'registration', { registrationNumber: cleanedRegNumber });
+            addVehicle(carData);
+            setCurrentActiveCar({
+                regNr: (carData as any).RegNr,
+                data: carData as any,
+                fetchedAt: Date.now(),
+            });
+            const carName = (carData as any).C_merke + ' ' + (carData as any).C_modell;
+            toast.success(
+                intl.formatMessage(
+                    { id: 'TEXT_VEHICLE_ADDED_TO_GARAGE', defaultMessage: '{vehicleName} added to garage' },
+                    { vehicleName: carName }
+                ),
+                { theme: 'colored' }
+            );
+            setSearchQuery('');
+            closeSearch();
+            router.push('/catalog');
+        } catch (e) {
+            toast.error(intl.formatMessage({ id: 'ERROR_VIN_NOT_FOUND' }));
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    const onSearchInputChange = (event: React.FormEvent<HTMLInputElement>) => {
+        const valueRaw = event.currentTarget.value;
+        let formatted = valueRaw.toUpperCase().replace(/\s+/g, '').substring(0, 6);
+        if (formatted.length > 3) {
+            formatted = formatted.substring(0, 3) + ' ' + formatted.substring(3);
+        }
+        setSearchQuery(formatted);
+        const cleaned = formatted.replace(/\s+/g, '');
+        if (cleaned.length === 6) {
+            vinSearch(cleaned, valueRaw);
+        }
+    };
+
     const onSearchSubmit = (event: React.FormEvent) => {
         event.preventDefault();
+        const trimmed = searchQuery.trim();
+        if (!trimmed) return;
+        const cleaned = trimmed.replace(/\s+/g, '').toUpperCase();
+        const isRegNumber = cleaned.length === 6;
+        if (isRegNumber) {
+            vinSearch(cleaned, trimmed);
+        } else {
+            closeSearch();
+            router.push(`/catalog/products?search=${encodeURIComponent(trimmed)}`);
+        }
     };
 
     useGlobalMousedown((event) => {
@@ -109,7 +173,11 @@ function MobileHeader() {
                         <Menu18x14Svg />
                     </button>
                     <AppLink href={url.home()} className="mobile-header__logo">
-                        <MobileLogo />
+                        <img
+                            src="/images/Logo.png"
+                            alt="Autobutik Logo"
+                            className="mobile-header__logo-img"
+                        />
                     </AppLink>
                     <div
                         ref={searchFormRef}
@@ -127,6 +195,10 @@ function MobileHeader() {
                                 id="mobile-site-search"
                                 className="mobile-search__input"
                                 placeholder={searchPlaceholder}
+                                value={searchQuery}
+                                onChange={onSearchInputChange}
+                                autoCapitalize="off"
+                                autoComplete="off"
                             />
                             <button
                                 type="button"
@@ -152,21 +224,21 @@ function MobileHeader() {
                         </form>
                     </div>
                     <div className="mobile-header__indicators">
-                        <div className="mobile-indicator d-md-none" ref={searchIndicatorRef}>
+                        <div className="mobile-indicator mobile-indicator--search" ref={searchIndicatorRef}>
                             <button type="button" className="mobile-indicator__button" onClick={openSearch}>
                                 <span className="mobile-indicator__icon">
                                     <Search20Svg />
                                 </span>
                             </button>
                         </div>
-                        <div className="mobile-indicator d-none d-md-block">
+                        <div className="mobile-indicator">
                             <AppLink href={url.accountDashboard()} className="mobile-indicator__button">
                                 <span className="mobile-indicator__icon">
                                     <Person20Svg />
                                 </span>
                             </AppLink>
                         </div>
-                        <div className="mobile-indicator d-none d-md-block">
+                        <div className="mobile-indicator">
                             <AppLink href={url.wishlist()} className="mobile-indicator__button">
                                 <span className="mobile-indicator__icon">
                                     <Heart20Svg />

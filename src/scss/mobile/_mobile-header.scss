@@ -53,6 +53,13 @@
         display: flex;
         align-items: center;
         padding: 0 14px;
+        flex-shrink: 0;
+    }
+    .mobile-header__logo-img {
+        display: block;
+        max-height: 36px;
+        width: auto;
+        object-fit: contain;
     }
     .mobile-header__search {
         display: flex;
@@ -65,9 +72,17 @@
     }
     .mobile-header__indicators {
         display: flex;
+        flex-shrink: 0;
+        align-items: center;
 
         @include direction {
             #{$margin-inline-start}: auto;
+        }
+    }
+    // Hide search icon when inline search bar is visible (md and up, still mobile header)
+    .mobile-indicator--search {
+        @include media-breakpoint-up(md) {
+            display: none;
         }
     }
 
