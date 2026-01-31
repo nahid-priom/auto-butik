@@ -17,6 +17,8 @@
 
 .widget-vehicle-categories__header {
     margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .widget-vehicle-categories__title {
@@ -24,6 +26,44 @@
     font-weight: $font-weight-bold;
     margin: 0;
     color: inherit;
+}
+
+.widget-vehicle-categories__title--with-back {
+    font-size: 16px;
+    font-weight: $font-weight-medium;
+}
+
+// Back link styling (Trodo-style)
+.widget-vehicle-categories__back-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s ease;
+    
+    &:hover {
+        color: $link-color;
+        
+        .widget-vehicle-categories__back-arrow {
+            color: $link-color;
+        }
+    }
+}
+
+.widget-vehicle-categories__back-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: map_get($card-scheme, opposite-alt);
+    transition: color 0.15s ease;
+    
+    svg {
+        width: 10px;
+        height: 10px;
+    }
 }
 
 .widget-vehicle-categories__body {
@@ -109,10 +149,15 @@
     }
 }
 
-.widget-vehicle-categories__item--active {
+// Selected state (blue highlight like Trodo)
+.widget-vehicle-categories__item--selected {
     .widget-vehicle-categories__link {
         color: $link-color;
         font-weight: $font-weight-medium;
+    }
+    
+    .widget-vehicle-categories__arrow {
+        color: $link-color;
     }
 }
 
@@ -128,8 +173,7 @@
     transition: color 0.15s ease;
 }
 
-.widget-vehicle-categories__link:hover .widget-vehicle-categories__arrow,
-.widget-vehicle-categories__item--active .widget-vehicle-categories__arrow {
+.widget-vehicle-categories__link:hover .widget-vehicle-categories__arrow {
     color: $link-color;
 }
 
