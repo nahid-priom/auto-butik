@@ -1882,12 +1882,12 @@
         letter-spacing: -0.02em;
     }
 
-    /* Tax + shipping: smaller, lighter grey, with vertical separator */
+    /* Tax + shipping: two lines – inkl. moms 25% then exkl. fraktkostnader */
     .product-sticky-bar__meta {
         display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
         font-size: 12px;
         color: #6b6b6b;
         font-weight: 400;
@@ -1895,15 +1895,7 @@
     }
 
     .product-sticky-bar__meta-left {
-        padding-right: 8px;
-    }
-
-    .product-sticky-bar__meta-divider {
-        width: 1px;
-        height: 12px;
-        background: #b0b0b0;
-        flex-shrink: 0;
-        margin-right: 8px;
+        padding-right: 0;
     }
 
     .product-sticky-bar__meta-right {

@@ -178,18 +178,20 @@ const CompatibleVehicles: React.FC<CompatibleVehiclesProps> = ({
 
                             <div className="vehicle-models-container">
                                 <div className={`vehicle-models ${isMakeExpanded(group.manufacturer) ? "expanded" : ""}`}>
+                                    {/* Table header */}
+                                    <div className="vehicle-models-table-header">
+                                        <span className="vehicle-col-model">Modell</span>
+                                        <span className="vehicle-col-years">År</span>
+                                        <span className="vehicle-col-engine">Motor / Drivlina</span>
+                                    </div>
                                     {filteredVehicles.map((vehicle, vehicleIndex) => (
                                         <div
                                             key={vehicle.ktypno || vehicleIndex}
                                             className="vehicle-model vehicle-detail"
                                         >
-                                            <div className="vehicle-detail-header">
-                                                <span className="model-text">{vehicle.model}</span>
-                                            </div>
-                                            <div className="vehicle-detail-info">
-                                                <span className="vehicle-years">{vehicle.years}</span>
-                                                <span className="vehicle-engine">{vehicle.engine}</span>
-                                            </div>
+                                            <span className="vehicle-col-model model-text">{vehicle.model}</span>
+                                            <span className="vehicle-col-years vehicle-years">{vehicle.years}</span>
+                                            <span className="vehicle-col-engine vehicle-engine">{vehicle.engine}</span>
                                         </div>
                                     ))}
                                 </div>

@@ -22,9 +22,10 @@ import url from '~/services/url';
 import { AppDispatch } from '~/store/types';
 import { optionsSetAll } from '~/store/options/optionsActions';
 import { shopApi, blogApi } from '~/api';
-import { useDeferredData, useProductColumns, useProductTabs } from '~/services/hooks';
+import { useDeferredData, useProductColumns } from '~/services/hooks';
 import { wrapper } from '~/store/store';
 import { getOrganizationStructuredData, getWebsiteStructuredData } from '~/services/seo/structured-data';
+import { getFeaturedProducts } from '~/data/featuredProducts';
 
 export const getServerSideProps = wrapper.getServerSideProps((store) => async () => {
     const dispatch = store.dispatch as AppDispatch;
@@ -79,17 +80,12 @@ function Page() {
     const blockSale = useDeferredData(() => shopApi.getSpecialOffers(8), []);
 
     /**
-     * Featured products.
+     * Featured products (static list).
      */
-    const featuredProducts = useProductTabs(
-        useMemo(() => [
-            { id: 1, name: intl.formatMessage({ id: 'TAB_ALL' }), categorySlug: null },
-            { id: 2, name: intl.formatMessage({ id: 'TAB_POWER_TOOLS' }), categorySlug: 'power-tools' },
-            { id: 3, name: intl.formatMessage({ id: 'TAB_HAND_TOOLS' }), categorySlug: 'hand-tools' },
-            { id: 4, name: intl.formatMessage({ id: 'TAB_PLUMBING' }), categorySlug: 'plumbing' },
-        ], [intl]),
-        (tab) => shopApi.getFeaturedProducts(tab.categorySlug, 8),
-    );
+    const featuredProducts = useMemo(() => ({
+        data: getFeaturedProducts(),
+        isLoading: false,
+    }), []);
 
 
     const latestPosts = useDeferredData(() => blogApi.getLatestPosts(8), []);

@@ -1,5 +1,5 @@
 // react
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 // third-party
 import classNames from 'classnames';
 import Slick from 'react-slick';
@@ -56,8 +56,7 @@ const slickSettings: Record<IBlockProductsCarouselLayout, ISlickProps> = {
         slidesToScroll: 4,
         responsive: [
             { breakpoint: 991, settings: { slidesToShow: 3, slidesToScroll: 3 } },
-            { breakpoint: 767, settings: { slidesToShow: 2, slidesToScroll: 2 } },
-            { breakpoint: 459, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+            { breakpoint: 767, settings: { slidesToShow: 1, slidesToScroll: 1 } },
         ],
     },
     'grid-4-sidebar': {
@@ -69,8 +68,7 @@ const slickSettings: Record<IBlockProductsCarouselLayout, ISlickProps> = {
         slidesToScroll: 4,
         responsive: [
             { breakpoint: 1399, settings: { slidesToShow: 3, slidesToScroll: 3 } },
-            { breakpoint: 767, settings: { slidesToShow: 2, slidesToScroll: 2 } },
-            { breakpoint: 459, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+            { breakpoint: 767, settings: { slidesToShow: 1, slidesToScroll: 1 } },
         ],
     },
     'grid-5': {
@@ -83,8 +81,7 @@ const slickSettings: Record<IBlockProductsCarouselLayout, ISlickProps> = {
         responsive: [
             { breakpoint: 1399, settings: { slidesToShow: 4, slidesToScroll: 4 } },
             { breakpoint: 991, settings: { slidesToShow: 3, slidesToScroll: 3 } },
-            { breakpoint: 767, settings: { slidesToShow: 2, slidesToScroll: 2 } },
-            { breakpoint: 459, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+            { breakpoint: 767, settings: { slidesToShow: 1, slidesToScroll: 1 } },
         ],
     },
     'grid-6': {
@@ -97,8 +94,7 @@ const slickSettings: Record<IBlockProductsCarouselLayout, ISlickProps> = {
         responsive: [
             { breakpoint: 1399, settings: { slidesToShow: 4, slidesToScroll: 4 } },
             { breakpoint: 991, settings: { slidesToShow: 3, slidesToScroll: 3 } },
-            { breakpoint: 767, settings: { slidesToShow: 2, slidesToScroll: 2 } },
-            { breakpoint: 459, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+            { breakpoint: 767, settings: { slidesToShow: 1, slidesToScroll: 1 } },
         ],
     },
     horizontal: {
@@ -141,6 +137,15 @@ function BlockProductsCarousel<T extends ISectionHeaderGroup>(props: Props<T>) {
         onChangeGroup,
     } = props;
     const slickRef = useRef<Slick>(null);
+
+    // Force Slick to recalc responsive breakpoints on mount (fixes wrong slide count on first load / refresh on mobile)
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const t = setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+        }, 150);
+        return () => clearTimeout(t);
+    }, []);
 
     const handleNextClick = () => {
         if (slickRef.current) {

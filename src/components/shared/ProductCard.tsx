@@ -9,8 +9,7 @@ import AppLink from "~/components/shared/AppLink";
 import AsyncAction from "~/components/shared/AsyncAction";
 import CompatibilityStatusBadge from "~/components/shared/CompatibilityStatusBadge";
 import CurrencyFormat from "~/components/shared/CurrencyFormat";
-import InputNumber from "~/components/shared/InputNumber";
-import { FaCalendarCheck } from "react-icons/fa";
+import { FaShippingFast } from "react-icons/fa";
 import Rating from "~/components/shared/Rating";
 import url from "~/services/url";
 import { IProduct } from "~/interfaces/product";
@@ -307,7 +306,7 @@ function ProductCard(props: Props) {
                 {!exclude.includes("shipping") && (
                     <div className="product-card__shipping-info">
                         <div className="product-card__shipping-info__icon">
-                            <FaCalendarCheck />
+                            <FaShippingFast />
                         </div>
                         <div className="product-card__shipping-info__text">
                             <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
@@ -350,17 +349,18 @@ function ProductCard(props: Props) {
                                 <React.Fragment>
                                     <div className="product-card__quantity-and-cart">
                                         <div className="product-card__quantity">
-                                            <InputNumber
-                                                min={1}
-                                                max={99}
+                                            <select
+                                                className="product-card__quantity-select"
                                                 value={quantity}
-                                                onChange={(v) =>
-                                                    setQuantity(
-                                                        typeof v === "number" && !Number.isNaN(v) ? Math.max(1, Math.min(99, Math.floor(v))) : 1
-                                                    )
-                                                }
-                                                className="product-card__quantity-input"
-                                            />
+                                                onChange={(e) => setQuantity(Number(e.target.value))}
+                                                aria-label={intl.formatMessage({ id: "INPUT_QUANTITY", defaultMessage: "Quantity" })}
+                                            >
+                                                {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                                                    <option key={n} value={n}>
+                                                        {n}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
                                         <AsyncAction
                                             action={() => cartAddItem(product, [], quantity)}

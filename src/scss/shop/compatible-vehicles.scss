@@ -1,5 +1,7 @@
 .compatible-vehicles {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .vehicles-title {
@@ -76,11 +78,15 @@
     border-top: none;
     border-radius: 0 0 8px 8px;
     overflow: hidden;
+    width: 100%;
+    max-width: 100%;
 }
 
 .vehicle-item {
     border-bottom: 1px solid #e0e0e0;
     background: #fff;
+    width: 100%;
+    min-width: 0;
 }
 
 .vehicle-item:last-child {
@@ -135,35 +141,91 @@
 
 .vehicle-models-container {
     overflow: hidden;
+    width: 100%;
+    min-width: 0;
 }
+
+/* Shared grid for header and rows: model | years | engine (engine takes remaining width) */
+$vehicle-col-model-width: 80px;
+$vehicle-col-years-width: 140px;
 
 .vehicle-models {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
 }
 
 .vehicle-models.expanded {
-    max-height: 300px;
+    max-height: 360px;
     overflow-y: auto;
 }
 
-.vehicle-model {
-    display: flex;
+/* Table header row – engine column uses minmax(0, 1fr) to take full remaining width */
+.vehicle-models-table-header {
+    display: grid;
+    grid-template-columns: $vehicle-col-model-width $vehicle-col-years-width minmax(0, 1fr);
+    gap: 16px 24px;
+    padding: 10px 16px 10px 48px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6b6b6b;
+    background: #f5f5f5;
+    border-top: 1px solid #e8e8e8;
     align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px 12px 48px;
-    color: #666;
-    font-size: 14px;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border-top: 1px solid #f0f0f0;
     width: 100%;
+    box-sizing: border-box;
 }
 
-.vehicle-model:hover {
+.vehicle-models-table-header .vehicle-col-engine {
+    min-width: 0;
+}
+
+.vehicle-model.vehicle-detail {
+    display: grid;
+    grid-template-columns: $vehicle-col-model-width $vehicle-col-years-width minmax(0, 1fr);
+    gap: 16px 24px;
+    align-items: center;
+    padding: 12px 16px 12px 48px;
+    color: #444;
+    font-size: 13px;
+    line-height: 1.45;
+    transition: background-color 0.2s ease;
+    cursor: default;
+    border-top: 1px solid #eee;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.vehicle-model.vehicle-detail:hover {
     background: #f8f9fa;
+    color: #222;
+}
+
+.vehicle-model.vehicle-detail .model-text {
+    font-weight: 600;
     color: #333;
+    font-family: inherit;
+    min-width: 0;
+}
+
+.vehicle-model.vehicle-detail .vehicle-years {
+    color: #555;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.vehicle-model.vehicle-detail .vehicle-engine {
+    color: #555;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-break: normal;
 }
 
 .vehicle-model.selected {
@@ -173,7 +235,7 @@
 }
 
 .model-text {
-    flex: 1;
+    min-width: 0;
 }
 
 .model-arrow {
@@ -255,8 +317,24 @@
         font-size: 15px;
     }
 
-    .vehicle-model {
-        padding: 12px 16px 12px 44px;
+    .vehicle-models-table-header {
+        grid-template-columns: 70px minmax(0, 1fr);
+        padding: 10px 12px 10px 44px;
+        gap: 12px 16px;
+    }
+
+    .vehicle-models-table-header .vehicle-col-engine {
+        grid-column: 1 / -1;
+    }
+
+    .vehicle-model.vehicle-detail {
+        grid-template-columns: 70px minmax(0, 1fr);
+        padding: 12px 12px 12px 44px;
+        gap: 12px 16px;
+    }
+
+    .vehicle-model.vehicle-detail .vehicle-engine {
+        grid-column: 1 / -1;
     }
 
     .select-fields-row {
@@ -271,12 +349,17 @@
     }
 
     .vehicle-models.expanded {
-        max-height: 250px;
+        max-height: 280px;
     }
 
-    .vehicle-model {
-        padding: 10px 16px 10px 40px;
-        font-size: 13px;
+    .vehicle-models-table-header {
+        padding: 8px 10px 8px 40px;
+        font-size: 10px;
+    }
+
+    .vehicle-model.vehicle-detail {
+        padding: 10px 10px 10px 40px;
+        font-size: 12px;
     }
 
     .accordion-icon {

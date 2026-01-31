@@ -26,7 +26,6 @@ import url from "~/services/url";
 import { getCategoryPath } from "~/services/utils";
 import { IProduct } from "~/interfaces/product";
 import { IProductPageLayout, IProductPageSidebarPosition } from "~/interfaces/pages";
-import { shopApi } from "~/api";
 import { useCompareAddItem } from "~/store/compare/compareHooks";
 import { useProductForm } from "~/services/forms/product";
 import { useWishlistAddItem } from "~/store/wishlist/wishlistHooks";
@@ -48,6 +47,7 @@ import CompatibleVehicles from "./CompatibleVehiclies";
 import OriginalPartNumber from "./OriginalPartNumber";
 import { useTecdocProduct } from "~/hooks/useTecdocProduct";
 import { TechnicalSpec } from "~/interfaces/tecdoc";
+import { getFeaturedProducts } from "~/data/featuredProducts";
 // Payment method logos are imported as images
 
 interface Props {
@@ -65,7 +65,7 @@ function ShopPageProduct(props: Props) {
     const wishlistAddItem = useWishlistAddItem();
     const compareAddItem = useCompareAddItem();
     const galleryLayout = `product-${layout}` as IProductGalleryLayout;
-    const [relatedProducts, setRelatedProducts] = useState<IProduct[]>([]);
+    const relatedProducts = getFeaturedProducts();
     const productForm = useProductForm(product);
 
     const cartAddItem = useCartAddItem();
@@ -221,22 +221,6 @@ function ShopPageProduct(props: Props) {
         observer.observe(el);
         return () => observer.disconnect();
     }, [isMounted]);
-
-    useEffect(() => {
-        let canceled = false;
-
-        shopApi.getRelatedProducts(product.id, 8).then((result) => {
-            if (canceled) {
-                return;
-            }
-
-            setRelatedProducts(result);
-        });
-
-        return () => {
-            canceled = true;
-        };
-    }, [product]);
 
     if (!product) {
         return null;
@@ -584,6 +568,7 @@ function ShopPageProduct(props: Props) {
                                                         <span className="product-card__vat-and-shipping-info__left">
                                                             <FormattedMessage id="TEXT_INCL_VAT" />
                                                         </span>
+                                                        <br />
                                                         <span className="product-card__vat-and-shipping-info__right">
                                                             <FormattedMessage id="TEXT_FREE_SHIPPING" />
                                                         </span>
@@ -910,15 +895,19 @@ function ShopPageProduct(props: Props) {
 
                                         {/* Full Width Related Products Section */}
                                         {relatedProducts.length > 0 && (
-                                            <React.Fragment>
+                                            <section
+                                                id="related-products"
+                                                className={`product-info-section full-width-section ${
+                                                    activeSection === "related-products" ? "active" : ""
+                                                }`}
+                                            >
                                                 <BlockSpace layout="divider-nl" />
-
                                                 <BlockProductsCarousel
                                                     blockTitle={intl.formatMessage({ id: "HEADER_RELATED_PRODUCTS" })}
                                                     products={relatedProducts}
                                                     layout={layout === "sidebar" ? "grid-4-sidebar" : "grid-5"}
                                                 />
-                                            </React.Fragment>
+                                            </section>
                                         )}
 
                                         {/* Full Width Questions Section */}
@@ -967,7 +956,6 @@ function ShopPageProduct(props: Props) {
                                         <span className="product-sticky-bar__meta-left">
                                             <FormattedMessage id="TEXT_INCL_VAT" />
                                         </span>
-                                        <span className="product-sticky-bar__meta-divider" />
                                         <span className="product-sticky-bar__meta-right">
                                             exkl. fraktkostnader
                                         </span>
