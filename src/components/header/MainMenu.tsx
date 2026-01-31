@@ -49,6 +49,8 @@ function MainMenu() {
                         "main-menu__item--hover": item === currentItem,
                     });
 
+                    const isMegamenuItem = item.submenu?.type === "megamenu";
+
                     return (
                         <li
                             className={itemClasses}
@@ -56,15 +58,28 @@ function MainMenu() {
                             onMouseEnter={() => handleItemMouseEnter(item)}
                             onMouseLeave={() => handleItemMouseLeave(item)}
                         >
-                            <AppLink
-                                className="main-menu__link"
-                                href={item.url}
-                                onClick={handleItemClick}
-                                {...item.customFields?.anchorProps}
-                            >
-                                {typeof item.title === "string" ? <FormattedMessage id={item.title} /> : item.title}
-                                {itemHasSubmenu && <ArrowDownSm7x5Svg />}
-                            </AppLink>
+                            {isMegamenuItem ? (
+                                <span
+                                    className="main-menu__link main-menu__link--no-nav"
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={(e) => e.preventDefault()}
+                                    onKeyDown={(e) => e.preventDefault()}
+                                >
+                                    {typeof item.title === "string" ? <FormattedMessage id={item.title} /> : item.title}
+                                    {itemHasSubmenu && <ArrowDownSm7x5Svg />}
+                                </span>
+                            ) : (
+                                <AppLink
+                                    className="main-menu__link"
+                                    href={item.url}
+                                    onClick={handleItemClick}
+                                    {...item.customFields?.anchorProps}
+                                >
+                                    {typeof item.title === "string" ? <FormattedMessage id={item.title} /> : item.title}
+                                    {itemHasSubmenu && <ArrowDownSm7x5Svg />}
+                                </AppLink>
+                            )}
 
                             {itemHasSubmenu && (
                                 <div className="main-menu__submenu">

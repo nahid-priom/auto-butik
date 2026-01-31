@@ -5,9 +5,9 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import classNames from 'classnames';
 // application
 import AppImage from '~/components/shared/AppImage';
-import AppLink from '~/components/shared/AppLink';
+import AppLink, { resolveAppLinkHref } from '~/components/shared/AppLink';
 import dataHeaderCategoryMenu from '~/data/headerCategoryMenu';
-import { IMainMenuLink } from '~/interfaces/main-menu-link';
+import { INestedLink } from '~/interfaces/link';
 
 interface CategoryGroup {
     title: string;
@@ -32,16 +32,17 @@ function BlockCategoryTabs() {
 
         // Bildelar (Car Parts) - MENU_CAR_PARTS
         const carPartsMenu = dataHeaderCategoryMenu.find(item => item.title === 'MENU_CAR_PARTS');
-        if (carPartsMenu?.submenu?.columns?.[0]?.links) {
-            const groups: CategoryGroup[] = carPartsMenu.submenu.columns[0].links
-                .filter(link => link.links && link.links.length > 0)
-                .map(link => ({
-                    title: link.title,
-                    url: link.url,
+        const carPartsMegamenu = carPartsMenu?.submenu?.type === 'megamenu' ? carPartsMenu.submenu : null;
+        if (carPartsMegamenu?.columns?.[0]?.links) {
+            const groups: CategoryGroup[] = carPartsMegamenu.columns[0].links
+                .filter((link: INestedLink) => link.links && link.links.length > 0)
+                .map((link: INestedLink) => ({
+                    title: typeof link.title === 'string' ? link.title : '',
+                    url: link.url ? resolveAppLinkHref(link.url) : '',
                     image: link.customFields?.image || '',
-                    links: (link.links || []).slice(0, 5).map(subLink => ({
-                        title: subLink.title,
-                        url: subLink.url,
+                    links: (link.links || []).slice(0, 5).map((subLink: INestedLink) => ({
+                        title: typeof subLink.title === 'string' ? subLink.title : '',
+                        url: subLink.url ? resolveAppLinkHref(subLink.url) : '',
                     })),
                 }));
             tabs.push({
@@ -51,41 +52,35 @@ function BlockCategoryTabs() {
             });
         }
 
-        // Torkarblad (Wiper Blades) - MENU_WIPER_BLADES
-        // Get wiper blades data from MENU_CAR_PARTS -> GROUP_WIPERS
-        const carPartsForWipers = dataHeaderCategoryMenu.find(item => item.title === 'MENU_CAR_PARTS');
-        const wipersGroup = carPartsForWipers?.submenu?.columns?.[0]?.links?.find(
-            link => link.title === 'GROUP_WIPERS'
-        );
-        if (wipersGroup && wipersGroup.links && wipersGroup.links.length > 0) {
+        // Torkarblad (Wiper Blades) - MENU_WIPER_BLADES (flat subcategories only, no parent row)
+        const wipersMenu = dataHeaderCategoryMenu.find(item => item.title === 'MENU_WIPER_BLADES');
+        const wipersMegamenu = wipersMenu?.submenu?.type === 'megamenu' ? wipersMenu.submenu : null;
+        const wipersLinks = wipersMegamenu?.columns?.[0]?.links ?? [];
+        if (wipersLinks.length > 0) {
+            const wipersGroups: CategoryGroup[] = wipersLinks.map((link: INestedLink) => ({
+                title: typeof link.title === 'string' ? link.title : '',
+                url: link.url ? resolveAppLinkHref(link.url) : '',
+                image: link.customFields?.image || '',
+                links: [],
+            }));
             tabs.push({
                 id: 'torkarblad',
                 name: intl.formatMessage({ id: 'MENU_WIPER_BLADES' }),
-                groups: [{
-                    title: wipersGroup.title,
-                    url: wipersGroup.url,
-                    image: wipersGroup.customFields?.image || '',
-                    links: (wipersGroup.links || []).slice(0, 5).map(subLink => ({
-                        title: subLink.title,
-                        url: subLink.url,
-                    })),
-                }],
+                groups: wipersGroups,
             });
         }
 
-        // Oljor och bilvård (Oils and Car Care) - MENU_OILS_CAR_CARE
+        // Oljor och bilvård (Oils and Car Care) - MENU_OILS_CAR_CARE (flat subcategories only)
         const oilsMenu = dataHeaderCategoryMenu.find(item => item.title === 'MENU_OILS_CAR_CARE');
-        if (oilsMenu?.submenu?.columns?.[0]?.links) {
-            const groups: CategoryGroup[] = oilsMenu.submenu.columns[0].links
-                .map(link => ({
-                    title: link.title,
-                    url: link.url,
-                    image: link.customFields?.image || '',
-                    links: (link.links || []).slice(0, 5).map(subLink => ({
-                        title: subLink.title,
-                        url: subLink.url,
-                    })),
-                }));
+        const oilsMegamenu = oilsMenu?.submenu?.type === 'megamenu' ? oilsMenu.submenu : null;
+        const oilsLinks = oilsMegamenu?.columns?.[0]?.links ?? [];
+        if (oilsLinks.length > 0) {
+            const groups: CategoryGroup[] = oilsLinks.map((link: INestedLink) => ({
+                title: typeof link.title === 'string' ? link.title : '',
+                url: link.url ? resolveAppLinkHref(link.url) : '',
+                image: link.customFields?.image || '',
+                links: [],
+            }));
             tabs.push({
                 id: 'oljor-och-bilvard',
                 name: intl.formatMessage({ id: 'MENU_OILS_CAR_CARE' }),
@@ -93,19 +88,17 @@ function BlockCategoryTabs() {
             });
         }
 
-        // Biltillbehör (Car Accessories) - MENU_CAR_ACCESSORIES
+        // Biltillbehör (Car Accessories) - MENU_CAR_ACCESSORIES (flat subcategories only)
         const accessoriesMenu = dataHeaderCategoryMenu.find(item => item.title === 'MENU_CAR_ACCESSORIES');
-        if (accessoriesMenu?.submenu?.columns?.[0]?.links) {
-            const groups: CategoryGroup[] = accessoriesMenu.submenu.columns[0].links
-                .map(link => ({
-                    title: link.title,
-                    url: link.url,
-                    image: link.customFields?.image || '',
-                    links: (link.links || []).slice(0, 5).map(subLink => ({
-                        title: subLink.title,
-                        url: subLink.url,
-                    })),
-                }));
+        const accessoriesMegamenu = accessoriesMenu?.submenu?.type === 'megamenu' ? accessoriesMenu.submenu : null;
+        const accessoriesLinks = accessoriesMegamenu?.columns?.[0]?.links ?? [];
+        if (accessoriesLinks.length > 0) {
+            const groups: CategoryGroup[] = accessoriesLinks.map((link: INestedLink) => ({
+                title: typeof link.title === 'string' ? link.title : '',
+                url: link.url ? resolveAppLinkHref(link.url) : '',
+                image: link.customFields?.image || '',
+                links: [],
+            }));
             tabs.push({
                 id: 'biltillbehor',
                 name: intl.formatMessage({ id: 'MENU_CAR_ACCESSORIES' }),
@@ -113,19 +106,17 @@ function BlockCategoryTabs() {
             });
         }
 
-        // Verktyg (Tools) - MENU_TOOLS
+        // Verktyg (Tools) - MENU_TOOLS (flat subcategories only)
         const toolsMenu = dataHeaderCategoryMenu.find(item => item.title === 'MENU_TOOLS');
-        if (toolsMenu?.submenu?.columns?.[0]?.links) {
-            const groups: CategoryGroup[] = toolsMenu.submenu.columns[0].links
-                .map(link => ({
-                    title: link.title,
-                    url: link.url,
-                    image: link.customFields?.image || '',
-                    links: (link.links || []).slice(0, 5).map(subLink => ({
-                        title: subLink.title,
-                        url: subLink.url,
-                    })),
-                }));
+        const toolsMegamenu = toolsMenu?.submenu?.type === 'megamenu' ? toolsMenu.submenu : null;
+        const toolsLinks = toolsMegamenu?.columns?.[0]?.links ?? [];
+        if (toolsLinks.length > 0) {
+            const groups: CategoryGroup[] = toolsLinks.map((link: INestedLink) => ({
+                title: typeof link.title === 'string' ? link.title : '',
+                url: link.url ? resolveAppLinkHref(link.url) : '',
+                image: link.customFields?.image || '',
+                links: [],
+            }));
             tabs.push({
                 id: 'verktyg',
                 name: intl.formatMessage({ id: 'MENU_TOOLS' }),
@@ -174,10 +165,10 @@ function BlockCategoryTabs() {
                                 {tab.groups.map((group, index) => (
                                     <AppLink key={index} href={group.url} className="block-category-tabs__card">
                                         <div className="block-category-tabs__card-image">
-                                            <AppImage src={group.image} alt={intl.formatMessage({ id: group.title })} />
+                                            <AppImage src={group.image} alt={typeof group.title === 'string' ? group.title : ''} />
                                         </div>
                                         <div className="block-category-tabs__card-name">
-                                            <FormattedMessage id={group.title} />
+                                            {intl.formatMessage({ id: group.title, defaultMessage: group.title })}
                                         </div>
                                     </AppLink>
                                 ))}

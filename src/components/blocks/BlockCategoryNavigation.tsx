@@ -14,27 +14,27 @@ const categories: CategoryItem[] = [
     {
         name: 'Bildelar',
         image: '/images/homepage-categories/bildelar.webp',
-        url: '/catalog/products?collectionSlug=bromsanlaggning-skivbroms-bromsskiva',
+        url: '/catalog',
     },
     {
         name: 'Torkarblad',
         image: '/images/homepage-categories/torkarblad.webp',
-        url: '/catalog/products?collectionSlug=vindruterengoring-torkarblad-gummi',
+        url: '/catalog/9603',
     },
     {
         name: 'Oljor och bilvård',
         image: '/images/homepage-categories/oljor-och-bilvård.webp',
-        url: '/catalog/products?collectionSlug=kemiska-produkter-oljor-och-vatskor-motorolja',
+        url: '/catalog/9604',
     },
     {
         name: 'Biltillbehör',
         image: '/images/homepage-categories/biltillbehör.webp',
-        url: '/catalog/products?collectionSlug=hybrid-eldrift-laddare',
+        url: '/catalog/9605',
     },
     {
         name: 'Verktyg',
         image: '/images/homepage-categories/verktyg.webp',
-        url: '/catalog/products?collectionSlug=verktyg-handverktyg',
+        url: '/catalog/9606',
     },
 ];
 

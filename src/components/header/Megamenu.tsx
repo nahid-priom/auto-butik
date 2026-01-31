@@ -78,15 +78,6 @@ function Megamenu(props: Props) {
         onItemClick && onItemClick(category);
     };
 
-    console.log("Megamenu Debug:", {
-        hasNestedMenus,
-        leftCategories,
-        allItems,
-        columns,
-        activeCategory,
-        rightItems,
-    });
-
     // Single column layout - all items shown in grid (when no nested menus)
     if (!hasNestedMenus) {
         return (
@@ -135,7 +126,7 @@ function Megamenu(props: Props) {
     return (
         <div className={rootClasses} {...rootProps}>
             <div className="main-menu__megamenu-inner">
-                {/* LEFT COLUMN: Direct links with icons and right arrow */}
+                {/* LEFT COLUMN: Categories are hover-only (not clickable links); only subcategories in right column navigate */}
                 <div className="main-menu__megamenu-left">
                     {leftCategories.map((category, index) => {
                         const title =
@@ -147,12 +138,22 @@ function Megamenu(props: Props) {
                         const isActive = category === activeCategory;
 
                         return (
-                            <AppLink
+                            <div
                                 key={index}
-                                href={category.url || "#"}
+                                role="button"
+                                tabIndex={0}
                                 className={classNames("mm-cat", { active: isActive })}
-                                onClick={() => handleLeftCategoryClick(category, index)}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleLeftCategoryClick(category, index);
+                                }}
                                 onMouseEnter={() => !isActive && setActiveCategory(category)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault();
+                                        handleLeftCategoryClick(category, index);
+                                    }
+                                }}
                             >
                                 {/* Icon on the left */}
                                 <span className="mm-cat__icon">
@@ -168,7 +169,7 @@ function Megamenu(props: Props) {
                                         <path d="M5.5 13l-1-1 4-4-4-4 1-1 5 5z" />
                                     </svg>
                                 </span>
-                            </AppLink>
+                            </div>
                         );
                     })}
                 </div>

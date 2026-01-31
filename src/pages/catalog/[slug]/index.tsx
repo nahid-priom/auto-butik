@@ -9,6 +9,7 @@ import SitePageNotFound from '~/components/site/SitePageNotFound';
 import BlockHeader from '~/components/blocks/BlockHeader';
 import BlockCatalogHero from '~/components/blocks/BlockCatalogHero';
 import PageTitle from '~/components/shared/PageTitle';
+import WidgetCategoriesList from '~/components/widgets/WidgetCategoriesList';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
 import { useCategoryTree } from '~/contexts/CategoryTreeContext';
 import { ICategoryTreeNode } from '~/api/car.api';

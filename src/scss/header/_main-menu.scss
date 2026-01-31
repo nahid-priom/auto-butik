@@ -52,6 +52,11 @@
         &:hover {
             color: inherit;
         }
+
+        &--no-nav {
+            cursor: pointer;
+            text-decoration: none;
+        }
     }
     .main-menu__submenu {
         color: map_get($menu-scheme, opposite);
