@@ -41,6 +41,10 @@ interface Props extends React.HTMLAttributes<HTMLElement> {
 function ProductCard(props: Props) {
     const { product, layout, exclude = [], className, ...rootProps } = props;
     const intl = useIntl();
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowDateStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}`;
     const featuredAttributes = [
         {
             name: "LOCATION",
@@ -308,7 +312,7 @@ function ProductCard(props: Props) {
                         <div className="product-card__shipping-info__text">
                             <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
                             {": "}
-                            <span className="product-card__shipping-info__date">i morgon, 2025-10-29</span>
+                            <span className="product-card__shipping-info__date">i morgon, {tomorrowDateStr}</span>
                         </div>
                     </div>
                 )}
