@@ -94,8 +94,8 @@ function ShopPageCategory(props: Props) {
                                         <AppLink 
                                             href={
                                                 (subcategory as any).hasChildren 
-                                                    ? `/catalog/${subcategory.slug}`
-                                                    : `/catalog/${subcategory.slug}/products`
+                                                    ? `/catalog/${subcategory.id}`
+                                                    : `/catalog/${subcategory.id}/products`
                                             }
                                             className="category-card__body"
                                         >
@@ -136,8 +136,8 @@ function ShopPageCategory(props: Props) {
                                     >
                                         <AppLink href={
                                             (subcategory as any).hasChildren 
-                                                ? `/catalog/${subcategory.slug}`
-                                                : `/catalog/${subcategory.slug}/products`
+                                                ? `/catalog/${subcategory.id}`
+                                                : `/catalog/${subcategory.id}/products`
                                         }>
                                             {subcategory.image && (
                                                 <div className="image image--type--category">
