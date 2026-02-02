@@ -10,11 +10,11 @@ import Menu from "~/components/header/Menu";
 import { ArrowDownSm7x5Svg } from "~/svg";
 import { IMainMenuLink } from "~/interfaces/main-menu-link";
 import { useOptions } from "~/store/options/optionsHooks";
-// data
-import dataHeaderCategoryMenu from "~/data/headerCategoryMenu";
+import { useCategoryTreeSafe } from "~/contexts/CategoryTreeContext";
 
 function MainMenu() {
-    const items: IMainMenuLink[] = dataHeaderCategoryMenu;
+    const { headerMenu } = useCategoryTreeSafe();
+    const items: IMainMenuLink[] = headerMenu ?? [];
     const [currentItem, setCurrentItem] = useState<IMainMenuLink | null>(null);
     const options = useOptions();
     const desktopLayout = options.desktopHeaderLayout;

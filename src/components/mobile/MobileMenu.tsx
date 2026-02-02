@@ -15,19 +15,26 @@ import MobileMenuSettings from '~/components/mobile/MobileMenuSettings';
 import url from '~/services/url';
 import { Cross12Svg } from '~/svg';
 import { useMobileMenu, useMobileMenuClose } from '~/store/mobile-menu/mobileMenuHooks';
-// data
-import getMobileMenuLinksFromDesktop from '~/data/mobileMenuFromDesktop';
+import { useCategoryTreeSafe } from '~/contexts/CategoryTreeContext';
+import { getMobileMenuLinksFromMenu, getMobileMenuLinksFromDesktop } from '~/data/mobileMenuFromDesktop';
 
-const mobileMenuLinksFromDesktop = [
-    { title: 'LINK_HOME', url: '/' as const },
-    ...getMobileMenuLinksFromDesktop(),
-];
+function getMobileMenuLinks(headerMenu: ReturnType<typeof useCategoryTreeSafe>['headerMenu']) {
+    const items = headerMenu
+        ? getMobileMenuLinksFromMenu(headerMenu)
+        : getMobileMenuLinksFromDesktop();
+    return [
+        { title: 'LINK_HOME', url: '/' as const },
+        ...items,
+    ];
+}
 
 function MobileMenu() {
     const mobileMenu = useMobileMenu();
     const mobileMenuClose = useMobileMenuClose();
     const bodyRef = useRef<HTMLDivElement>(null);
     const conveyorRef = useRef<IMobileMenuConveyorController>(null);
+    const { headerMenu } = useCategoryTreeSafe();
+    const mobileMenuLinksFromDesktop = getMobileMenuLinks(headerMenu);
 
     const rootClasses = classNames('mobile-menu', {
         'mobile-menu--open': mobileMenu.open,

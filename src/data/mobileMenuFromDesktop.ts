@@ -49,15 +49,23 @@ function mainMenuLinkToMobile(item: IMainMenuLink): IMobileMenuLink {
 }
 
 /**
- * Build mobile menu links from desktop header category menu (same as navbar).
+ * Build mobile menu links from a given desktop header menu (e.g. from API).
  * Filters by desktop layout so mobile matches visible desktop items.
  */
-export function getMobileMenuLinksFromDesktop(): IMobileMenuLink[] {
-    const items = dataHeaderCategoryMenu.filter(
+export function getMobileMenuLinksFromMenu(items: IMainMenuLink[]): IMobileMenuLink[] {
+    const filtered = items.filter(
         (item) =>
             !item.customFields?.ignoreIn?.includes(DESKTOP_LAYOUT)
     );
-    return items.map(mainMenuLinkToMobile);
+    return filtered.map(mainMenuLinkToMobile);
+}
+
+/**
+ * Build mobile menu links from static desktop header category menu (fallback).
+ * Prefer getMobileMenuLinksFromMenu(headerMenu) with API-driven menu when available.
+ */
+export function getMobileMenuLinksFromDesktop(): IMobileMenuLink[] {
+    return getMobileMenuLinksFromMenu(dataHeaderCategoryMenu);
 }
 
 export default getMobileMenuLinksFromDesktop;

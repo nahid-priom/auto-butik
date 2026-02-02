@@ -6,7 +6,7 @@ import classNames from 'classnames';
 // application
 import AppImage from '~/components/shared/AppImage';
 import AppLink, { resolveAppLinkHref } from '~/components/shared/AppLink';
-import dataHeaderCategoryMenu from '~/data/headerCategoryMenu';
+import { useCategoryTreeSafe } from '~/contexts/CategoryTreeContext';
 import { INestedLink } from '~/interfaces/link';
 
 interface CategoryGroup {
@@ -25,13 +25,15 @@ interface TabData {
 function BlockCategoryTabs() {
     const intl = useIntl();
     const [activeTab, setActiveTab] = useState<string>('bildelar');
+    const { headerMenu } = useCategoryTreeSafe();
+    const menuItems = headerMenu ?? [];
 
-    // Extract category data from megamenu
+    // Extract category data from megamenu (built from API category tree)
     const tabsData = useMemo<TabData[]>(() => {
         const tabs: TabData[] = [];
 
         // Bildelar (Car Parts) - MENU_CAR_PARTS
-        const carPartsMenu = dataHeaderCategoryMenu.find(item => item.title === 'MENU_CAR_PARTS');
+        const carPartsMenu = menuItems.find(item => item.title === 'MENU_CAR_PARTS');
         const carPartsMegamenu = carPartsMenu?.submenu?.type === 'megamenu' ? carPartsMenu.submenu : null;
         if (carPartsMegamenu?.columns?.[0]?.links) {
             const groups: CategoryGroup[] = carPartsMegamenu.columns[0].links
@@ -53,7 +55,7 @@ function BlockCategoryTabs() {
         }
 
         // Torkarblad (Wiper Blades) - MENU_WIPER_BLADES (flat subcategories only, no parent row)
-        const wipersMenu = dataHeaderCategoryMenu.find(item => item.title === 'MENU_WIPER_BLADES');
+        const wipersMenu = menuItems.find(item => item.title === 'MENU_WIPER_BLADES');
         const wipersMegamenu = wipersMenu?.submenu?.type === 'megamenu' ? wipersMenu.submenu : null;
         const wipersLinks = wipersMegamenu?.columns?.[0]?.links ?? [];
         if (wipersLinks.length > 0) {
@@ -71,7 +73,7 @@ function BlockCategoryTabs() {
         }
 
         // Oljor och bilvård (Oils and Car Care) - MENU_OILS_CAR_CARE (flat subcategories only)
-        const oilsMenu = dataHeaderCategoryMenu.find(item => item.title === 'MENU_OILS_CAR_CARE');
+        const oilsMenu = menuItems.find(item => item.title === 'MENU_OILS_CAR_CARE');
         const oilsMegamenu = oilsMenu?.submenu?.type === 'megamenu' ? oilsMenu.submenu : null;
         const oilsLinks = oilsMegamenu?.columns?.[0]?.links ?? [];
         if (oilsLinks.length > 0) {
@@ -89,7 +91,7 @@ function BlockCategoryTabs() {
         }
 
         // Biltillbehör (Car Accessories) - MENU_CAR_ACCESSORIES (flat subcategories only)
-        const accessoriesMenu = dataHeaderCategoryMenu.find(item => item.title === 'MENU_CAR_ACCESSORIES');
+        const accessoriesMenu = menuItems.find(item => item.title === 'MENU_CAR_ACCESSORIES');
         const accessoriesMegamenu = accessoriesMenu?.submenu?.type === 'megamenu' ? accessoriesMenu.submenu : null;
         const accessoriesLinks = accessoriesMegamenu?.columns?.[0]?.links ?? [];
         if (accessoriesLinks.length > 0) {
@@ -107,7 +109,7 @@ function BlockCategoryTabs() {
         }
 
         // Verktyg (Tools) - MENU_TOOLS (flat subcategories only)
-        const toolsMenu = dataHeaderCategoryMenu.find(item => item.title === 'MENU_TOOLS');
+        const toolsMenu = menuItems.find(item => item.title === 'MENU_TOOLS');
         const toolsMegamenu = toolsMenu?.submenu?.type === 'megamenu' ? toolsMenu.submenu : null;
         const toolsLinks = toolsMegamenu?.columns?.[0]?.links ?? [];
         if (toolsLinks.length > 0) {
@@ -125,7 +127,7 @@ function BlockCategoryTabs() {
         }
 
         return tabs;
-    }, [intl]);
+    }, [intl, menuItems]);
 
     const activeTabData = tabsData.find(tab => tab.id === activeTab) || tabsData[0];
 

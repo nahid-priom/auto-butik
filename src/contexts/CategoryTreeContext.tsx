@@ -1,7 +1,38 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useLayoutEffect, useCallback, useRef, useMemo } from 'react';
 import { carApi, ICategoryTreeNode, ICategoryTreeResponse } from '~/api/car.api';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
 import { ICarData } from '~/interfaces/car';
+import { buildHeaderCategoryMenuFromTree } from '~/data/buildHeaderCategoryMenuFromApiTree';
+import { IMainMenuLink } from '~/interfaces/main-menu-link';
+
+const CATEGORY_TREE_CACHE_KEY = 'autobutik_category_tree';
+const CATEGORY_TREE_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+function readCategoryTreeFromCache(): ICategoryTreeNode[] | null {
+    if (typeof window === 'undefined') return null;
+    try {
+        const raw = localStorage.getItem(CATEGORY_TREE_CACHE_KEY);
+        if (!raw) return null;
+        const { categories, timestamp } = JSON.parse(raw) as { categories: ICategoryTreeNode[]; timestamp: number };
+        if (!Array.isArray(categories) || categories.length === 0) return null;
+        if (Date.now() - timestamp > CATEGORY_TREE_CACHE_TTL_MS) return null;
+        return categories;
+    } catch {
+        return null;
+    }
+}
+
+function writeCategoryTreeToCache(categories: ICategoryTreeNode[]): void {
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.setItem(
+            CATEGORY_TREE_CACHE_KEY,
+            JSON.stringify({ categories, timestamp: Date.now() })
+        );
+    } catch {
+        // ignore quota / private mode
+    }
+}
 
 interface CategoryTreeContextValue {
     tree: ICategoryTreeNode[] | null;
@@ -10,6 +41,8 @@ interface CategoryTreeContextValue {
     totalCategories: number;
     rootCategories: number;
     currentModelId: string | null;
+    /** Header mega menu derived from category tree (for MainMenu, BlockCategoryTabs, mobile menu) */
+    headerMenu: IMainMenuLink[] | null;
     findCategoryById: (id: number) => ICategoryTreeNode | null;
     getChildren: (categoryId: number) => ICategoryTreeNode[];
     getBreadcrumb: (categoryId: number) => ICategoryTreeNode[];
@@ -20,6 +53,8 @@ interface CategoryTreeContextValue {
 const CategoryTreeContext = createContext<CategoryTreeContextValue | null>(null);
 
 export function CategoryTreeProvider({ children }: { children: React.ReactNode }) {
+    // Start with null so server and client first render match (avoids hydration error).
+    // Cache is applied in useLayoutEffect (client-only) so menu appears before paint when possible.
     const [tree, setTree] = useState<ICategoryTreeNode[] | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -28,7 +63,17 @@ export function CategoryTreeProvider({ children }: { children: React.ReactNode }
     const [currentModelId, setCurrentModelId] = useState<string | null>(null);
     const loadingRef = useRef(false);
     const lastModelIdRef = useRef<string | null>(null);
-    
+    /** Tracks if we have completed a fetch for the current modelId (so we don't skip when tree was from cache) */
+    const fetchedForModelIdRef = useRef<string | null>(null);
+
+    // Restore from cache on client only (after hydration). useLayoutEffect runs before paint so menu appears quickly.
+    useLayoutEffect(() => {
+        const cached = readCategoryTreeFromCache();
+        if (cached) {
+            setTree(cached);
+        }
+    }, []);
+
     // Get the current active car
     const { currentActiveCar } = useCurrentActiveCar();
 
@@ -90,6 +135,12 @@ export function CategoryTreeProvider({ children }: { children: React.ReactNode }
         return category ? category.children.length === 0 : true;
     }, [findCategoryById]);
 
+    // Header mega menu derived from category tree (for MainMenu, BlockCategoryTabs, mobile menu)
+    const headerMenu = useMemo<IMainMenuLink[] | null>(() => {
+        if (!tree || tree.length === 0) return null;
+        return buildHeaderCategoryMenuFromTree(tree);
+    }, [tree]);
+
     // Extract modelId from active car
     const getModelIdFromCar = useCallback((): string | null => {
         if (!currentActiveCar?.data) return null;
@@ -110,8 +161,9 @@ export function CategoryTreeProvider({ children }: { children: React.ReactNode }
             return;
         }
 
-        // If we already have data for this modelId, skip
-        if (lastModelIdRef.current === (modelId || null) && tree !== null) {
+        const modelKey = modelId || null;
+        // If we already fetched for this modelId, skip (avoid duplicate requests)
+        if (fetchedForModelIdRef.current === modelKey) {
             return;
         }
 
@@ -127,6 +179,11 @@ export function CategoryTreeProvider({ children }: { children: React.ReactNode }
             setRootCategories(data.rootCategories);
             setCurrentModelId(modelId || null);
             lastModelIdRef.current = modelId || null;
+            fetchedForModelIdRef.current = modelKey;
+            // Cache full tree so next visit shows mega menu immediately
+            if (!modelId) {
+                writeCategoryTreeToCache(data.categories);
+            }
         } catch (err) {
             console.error('CategoryTreeContext - Error loading tree:', err);
             setError(err instanceof Error ? err.message : 'Failed to load category tree');
@@ -139,20 +196,21 @@ export function CategoryTreeProvider({ children }: { children: React.ReactNode }
     // Force refresh the tree
     const refreshTree = useCallback(async () => {
         const modelId = getModelIdFromCar();
-        lastModelIdRef.current = null; // Force refresh
+        lastModelIdRef.current = null;
+        fetchedForModelIdRef.current = null; // Force refresh
         await loadTree(modelId);
     }, [loadTree, getModelIdFromCar]);
 
-    // Load tree on initial mount and when active car changes
+    // Load tree on mount and when active car changes (revalidate even when we have cache)
     useEffect(() => {
         const modelId = getModelIdFromCar();
-        
-        // Load on initial mount (tree is null) or when modelId changed
-        if (tree === null || modelId !== lastModelIdRef.current) {
-            console.log('CategoryTreeContext - Loading tree for modelId:', modelId);
+        const modelKey = modelId || null;
+        // Fetch if we haven't yet for this modelId (covers initial load and cache restore)
+        if (fetchedForModelIdRef.current !== modelKey) {
+            console.log('CategoryTreeContext - Loading tree for modelId:', modelId ?? '(all)');
             loadTree(modelId);
         }
-    }, [currentActiveCar, getModelIdFromCar, loadTree, tree]);
+    }, [currentActiveCar, getModelIdFromCar, loadTree]);
 
     return (
         <CategoryTreeContext.Provider
@@ -163,6 +221,7 @@ export function CategoryTreeProvider({ children }: { children: React.ReactNode }
                 totalCategories,
                 rootCategories,
                 currentModelId,
+                headerMenu,
                 findCategoryById,
                 getChildren,
                 getBreadcrumb,
@@ -194,6 +253,7 @@ export function useCategoryTreeSafe() {
             totalCategories: 0,
             rootCategories: 0,
             currentModelId: null,
+            headerMenu: null,
             findCategoryById: () => null,
             getChildren: () => [],
             getBreadcrumb: () => [],
