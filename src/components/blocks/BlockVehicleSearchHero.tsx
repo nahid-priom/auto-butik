@@ -24,7 +24,7 @@ function BlockVehicleSearchHero() {
                 const newId = addVehicle(car);
                 setCurrentCar(newId);
                 setCurrentActiveCar({
-                    regNr: (car as any).RegNr,
+                    regNr: (car as any).RegNr ?? '',
                     data: car as any,
                     fetchedAt: Date.now(),
                 });

@@ -228,6 +228,7 @@ function CarLookupForm(props: Props) {
                 ...wheel,
                 engineDescription, // Store the full description
                 modell_id: engineId,
+                RegNr: (wheel as any).RegNr ?? '', // Ensure regNr is set for localStorage (empty when not from plate lookup)
             };
             
             // Save to browsing history with engine description
