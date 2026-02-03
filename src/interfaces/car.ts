@@ -59,6 +59,8 @@ export interface ITypesMap {
 }
 
 export interface IWheelData {
+    /** TecDoc KTYPE / model ID; required for category tree and product filtering when stored as current car */
+    modell_id?: string;
     WHEELID?: string;
     C_merke?: string;
     C_modell?: string;

@@ -222,11 +222,12 @@ function CarLookupForm(props: Props) {
             // Get the engine description from the engines map
             const engineDescription = engines[engineId] || '';
             
-            // Parse engine description to extract additional details
-            // Format: "TYPE (POWER kW)" or "TYPE (POWER kW/HP PS)" etc.
+            // engineId from the engines dropdown IS the TecDoc model ID (KTYPE). Without modell_id,
+            // the stored vehicle is not used for category tree or product filtering.
             const enhancedWheel = {
                 ...wheel,
                 engineDescription, // Store the full description
+                modell_id: engineId,
             };
             
             // Save to browsing history with engine description
