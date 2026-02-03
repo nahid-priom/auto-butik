@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, useMemo } from "react";
 import { FormattedMessage } from "react-intl";
 import { VehicleGroup, Vehicle } from "~/interfaces/tecdoc";
+import ProductSectionEmpty from "~/components/shop/ProductSectionEmpty";
 
 interface CompatibleVehiclesProps {
     compatibleVehicles?: VehicleGroup[];
@@ -90,9 +91,16 @@ const CompatibleVehicles: React.FC<CompatibleVehiclesProps> = ({
         );
     }
 
-    // Empty state - don't render if no compatible vehicles
+    // Empty state - show friendly "no info" message
     if (!compatibleVehicles || compatibleVehicles.length === 0) {
-        return null;
+        return (
+            <div className="compatible-vehicles">
+                <h2 className="vehicles-title">
+                    <FormattedMessage id="COMPATIBLE_VEHICLES_TITLE" />
+                </h2>
+                <ProductSectionEmpty message="Ingen kompatibilitetsinformation tillgänglig för denna produkt." />
+            </div>
+        );
     }
 
     return (

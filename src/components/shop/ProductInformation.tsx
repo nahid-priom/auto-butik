@@ -1,6 +1,7 @@
 import React from "react";
 import { FormattedMessage } from "react-intl";
 import { TechnicalSpec } from "~/interfaces/tecdoc";
+import ProductSectionEmpty from "~/components/shop/ProductSectionEmpty";
 
 interface ProductInformationProps {
     productName?: string;
@@ -32,9 +33,16 @@ const ProductInformation: React.FC<ProductInformationProps> = ({
         );
     }
 
-    // Empty state - don't render anything if no specs
+    // Empty state - show friendly "no info" message
     if (!technicalSpecs || technicalSpecs.length === 0) {
-        return null;
+        return (
+            <div className="product-information-section">
+                <h2 className="section-title">
+                    <FormattedMessage id="TECHNICAL_INFORMATION_TITLE" values={{ productName }} />
+                </h2>
+                <ProductSectionEmpty message="Ingen teknisk information tillgänglig för denna produkt." />
+            </div>
+        );
     }
 
     return (

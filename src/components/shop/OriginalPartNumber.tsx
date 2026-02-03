@@ -1,6 +1,7 @@
 import React from "react";
 import { FormattedMessage } from "react-intl";
 import { OeReferenceGroup } from "~/interfaces/tecdoc";
+import ProductSectionEmpty from "~/components/shop/ProductSectionEmpty";
 
 interface OriginalPartNumberProps {
     productName?: string;
@@ -38,9 +39,16 @@ const OriginalPartNumber: React.FC<OriginalPartNumberProps> = ({
         );
     }
 
-    // Empty state - don't render if no OE references
+    // Empty state - show friendly "no info" message
     if (!oeReferences || oeReferences.length === 0) {
-        return null;
+        return (
+            <div className="original-part-number">
+                <h2 className="part-number-title">
+                    <FormattedMessage id="OE_NUMBER_TITLE" />
+                </h2>
+                <ProductSectionEmpty message="Inga originaldelsnummer tillgängliga för denna produkt." />
+            </div>
+        );
     }
 
     // Build title with product name if available

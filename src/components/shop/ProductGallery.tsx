@@ -18,6 +18,92 @@ import { baseUrl } from '~/services/utils';
 import { useDirection } from '~/services/i18n/hooks';
 import { ZoomIn24Svg } from '~/svg';
 
+const PLACEHOLDER_SRC = '__placeholder__';
+
+/** URLs that should be treated as "no image" and show our custom placeholder instead */
+const PLACEHOLDER_URL_PATTERNS = ['product-placeholder', 'placeholder.jpg', 'placeholder.png'];
+
+function isPlaceholderOrEmptyUrl(url: string): boolean {
+    if (!url || typeof url !== 'string' || url.trim() === '' || url === PLACEHOLDER_SRC) return true;
+    const normalized = url.toLowerCase();
+    return PLACEHOLDER_URL_PATTERNS.some((p) => normalized.includes(p));
+}
+
+/** Placeholder shown when product has no image or image fails to load */
+function ProductGalleryPlaceholder({ className }: { className?: string }) {
+    return (
+        <div className={classNames('product-gallery__placeholder', className)} aria-hidden>
+            <svg
+                className="product-gallery__placeholder-icon"
+                viewBox="0 0 120 120"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden
+            >
+                <rect x="10" y="10" width="100" height="100" rx="8" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.2" />
+                <path
+                    d="M35 55 L50 42 L65 55 L85 38 L85 82 L35 82 Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    fill="none"
+                    opacity="0.4"
+                />
+                <circle cx="52" cy="48" r="8" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.4" />
+                <path
+                    d="M45 95 L55 85 L65 95 L75 88 L85 95"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    fill="none"
+                    opacity="0.3"
+                />
+            </svg>
+        </div>
+    );
+}
+
+/** Renders image or placeholder on load error */
+function GalleryImageWithFallback({
+    src,
+    index,
+    imagesRefs,
+    className,
+    dataWidth,
+    dataHeight,
+    isPlaceholder,
+    setRef = true,
+}: {
+    src: string;
+    index: number;
+    imagesRefs: React.MutableRefObject<(HTMLImageElement | null)[]>;
+    className?: string;
+    dataWidth?: string;
+    dataHeight?: string;
+    isPlaceholder: boolean;
+    setRef?: boolean;
+}) {
+    const [loadFailed, setLoadFailed] = useState(false);
+    const showPlaceholder = isPlaceholder || loadFailed || isPlaceholderOrEmptyUrl(src);
+
+    if (showPlaceholder) {
+        return <ProductGalleryPlaceholder className={className} />;
+    }
+
+    return (
+        <AppImage
+            className={className}
+            src={src}
+            ref={setRef ? (el) => { imagesRefs.current[index] = el; } : undefined}
+            data-width={dataWidth}
+            data-height={dataHeight}
+            onError={() => setLoadFailed(true)}
+        />
+    );
+}
+
 type CreateGalleryFn = (
     images: PhotoSwipe.Item[],
     options: PhotoSwipe.Options,
@@ -104,69 +190,78 @@ function ProductGallery(props: Props) {
     const getIndexDependOnDirRef = useRef<((index: number) => number) | null>(null);
     const unmountedRef = useRef(false);
 
+    // Filter out known placeholder/empty URLs so we show our custom placeholder instead of broken img
+    const realImages = images.filter((url) => !isPlaceholderOrEmptyUrl(url));
+    const displayImages = realImages.length > 0 ? realImages : [PLACEHOLDER_SRC];
+    const hasRealImages = realImages.length > 0;
+
     const getIndexDependOnDir = useCallback((index: number) => {
         // we need to invert index id direction === 'rtl' due to react-slick bug
         if (direction === 'rtl') {
-            return images.length - 1 - index;
+            return displayImages.length - 1 - index;
         }
 
         return index;
-    }, [direction, images]);
+    }, [direction, displayImages.length]);
 
     const openPhotoswipe = (index: number) => {
         if (!createGalleryRef.current) {
             return;
         }
 
-        const items = imagesRefs.current.map((tag, index) => {
-            if (!tag) {
-                throw Error('Image ref is null');
-            }
-
-            const width = (tag.dataset.width ? parseFloat(tag.dataset.width) : null) || tag.naturalWidth;
-            const height = (tag.dataset.height ? parseFloat(tag.dataset.height) : null) || tag.naturalHeight;
-
-            return {
-                src: baseUrl(images[index]),
-                msrc: baseUrl(images[index]),
+        // Build items only from slides with valid image refs (skip placeholders / failed loads)
+        const itemsWithIndex: Array<{ src: string; msrc: string; w: number; h: number; originalIndex: number }> = [];
+        imagesRefs.current.forEach((tag, i) => {
+            if (!tag || i >= realImages.length || realImages[i] === PLACEHOLDER_SRC) return;
+            const width = (tag.dataset.width ? parseFloat(tag.dataset.width) : null) || tag.naturalWidth || 700;
+            const height = (tag.dataset.height ? parseFloat(tag.dataset.height) : null) || tag.naturalHeight || 700;
+            itemsWithIndex.push({
+                src: baseUrl(realImages[i]),
+                msrc: baseUrl(realImages[i]),
                 w: width,
                 h: height,
-            };
+                originalIndex: i,
+            });
         });
+
+        const items = itemsWithIndex.map(({ originalIndex, ...rest }) => rest);
+        const originalIndices = itemsWithIndex.map((x) => x.originalIndex);
+
+        if (items.length === 0) return;
 
         if (direction === 'rtl') {
             items.reverse();
+            originalIndices.reverse();
         }
+
+        const photoSwipeIndex = Math.max(
+            0,
+            originalIndices.indexOf(getIndexDependOnDir(index))
+        );
 
         // noinspection JSUnusedGlobalSymbols
         const options: PhotoSwipe.Options = {
-            getThumbBoundsFn: (index) => {
-                // IMPORTANT: Inside this function, we can use variables and functions only through ref.
+            getThumbBoundsFn: (psIndex: number) => {
                 if (!getIndexDependOnDirRef.current) {
                     return { x: 0, y: 0, w: 0 };
                 }
-
-                const dirDependentIndex = getIndexDependOnDirRef.current(index);
+                const originalIndex = originalIndices[psIndex];
+                if (originalIndex === undefined) return { x: 0, y: 0, w: 0 };
+                const dirDependentIndex = getIndexDependOnDirRef.current(originalIndex);
                 const tag = imagesRefs.current[dirDependentIndex];
-
-                if (!tag) {
-                    return { x: 0, y: 0, w: 0 };
-                }
-
+                if (!tag) return { x: 0, y: 0, w: 0 };
                 const width = tag.naturalWidth;
                 const height = tag.naturalHeight;
                 const rect = tag.getBoundingClientRect();
                 const ration = Math.min(rect.width / width, rect.height / height);
                 const fitWidth = width * ration;
-                const fitHeight = height * ration;
-
                 return {
                     x: rect.left + (rect.width - fitWidth) / 2 + window.pageXOffset,
                     y: rect.top + (rect.height - fitHeight) / 2 + window.pageYOffset,
                     w: fitWidth,
                 };
             },
-            index: getIndexDependOnDir(index),
+            index: photoSwipeIndex,
             bgOpacity: 0.9,
             history: false,
         };
@@ -272,13 +367,16 @@ function ProductGallery(props: Props) {
     }, [getIndexDependOnDir]);
 
     const rootClasses = classNames('product-gallery', `product-gallery--layout--${layout}`, className);
+    const isPlaceholderSrc = (src: string) => src === PLACEHOLDER_SRC;
 
     return (
         <div className={rootClasses} data-layout={layout} {...rootProps}>
             <div className="product-gallery__featured">
-                <button type="button" className="product-gallery__zoom" onClick={handleZoomButtonClick}>
-                    <ZoomIn24Svg />
-                </button>
+                {hasRealImages && (
+                    <button type="button" className="product-gallery__zoom" onClick={handleZoomButtonClick}>
+                        <ZoomIn24Svg />
+                    </button>
+                )}
 
                 <AppSlick
                     ref={slickFeaturedRef}
@@ -286,39 +384,49 @@ function ProductGallery(props: Props) {
                     beforeChange={handleFeaturedBeforeChange}
                     afterChange={handleFeaturedAfterChange}
                 >
-                    {images.map((image, index) => (
+                    {displayImages.map((image, index) => (
                         <div key={index} className="image image--type--product">
-                            <AppLink
-                                href={image}
-                                anchor
-                                className="image__body"
-                                target="_blank"
-                                rel="noreferrer"
-                                onClick={(event: React.MouseEvent) => handleFeaturedClick(event, index)}
-                            >
-                                {/*
-                                The data-width and data-height attributes must contain the size of a larger
-                                version of the product image.
-
-                                If you do not know the image size, you can remove the data-width and data-height
-                                attribute, in which case the width and height will be obtained from the
-                                naturalWidth and naturalHeight property of img.product-image__img.
-                                */}
-                                <AppImage
-                                    className="image__tag"
-                                    src={image}
-                                    ref={(element) => { imagesRefs.current[index] = element; }}
-                                    data-width="700"
-                                    data-height="700"
-                                />
-                            </AppLink>
+                            {hasRealImages && !isPlaceholderSrc(image) ? (
+                                <AppLink
+                                    href={image}
+                                    anchor
+                                    className="image__body"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    onClick={(event: React.MouseEvent) => handleFeaturedClick(event, index)}
+                                >
+                                    <GalleryImageWithFallback
+                                        src={image}
+                                        index={index}
+                                        imagesRefs={imagesRefs}
+                                        className="image__tag"
+                                        dataWidth="700"
+                                        dataHeight="700"
+                                        isPlaceholder={false}
+                                        setRef
+                                    />
+                                </AppLink>
+                            ) : (
+                                <div className="image__body">
+                                    <GalleryImageWithFallback
+                                        src={image}
+                                        index={index}
+                                        imagesRefs={imagesRefs}
+                                        className="image__tag"
+                                        dataWidth="700"
+                                        dataHeight="700"
+                                        isPlaceholder={true}
+                                        setRef={false}
+                                    />
+                                </div>
+                            )}
                         </div>
                     ))}
                 </AppSlick>
             </div>
             <div className="product-gallery__thumbnails">
                 <AppSlick {...slickSettingsThumbnails[layout]}>
-                    {images.map((image, index) => (
+                    {displayImages.map((image, index) => (
                         <button
                             type="button"
                             key={index}
@@ -328,7 +436,14 @@ function ProductGallery(props: Props) {
                             onClick={() => handleThumbnailClick(index)}
                         >
                             <div className="image__body">
-                                <AppImage className="image__tag" src={image} />
+                                <GalleryImageWithFallback
+                                    src={image}
+                                    index={index}
+                                    imagesRefs={imagesRefs}
+                                    className="image__tag"
+                                    isPlaceholder={isPlaceholderSrc(image)}
+                                    setRef={false}
+                                />
                             </div>
                         </button>
                     ))}

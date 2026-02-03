@@ -164,6 +164,13 @@
     .product-card__shipping-info__icon {
         display: flex;
         align-items: start;
+        font-size: 30px;
+        flex-shrink: 0;
+
+        svg {
+            width: 30px;
+            height: 30px;
+        }
     }
 
     .product-card__shipping-info__text {
@@ -494,6 +501,8 @@
         padding: 0 $local-padding;
         line-height: 1.2;
         margin-top: 2px !important;
+        /* Fixed height for 2 lines so meta/shipping/price align across cards */
+        min-height: 2.4em;
     }
     .product-card__rating {
         margin: -3px 0 -2px 0;
