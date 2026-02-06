@@ -69,7 +69,6 @@ const OriginalPartNumber: React.FC<OriginalPartNumberProps> = ({
                                 {group.references.map((ref, refIndex) => (
                                     <span key={refIndex} className="oe-reference-number">
                                         {ref}
-                                        {refIndex < group.references.length - 1 && " "}
                                     </span>
                                 ))}
                             </div>
