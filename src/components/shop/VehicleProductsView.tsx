@@ -1,5 +1,5 @@
 // react
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 // third-party
 import classNames from "classnames";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -11,6 +11,7 @@ import { isEmptyList } from "~/services/utils";
 import { IShopPageGridLayout, IShopPageLayout, IShopPageOffCanvasSidebar } from "~/interfaces/pages";
 import { SidebarContext } from "~/services/sidebar";
 import { useVehicleCatalog } from "~/hooks/useVehicleCatalog";
+import { useVehicleCatalogContext } from "~/contexts/VehicleCatalogContext";
 import { Filters16Svg, LayoutGrid16Svg, LayoutList16Svg } from "~/svg";
 import { IVehicleProduct } from "~/api/car.api";
 import { IProduct } from "~/interfaces/product";
@@ -39,8 +40,18 @@ const convertVehicleProductToIProduct = (vp: IVehicleProduct, index: number): IP
         images.push('/images/products/product-placeholder.jpg');
     }
 
+    const productId = typeof vp.productId === 'number' ? vp.productId : parseInt(String(vp.productId), 10);
+    const brand = vp.brand
+        ? {
+              slug: (vp.brand.name || '').toLowerCase().replace(/\s+/g, '-'),
+              name: vp.brand.name,
+              image: vp.brand.imageUrl || '',
+              country: '',
+          }
+        : null;
+
     return {
-        id: parseInt(vp.productId, 10) || index,
+        id: productId || index,
         name: vp.productName,
         excerpt: vp.description || `Auto part: ${vp.productName}`,
         description: vp.description || `Auto part: ${vp.productName}`,
@@ -56,7 +67,7 @@ const convertVehicleProductToIProduct = (vp: IVehicleProduct, index: number): IP
         reviews: 0,
         availability: 'in-stock' as const,
         compatibility: 'all' as const,
-        brand: null,
+        brand: brand ?? null,
         tags: [],
         type: {
             name: 'Auto Part',
@@ -70,6 +81,8 @@ const convertVehicleProductToIProduct = (vp: IVehicleProduct, index: number): IP
         customFields: {
             tecDoc: vp.tecDoc,
             icIndex: vp.icIndex,
+            technicalSpecs: vp.technicalSpecs ?? [],
+            ean: vp.ean ?? null,
         },
     };
 };
@@ -105,23 +118,41 @@ function VehicleProductsView(props: Props) {
     // Check if we have a collection filter (needed for allowWithoutCar logic)
     const hasCollectionFilter = collectionSlug !== "" || (collectionId !== undefined && collectionId !== "");
 
-    // Fetch vehicle catalog data
+    const { setFacets, selectedBrand, setSelectedBrand, selectedPosition, setSelectedPosition } = useVehicleCatalogContext();
+
+    // Reset filters when switching category so the new category gets full facets
+    useEffect(() => {
+        setSelectedBrand(null);
+        setSelectedPosition(null);
+    }, [collectionId, collectionSlug, setSelectedBrand, setSelectedPosition]);
+
+    // Fetch vehicle catalog data (brand and position from context, not URL)
     const {
         products: productsResponse,
         productsLoading: isLoading,
         error,
         hasActiveCar,
         canFetchProducts,
+        lastFetchBrand,
+        lastFetchPosition,
     } = useVehicleCatalog({
         skip,
         take: limit,
         term: searchQuery,
         collectionSlug,
         collectionId,
+        brand: selectedBrand ?? undefined,
+        position: selectedPosition ?? undefined,
         modelIdOverride,
-        // Allow fetching without car if we have a collection filter and the prop is set
         allowWithoutCar: allowWithoutCar && hasCollectionFilter,
     });
+
+    // Only update facets from a response that was fetched WITHOUT brand or position filter
+    useEffect(() => {
+        if (productsResponse?.facets && lastFetchBrand === undefined && lastFetchPosition === undefined) {
+            setFacets(productsResponse.facets);
+        }
+    }, [productsResponse?.facets, lastFetchBrand, lastFetchPosition, setFacets]);
 
     // Convert vehicle products to IProduct format
     const productsList = useMemo(() => {

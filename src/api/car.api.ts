@@ -301,10 +301,12 @@ export class CarApi {
             term?: string;
             collectionSlug?: string;
             collectionId?: string | number;
+            brand?: string;
+            position?: string;
         } = {}
     ): Promise<IVehicleProductsResponse> {
         const baseUrl = getApiUrl();
-        const { skip = 0, take = 24, term = "", collectionSlug = "", collectionId } = options;
+        const { skip = 0, take = 24, term = "", collectionSlug = "", collectionId, brand, position } = options;
         
         const params = new URLSearchParams();
         if (skip > 0) params.append("skip", skip.toString());
@@ -316,6 +318,8 @@ export class CarApi {
         } else if (collectionSlug) {
             params.append("collectionSlug", collectionSlug);
         }
+        if (brand) params.append("brand", brand);
+        if (position) params.append("position", position);
 
         const url = `${baseUrl}/car/products/${modelId}${params.toString() ? `?${params.toString()}` : ""}`;
         console.log("Car API - Products URL:", url);
@@ -424,8 +428,15 @@ export interface IVehicleCategoriesResponse {
     categories: IVehicleCategory[];
 }
 
+/** Technical spec from catalog API (name, value, optional unit) */
+export interface IVehicleProductTechnicalSpec {
+    name: string;
+    value: string;
+    unit?: string;
+}
+
 export interface IVehicleProduct {
-    productId: string;
+    productId: string | number;
     productName: string;
     slug: string;
     description: string | null;
@@ -435,6 +446,30 @@ export interface IVehicleProduct {
     price: number;
     currencyCode: string;
     imagePreview: string | null;
+    brand?: { name: string; imageUrl?: string | null } | null;
+    technicalSpecs?: IVehicleProductTechnicalSpec[];
+    ean?: string | null;
+}
+
+/** Brand facet from products API */
+export interface IVehicleProductFacetBrand {
+    value: string;
+    label: string;
+    count: number;
+    imageUrl?: string | null;
+}
+
+/** Position facet from products API */
+export interface IVehicleProductFacetPosition {
+    value: string;
+    label: string;
+    count: number;
+}
+
+export interface IVehicleProductsFacets {
+    positions?: IVehicleProductFacetPosition[];
+    brands?: IVehicleProductFacetBrand[];
+    categories?: unknown[];
 }
 
 export interface IVehicleProductsResponse {
@@ -444,6 +479,8 @@ export interface IVehicleProductsResponse {
     totalItems: number;
     skip: number;
     take: number;
+    facets?: IVehicleProductsFacets;
+    collection?: { id: number; name: string; slug: string } | null;
     items: IVehicleProduct[];
 }
 

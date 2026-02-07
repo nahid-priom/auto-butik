@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { carApi, IVehicleCategoriesResponse } from '~/api/car.api';
+import { carApi, IVehicleCategoriesResponse, IVehicleProductsFacets } from '~/api/car.api';
 import { useCurrentActiveCar } from '~/contexts/CarContext';
 
 interface VehicleCatalogContextValue {
@@ -7,6 +7,15 @@ interface VehicleCatalogContextValue {
     categoriesLoading: boolean;
     error: string | null;
     refreshCategories: () => Promise<void>;
+    /** Facets from last products response (brands, positions, etc.) - set when products load (unfiltered) */
+    facets: IVehicleProductsFacets | null;
+    setFacets: (facets: IVehicleProductsFacets | null) => void;
+    /** Selected brand filter (value from facets.brands[].value). Not in URL; triggers refetch only. */
+    selectedBrand: string | null;
+    setSelectedBrand: (value: string | null) => void;
+    /** Selected position filter (value from facets.positions[].value). Not in URL; triggers refetch only. */
+    selectedPosition: string | null;
+    setSelectedPosition: (value: string | null) => void;
 }
 
 const VehicleCatalogContext = createContext<VehicleCatalogContextValue | null>(null);
@@ -16,6 +25,9 @@ export function VehicleCatalogProvider({ children }: { children: React.ReactNode
     const [categories, setCategories] = useState<IVehicleCategoriesResponse | null>(null);
     const [categoriesLoading, setCategoriesLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [facets, setFacets] = useState<IVehicleProductsFacets | null>(null);
+    const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+    const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
     const loadingRef = useRef(false);
 
     // Get modelId from current active car
@@ -65,6 +77,12 @@ export function VehicleCatalogProvider({ children }: { children: React.ReactNode
                 categoriesLoading,
                 error,
                 refreshCategories,
+                facets,
+                setFacets,
+                selectedBrand,
+                setSelectedBrand,
+                selectedPosition,
+                setSelectedPosition,
             }}
         >
             {children}
@@ -75,12 +93,17 @@ export function VehicleCatalogProvider({ children }: { children: React.ReactNode
 export function useVehicleCatalogContext() {
     const context = useContext(VehicleCatalogContext);
     if (!context) {
-        // Return a default context if not available (shouldn't happen, but safety fallback)
         return {
             categories: null,
             categoriesLoading: false,
             error: null,
             refreshCategories: async () => {},
+            facets: null,
+            setFacets: () => {},
+            selectedBrand: null,
+            setSelectedBrand: () => {},
+            selectedPosition: null,
+            setSelectedPosition: () => {},
         };
     }
     return context;

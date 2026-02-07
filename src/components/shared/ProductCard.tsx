@@ -44,76 +44,32 @@ function ProductCard(props: Props) {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowDateStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}`;
-    const featuredAttributes = [
-        {
-            name: "LOCATION",
-            values: [{ name: "Rear axle" }],
+
+    // Build feature list from backend: technicalSpecs (non-empty) + EAN if present
+    const rawSpecs = (product.customFields?.technicalSpecs as Array<{ name: string; value: string; unit?: string }> | undefined) ?? [];
+    const specsWithValue = rawSpecs.filter((s) => s.value != null && String(s.value).trim() !== "");
+    const ean = product.customFields?.ean as string | null | undefined;
+    const hasEanInSpecs = specsWithValue.some((s) => s.name === "EAN" || s.name.toLowerCase() === "ean");
+    const listWithEan =
+        ean && !hasEanInSpecs
+            ? [{ name: "EAN", value: ean, unit: undefined as string | undefined }, ...specsWithValue]
+            : specsWithValue;
+
+    // Group specs with the same name (e.g. multiple "Position") into one line with comma-separated values
+    const groupedByName = listWithEan.reduce(
+        (acc, spec) => {
+            const key = spec.name;
+            if (!acc[key]) acc[key] = { name: spec.name, values: [] as string[], unit: spec.unit };
+            acc[key].values.push(spec.value.trim());
+            return acc;
         },
-        {
-            name: "EAN",
-            values: [{ name: "4047024749801" }],
-        },
-        {
-            name: "OUTER_DIAMETER_MM",
-            values: [{ name: "272" }],
-        },
-        {
-            name: "BRAKE_DISC_THICKNESS_MM",
-            values: [{ name: "10" }],
-        },
-        {
-            name: "MINIMUM_THICKNESS_MM",
-            values: [{ name: "8" }],
-        },
-        {
-            name: "HEIGHT_MM",
-            values: [{ name: "48.3" }],
-        },
-        {
-            name: "HOLE_CIRCLE_DIAMETER_MM",
-            values: [{ name: "112" }],
-        },
-        {
-            name: "BRAKE_DISC_TYPE",
-            values: [{ name: "full" }],
-        },
-        {
-            name: "CENTERING_DIAMETER_MM",
-            values: [{ name: "65" }],
-        },
-        {
-            name: "NUMBER_OF_HOLES",
-            values: [{ name: "9" }],
-        },
-        {
-            name: "SURFACE",
-            values: [{ name: "oiled" }],
-        },
-        {
-            name: "MEETS_ECE_STANDARD",
-            values: [{ name: "ECE-R90" }],
-        },
-        {
-            name: "DRILLING_DIAMETER_TO_MM",
-            values: [{ name: "15.3" }],
-        },
-        {
-            name: "PRODUCT_LINE",
-            values: [{ name: "BD1515, E1 90 R - 02C0355/0231" }],
-        },
-        {
-            name: "BRAND_QUALITY",
-            values: [{ name: "Premium" }],
-        },
-        {
-            name: "MANUFACTURER",
-            values: [{ name: "BOSCH" }],
-        },
-        {
-            name: "ITEM_NO",
-            values: [{ name: "0 986 479 677" }],
-        },
-    ];
+        {} as Record<string, { name: string; values: string[]; unit?: string }>
+    );
+    const featuredAttributes = Object.values(groupedByName).map(({ name, values, unit }) => ({
+        name,
+        value: values.join(", "),
+        unit,
+    }));
 
     const [showAllFeatures, setShowAllFeatures] = useState(false);
     const [quantity, setQuantity] = useState(1);
@@ -277,12 +233,15 @@ function ProductCard(props: Props) {
                 {!exclude.includes("features") && displayedFeatures.length > 0 && (
                     <div className="product-card__features">
                         <ul>
-                            {displayedFeatures.map((attribute, index) => (
+                            {displayedFeatures.map((spec, index) => (
                                 <li key={index}>
-                                    <FormattedMessage id={attribute.name} />
+                                    <span className="product-card__feature-name">
+                                        {spec.name === "Position" ? "Placering" : spec.name}
+                                    </span>
                                     {": "}
                                     <span className="product-card__feature-value">
-                                        {attribute.values.map((x) => x.name).join(", ")}
+                                        {spec.value}
+                                        {spec.unit ? ` ${spec.unit}` : ""}
                                     </span>
                                 </li>
                             ))}

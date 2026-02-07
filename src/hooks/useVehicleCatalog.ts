@@ -10,6 +10,10 @@ export interface UseVehicleCatalogOptions {
     term?: string;
     collectionSlug?: string;
     collectionId?: string | number;
+    /** Filter by brand value (e.g. from facets.brands[].value) */
+    brand?: string;
+    /** Filter by position value (e.g. from facets.positions[].value, e.g. "HD") */
+    position?: string;
     /** When set (e.g. from URL /catalog/products/[carModelID]), use this instead of current active car */
     modelIdOverride?: string | null;
     /** If true, fetch products even without an active car (uses "all" as modelId) */
@@ -23,8 +27,11 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
     const [products, setProducts] = useState<IVehicleProductsResponse | null>(null);
     const [productsLoading, setProductsLoading] = useState(false);
     const [productsError, setProductsError] = useState<string | null>(null);
+    /** Params that were sent for the current products response (so caller can avoid overwriting facets with filtered response) */
+    const [lastFetchBrand, setLastFetchBrand] = useState<string | undefined>(undefined);
+    const [lastFetchPosition, setLastFetchPosition] = useState<string | undefined>(undefined);
 
-    const { skip = 0, take = 24, term = "", collectionSlug = "", collectionId, modelIdOverride, allowWithoutCar = false } = options;
+    const { skip = 0, take = 24, term = "", collectionSlug = "", collectionId, brand, position, modelIdOverride, allowWithoutCar = false } = options;
 
     // Get modelId: URL override (e.g. /catalog/products/18027) or current active car
     const carModelId = modelIdOverride !== undefined && modelIdOverride !== null
@@ -69,9 +76,13 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
                     term,
                     collectionSlug,
                     collectionId,
+                    brand,
+                    position,
                 });
                 if (!canceled) {
                     setProducts(data);
+                    setLastFetchBrand(brand);
+                    setLastFetchPosition(position);
                 }
             } catch (err) {
                 if (!canceled) {
@@ -90,7 +101,7 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
         return () => {
             canceled = true;
         };
-    }, [modelId, skip, take, term, collectionSlug, collectionId, hasCollectionFilter]);
+    }, [modelId, skip, take, term, collectionSlug, collectionId, brand, position, hasCollectionFilter]);
 
     // For backward compatibility, loading is true if categories are loading
     const loading = catalogContext.categoriesLoading;
@@ -104,7 +115,10 @@ export const useVehicleCatalog = (options: UseVehicleCatalogOptions = {}) => {
         error: catalogContext.error || productsError,
         modelId,
         hasActiveCar: !!currentActiveCar || (modelIdOverride !== undefined && modelIdOverride !== null),
-        // True if we can fetch products (either has car or browsing by collection without car)
         canFetchProducts: !!modelId,
+        /** Brand that was used for the current products response; undefined = unfiltered. */
+        lastFetchBrand,
+        /** Position that was used for the current products response; undefined = unfiltered. */
+        lastFetchPosition,
     };
 };

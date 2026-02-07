@@ -12,6 +12,8 @@ import classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 // application
 import WidgetFilters from '~/components/widgets/WidgetFilters';
+import WidgetBrandFilter from '~/components/widgets/WidgetBrandFilter';
+import WidgetPositionFilter from '~/components/widgets/WidgetPositionFilter';
 import WidgetVehicleCategories from '~/components/widgets/WidgetVehicleCategories';
 import { Cross12Svg } from '~/svg';
 import { SidebarContext } from '~/services/sidebar';
@@ -67,6 +69,8 @@ function ShopSidebar(props: Props) {
                 </div>
                 <div className="sidebar__content">
                     <WidgetFilters offcanvasSidebar={offcanvas} />
+                    <WidgetPositionFilter offcanvasSidebar={offcanvas} />
+                    <WidgetBrandFilter offcanvasSidebar={offcanvas} />
                     <WidgetVehicleCategories offcanvasSidebar={offcanvas} onCategoryClick={close} />
                 </div>
             </div>
