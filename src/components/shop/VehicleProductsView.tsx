@@ -83,6 +83,7 @@ const convertVehicleProductToIProduct = (vp: IVehicleProduct, index: number): IP
             icIndex: vp.icIndex,
             technicalSpecs: vp.technicalSpecs ?? [],
             ean: vp.ean ?? null,
+            specialFitment: vp.specialFitment ?? [],
         },
     };
 };

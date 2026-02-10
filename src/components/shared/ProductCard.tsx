@@ -41,35 +41,91 @@ function ProductCard(props: Props) {
     const { product, layout, exclude = [], className, ...rootProps } = props;
     const intl = useIntl();
 
+    type FeatureSpec = { name: string; value: string; unit?: string; fromSpecial?: boolean };
+
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowDateStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}`;
 
-    // Build feature list from backend: technicalSpecs (non-empty) + EAN if present
-    const rawSpecs = (product.customFields?.technicalSpecs as Array<{ name: string; value: string; unit?: string }> | undefined) ?? [];
-    const specsWithValue = rawSpecs.filter((s) => s.value != null && String(s.value).trim() !== "");
+    // Build feature list from backend: technicalSpecs (non-empty) + specialFitment + EAN if present
+    const rawSpecs = (product.customFields?.technicalSpecs as FeatureSpec[] | undefined) ?? [];
+    const specsWithValue: FeatureSpec[] = rawSpecs.filter(
+        (s) => s.value != null && String(s.value).trim() !== ""
+    );
+
+    // Special fitments: show below Placering, skip those whose name is "Position"
+    const rawSpecialFitments =
+        (product.customFields?.specialFitment as Array<{ name: string; value: string }> | undefined) ??
+        [];
+    const specialFitments: FeatureSpec[] = rawSpecialFitments
+        .filter(
+            (sf) =>
+                sf.value != null &&
+                String(sf.value).trim() !== "" &&
+                sf.name !== "Position"
+        )
+        .map((sf) => ({
+            name: sf.name,
+            value: sf.value,
+            unit: undefined,
+            fromSpecial: true,
+        }));
+
     const ean = product.customFields?.ean as string | null | undefined;
-    const hasEanInSpecs = specsWithValue.some((s) => s.name === "EAN" || s.name.toLowerCase() === "ean");
-    const listWithEan =
+    const hasEanInSpecs = specsWithValue.some(
+        (s) => s.name === "EAN" || s.name.toLowerCase() === "ean"
+    );
+
+    // Start from technical specs, optionally appending EAN (never before Placering / special fitments)
+    const specsWithEan: FeatureSpec[] =
         ean && !hasEanInSpecs
-            ? [{ name: "EAN", value: ean, unit: undefined as string | undefined }, ...specsWithValue]
+            ? [
+                  ...specsWithValue,
+                  {
+                      name: "EAN",
+                      value: ean,
+                      unit: undefined,
+                      fromSpecial: false,
+                  },
+              ]
             : specsWithValue;
 
+    // Order: (1) Position/Placering, (2) special fitments, (3) everything else (including EAN)
+    const positionSpecs = specsWithEan.filter((s) => s.name === "Position");
+    const otherSpecs = specsWithEan.filter((s) => s.name !== "Position");
+    const orderedSpecs: FeatureSpec[] =
+        positionSpecs.length > 0
+            ? [...positionSpecs, ...specialFitments, ...otherSpecs]
+            : [...specialFitments, ...otherSpecs];
+
     // Group specs with the same name (e.g. multiple "Position") into one line with comma-separated values
-    const groupedByName = listWithEan.reduce(
+    const groupedByName = orderedSpecs.reduce(
         (acc, spec) => {
             const key = spec.name;
-            if (!acc[key]) acc[key] = { name: spec.name, values: [] as string[], unit: spec.unit };
+            if (!acc[key]) {
+                acc[key] = {
+                    name: spec.name,
+                    values: [] as string[],
+                    unit: spec.unit,
+                    fromSpecial: spec.fromSpecial ?? false,
+                };
+            }
             acc[key].values.push(spec.value.trim());
+            if (spec.fromSpecial) {
+                acc[key].fromSpecial = true;
+            }
             return acc;
         },
-        {} as Record<string, { name: string; values: string[]; unit?: string }>
+        {} as Record<string, { name: string; values: string[]; unit?: string; fromSpecial?: boolean }>
     );
-    const featuredAttributes = Object.values(groupedByName).map(({ name, values, unit }) => ({
-        name,
-        value: values.join(", "),
-        unit,
-    }));
+    const featuredAttributes: FeatureSpec[] = Object.values(groupedByName).map(
+        ({ name, values, unit, fromSpecial }) => ({
+            name,
+            value: values.join(", "),
+            unit,
+            fromSpecial: !!fromSpecial,
+        })
+    );
 
     const [showAllFeatures, setShowAllFeatures] = useState(false);
     const [quantity, setQuantity] = useState(1);
@@ -236,7 +292,13 @@ function ProductCard(props: Props) {
                             {displayedFeatures.map((spec, index) => (
                                 <li key={index}>
                                     <span className="product-card__feature-name">
-                                        {spec.name === "Position" ? "Placering" : spec.name}
+                                        {spec.name === "Position" ? (
+                                            "Placering"
+                                        ) : spec.fromSpecial ? (
+                                            <strong>{spec.name}</strong>
+                                        ) : (
+                                            spec.name
+                                        )}
                                     </span>
                                     {": "}
                                     <span className="product-card__feature-value">

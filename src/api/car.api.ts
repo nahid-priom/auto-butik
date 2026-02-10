@@ -435,6 +435,12 @@ export interface IVehicleProductTechnicalSpec {
     unit?: string;
 }
 
+/** Special fitment info from catalog API (e.g. production years, side, notes) */
+export interface IVehicleProductSpecialFitment {
+    name: string;
+    value: string;
+}
+
 export interface IVehicleProduct {
     productId: string | number;
     productName: string;
@@ -449,6 +455,7 @@ export interface IVehicleProduct {
     brand?: { name: string; imageUrl?: string | null } | null;
     technicalSpecs?: IVehicleProductTechnicalSpec[];
     ean?: string | null;
+    specialFitment?: IVehicleProductSpecialFitment[];
 }
 
 /** Brand facet from products API */
