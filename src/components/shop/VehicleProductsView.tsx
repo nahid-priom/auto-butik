@@ -21,6 +21,38 @@ interface LayoutButton {
     icon: React.ReactNode;
 }
 
+// Position codes that should appear as horizontal image-like buttons
+const POSITION_BUTTONS = [
+    { code: "VL", swedish: "framaxel vänster", english: "Front axle left" },
+    { code: "VR", swedish: "framaxel höger", english: "Front axle right" },
+    { code: "HL", swedish: "Bakaxel vänster", english: "Rear axle left" },
+    { code: "HR", swedish: "Bakaxel höger", english: "Rear axle right" },
+    { code: "VD", swedish: "framför axeln", english: "In front of axle" },
+    { code: "HD", swedish: "bakom axeln", english: "Behind axle" },
+    { code: "VG", swedish: "Framaxel, båda sidor", english: "Front axle, both sides" },
+    { code: "HG", swedish: "Bakaxel, båda sidor", english: "Rear axle, both sides" },
+] as const;
+
+// Marker positions (relative) for each position code on the car-filter image
+const POSITION_MARKERS: Record<string, { x: number; y: number }[]> = {
+    // x, y in 0..1 (0 = left/top, 1 = right/bottom)
+    // Approximate mapping tuned for /images/car-filter.jpg
+    VL: [{ x: 0.72, y: 0.32 }], // front axle left
+    VR: [{ x: 0.72, y: 0.68 }], // front axle right
+    HL: [{ x: 0.28, y: 0.32 }], // rear axle left
+    HR: [{ x: 0.28, y: 0.68 }], // rear axle right
+    VD: [{ x: 0.82, y: 0.50 }], // in front of axle (front center)
+    HD: [{ x: 0.18, y: 0.50 }], // behind axle (rear center)
+    VG: [
+        { x: 0.75, y: 0.30 },
+        { x: 0.75, y: 0.70 },
+    ], // front axle both sides
+    HG: [
+        { x: 0.25, y: 0.30 },
+        { x: 0.25, y: 0.70 },
+    ], // rear axle both sides
+};
+
 interface Props {
     layout: IShopPageLayout;
     gridLayout: IShopPageGridLayout;
@@ -119,7 +151,14 @@ function VehicleProductsView(props: Props) {
     // Check if we have a collection filter (needed for allowWithoutCar logic)
     const hasCollectionFilter = collectionSlug !== "" || (collectionId !== undefined && collectionId !== "");
 
-    const { setFacets, selectedBrand, setSelectedBrand, selectedPosition, setSelectedPosition } = useVehicleCatalogContext();
+    const {
+        facets,
+        setFacets,
+        selectedBrand,
+        setSelectedBrand,
+        selectedPosition,
+        setSelectedPosition,
+    } = useVehicleCatalogContext();
 
     // Reset filters when switching category so the new category gets full facets
     useEffect(() => {
@@ -192,6 +231,24 @@ function VehicleProductsView(props: Props) {
     }, [productsResponse, page, limit, skip]);
 
     const navigation = productsList?.navigation;
+
+    // Derive horizontal-position buttons from facets.positions, limited to the allowed codes
+    const positionButtons = useMemo(() => {
+        const facetPositions = facets?.positions ?? [];
+        if (!facetPositions.length) return [];
+
+        const allowed = new Map(POSITION_BUTTONS.map((p) => [p.code, p]));
+
+        return facetPositions
+            .filter((p) => allowed.has(p.value))
+            .map((p) => {
+                const meta = allowed.get(p.value)!;
+                return {
+                    code: p.value,
+                    label: meta.swedish || p.label,
+                };
+            });
+    }, [facets?.positions]);
 
     const handleLimitChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
         setLimit(parseInt(event.target.value, 10));
@@ -281,6 +338,54 @@ function VehicleProductsView(props: Props) {
 
                 {!isEmptyList(navigation) && (
                     <React.Fragment>
+                        {positionButtons.length > 0 && (
+                            <div className="products-view__positions">
+                                <div className="products-view__positions-title">
+                                    <FormattedMessage id="POSITION" defaultMessage="Placering" />
+                                </div>
+                                <div className="products-view__positions-list">
+                                    {positionButtons.map((pos) => {
+                                        const isActive = selectedPosition === pos.code;
+                                        const btnClasses = classNames(
+                                            "products-view__position-button",
+                                            { "products-view__position-button--active": isActive }
+                                        );
+                                        const markers = POSITION_MARKERS[pos.code] ?? [];
+                                        return (
+                                            <button
+                                                key={pos.code}
+                                                type="button"
+                                                className={btnClasses}
+                                                onClick={() =>
+                                                    setSelectedPosition(
+                                                        isActive ? null : pos.code
+                                                    )
+                                                }
+                                            >
+                                                <span className="products-view__position-icon-wrapper">
+                                                    <div className="products-view__position-image">
+                                                        {markers.map((m, markerIndex) => (
+                                                            <span
+                                                                key={markerIndex}
+                                                                className="products-view__position-marker"
+                                                                style={{
+                                                                    left: `${m.x * 100}%`,
+                                                                    top: `${m.y * 100}%`,
+                                                                }}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </span>
+                                                <span className="products-view__position-button-label">
+                                                    {pos.label}
+                                                </span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
                         <div className={viewOptionsClasses}>
                             <div className="view-options__body">
                                 <button

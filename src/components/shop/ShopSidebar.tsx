@@ -69,8 +69,8 @@ function ShopSidebar(props: Props) {
                 </div>
                 <div className="sidebar__content">
                     <WidgetFilters offcanvasSidebar={offcanvas} />
-                    <WidgetPositionFilter offcanvasSidebar={offcanvas} />
                     <WidgetBrandFilter offcanvasSidebar={offcanvas} />
+                    <WidgetPositionFilter offcanvasSidebar={offcanvas} />
                     <WidgetVehicleCategories offcanvasSidebar={offcanvas} onCategoryClick={close} />
                 </div>
             </div>
