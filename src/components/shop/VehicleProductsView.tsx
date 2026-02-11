@@ -454,6 +454,11 @@ function VehicleProductsView(props: Props) {
                                         <option value="32">32</option>
                                     </select>
                                 </div>
+                                <div className="view-options__pagination">
+                                    {navigation && (
+                                        <Navigation data={navigation} page={page} onNavigate={onNavigate} />
+                                    )}
+                                </div>
                             </div>
                         </div>
 

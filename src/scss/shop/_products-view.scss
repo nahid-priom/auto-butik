@@ -152,6 +152,23 @@
 }
 
 
+// Catalog: compact spacing (8px scale)
+.block-split--catalog .products-view {
+    .products-view__positions {
+        margin-bottom: 12px;
+        padding: 12px 16px;
+        border-radius: 12px;
+    }
+    .products-view__options {
+        margin-bottom: 12px;
+    }
+    .products-view__pagination {
+        margin-top: 16px;
+        padding: 12px 16px;
+        border-radius: 12px;
+    }
+}
+
 @include media-breakpoint-down(sm) {
     .products-view__pagination {
         padding-top: 1rem;

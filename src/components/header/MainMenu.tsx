@@ -66,7 +66,7 @@ function MainMenu() {
                                     onClick={(e) => e.preventDefault()}
                                     onKeyDown={(e) => e.preventDefault()}
                                 >
-                                    {typeof item.title === "string" ? <FormattedMessage id={item.title} /> : item.title}
+                                    {typeof item.title === "string" ? <FormattedMessage id={item.title} defaultMessage={item.title} /> : item.title}
                                     {itemHasSubmenu && <ArrowDownSm7x5Svg />}
                                 </span>
                             ) : (
@@ -76,7 +76,7 @@ function MainMenu() {
                                     onClick={handleItemClick}
                                     {...item.customFields?.anchorProps}
                                 >
-                                    {typeof item.title === "string" ? <FormattedMessage id={item.title} /> : item.title}
+                                    {typeof item.title === "string" ? <FormattedMessage id={item.title} defaultMessage={item.title} /> : item.title}
                                     {itemHasSubmenu && <ArrowDownSm7x5Svg />}
                                 </AppLink>
                             )}

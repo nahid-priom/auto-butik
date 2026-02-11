@@ -26,7 +26,7 @@ export function useAppSelector<T extends(state: IRootState) => any>(selector: T)
 }
 
 export function useMedia(query: string) {
-    if (!process.browser) {
+    if (typeof window === 'undefined') {
         return false;
     }
 

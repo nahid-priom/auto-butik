@@ -25,7 +25,7 @@ interface TabData {
 function BlockCategoryTabs() {
     const intl = useIntl();
     const [activeTab, setActiveTab] = useState<string>('bildelar');
-    const { headerMenu } = useCategoryTreeSafe();
+    const { headerMenu, loading, error, refreshTree } = useCategoryTreeSafe();
     const menuItems = headerMenu ?? [];
 
     // Extract category data from megamenu (built from API category tree)
@@ -156,7 +156,27 @@ function BlockCategoryTabs() {
                 </div>
 
                 <div className="block-category-tabs__content">
-                    {tabsData.map((tab) => (
+                    {loading && (
+                        <div className="block-category-tabs__skeleton" aria-hidden="true">
+                            <div className="block-category-tabs__grid">
+                                {[1, 2, 3, 4, 5, 6].map((i) => (
+                                    <div key={i} className="block-category-tabs__skeleton-card">
+                                        <div className="block-category-tabs__skeleton-image" />
+                                        <div className="block-category-tabs__skeleton-name" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {!loading && error && (
+                        <div className="block-category-tabs__error">
+                            <p className="block-category-tabs__error-message">{error}</p>
+                            <button type="button" className="block-category-tabs__error-retry btn btn-primary btn-sm" onClick={() => refreshTree()}>
+                                <FormattedMessage id="BUTTON_RETRY" defaultMessage="Försök igen" />
+                            </button>
+                        </div>
+                    )}
+                    {!loading && !error && tabsData.map((tab) => (
                         <div
                             key={tab.id}
                             className={classNames('block-category-tabs__pane', {

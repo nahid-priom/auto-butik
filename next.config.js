@@ -19,6 +19,14 @@ module.exports = {
                 source: '/shop-api/:path*',
                 destination: `${BACKEND_URL}/shop-api/:path*`,
             },
+            {
+                source: '/car/:path*',
+                destination: `${BACKEND_URL}/car/:path*`,
+            },
+            {
+                source: '/tecdoc/:path*',
+                destination: `${BACKEND_URL}/tecdoc/:path*`,
+            },
         ];
     },
     i18n: {

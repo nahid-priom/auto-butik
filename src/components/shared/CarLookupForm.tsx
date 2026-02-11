@@ -7,6 +7,9 @@ import { useRouter } from 'next/router';
 import { carApi } from '~/api/car.api';
 import { ICarData, IWheelData, ITypesMap } from '~/interfaces/car';
 import { addCarSearchToHistory } from '~/services/car-search-history';
+import { useHeroBrands } from '~/store/homepage/homepageHooks';
+import { fetchBrandsIfNeeded } from '~/store/homepage/homepageActions';
+import { useAppAction } from '~/store/hooks';
 
 interface Props {
     onCarSelected?: (car: ICarData | IWheelData | null) => void;
@@ -18,6 +21,8 @@ function CarLookupForm(props: Props) {
     const { onCarSelected, vinOnly = false, enableVinSearch = false } = props;
     const intl = useIntl();
     const router = useRouter();
+    const { brands: reduxBrands, loading: brandsLoading, error: brandsError } = useHeroBrands();
+    const fetchBrands = useAppAction(fetchBrandsIfNeeded);
 
     const [brands, setBrands] = useState<string[]>([]);
     const [years, setYears] = useState<(number | string)[]>([]);
@@ -31,6 +36,10 @@ function CarLookupForm(props: Props) {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const loadingOr = loading || (!vinOnly && brandsLoading);
+    const errorOr = error ?? (!vinOnly ? brandsError : null);
+    const brandsList = vinOnly ? brands : (reduxBrands.length > 0 ? reduxBrands : brands);
 
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -130,25 +139,9 @@ function CarLookupForm(props: Props) {
     };
 
     useEffect(() => {
-        // Skip loading brands if only VIN search is needed
         if (vinOnly) return;
-        
-        let mounted = true;
-        (async () => {
-            try {
-                setLoading(true);
-                const b = await carApi.getBrands();
-                if (mounted) setBrands(b);
-            } catch (e: any) {
-                if (mounted) setError(e?.message || 'Failed to load brands');
-            } finally {
-                if (mounted) setLoading(false);
-            }
-        })();
-        return () => {
-            mounted = false;
-        };
-    }, [vinOnly]);
+        fetchBrands(false);
+    }, [vinOnly, fetchBrands]);
 
     const handleBrandChange = async (brand: string) => {
         setSelectedBrand(brand);
@@ -266,7 +259,7 @@ function CarLookupForm(props: Props) {
                         })}
                         value={searchQuery}
                         onChange={(e) => handleSearchChange(e.target.value)}
-                        disabled={loading}
+                        disabled={loadingOr}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                                 e.preventDefault();
@@ -280,12 +273,12 @@ function CarLookupForm(props: Props) {
                         type="button"
                         className="btn btn-primary btn-block mt-3"
                         onClick={handleStringSearch}
-                        disabled={loading}
+                        disabled={loadingOr}
                     >
                         <FormattedMessage id={enableVinSearch ? 'BUTTON_SEARCH_VIN' : 'BUTTON_SEARCH_PRODUCTS'} />
                     </button>
                 )}
-                {error && (
+                {errorOr && (
                     <div className="alert alert-sm alert-danger my-2">{error}</div>
                 )}
             </div>
@@ -303,13 +296,13 @@ function CarLookupForm(props: Props) {
                             className="form-control"
                             aria-label={intl.formatMessage({ id: 'INPUT_VEHICLE_BRAND_LABEL' })}
                             value={selectedBrand}
-                            disabled={loading}
+                            disabled={loadingOr}
                             onChange={(e) => handleBrandChange(e.target.value)}
                         >
                             <option value="">
                                 {intl.formatMessage({ id: 'INPUT_VEHICLE_BRAND_PLACEHOLDER' })}
                             </option>
-                            {brands.map((b) => (
+                            {brandsList.map((b) => (
                                 <option key={b} value={b}>{b}</option>
                             ))}
                         </select>
@@ -321,7 +314,7 @@ function CarLookupForm(props: Props) {
                             className="form-control"
                             aria-label={intl.formatMessage({ id: 'INPUT_VEHICLE_YEAR_LABEL' })}
                             value={selectedYear}
-                            disabled={loading || !selectedBrand}
+                            disabled={loadingOr || !selectedBrand}
                             onChange={(e) => handleYearChange(e.target.value)}
                         >
                             <option value="">
@@ -339,7 +332,7 @@ function CarLookupForm(props: Props) {
                             className="form-control"
                             aria-label={intl.formatMessage({ id: 'INPUT_VEHICLE_MODEL_LABEL' })}
                             value={selectedModel}
-                            disabled={loading || !selectedYear}
+                            disabled={loadingOr || !selectedYear}
                             onChange={(e) => handleModelChange(e.target.value)}
                         >
                             <option value="">
@@ -357,7 +350,7 @@ function CarLookupForm(props: Props) {
                             className="form-control"
                             aria-label={intl.formatMessage({ id: 'INPUT_VEHICLE_ENGINE_LABEL' })}
                             value={selectedEngineId}
-                            disabled={loading || !selectedModel}
+                            disabled={loadingOr || !selectedModel}
                             onChange={(e) => handleEngineChange(e.target.value)}
                         >
                             <option value="">

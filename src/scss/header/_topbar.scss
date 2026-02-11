@@ -148,7 +148,10 @@
         padding: .5rem 0;
         font-size: 14px;
         line-height: 26px;
-        z-index: 1;
+        z-index: $z-dropdown;
+        max-height: min(70vh, 600px);
+        overflow-x: hidden;
+        overflow-y: auto;
 
         @include scheme-font-weight($menu-small-scheme, opposite, $font-weight-medium);
 

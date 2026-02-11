@@ -12,8 +12,16 @@
 
     @include card;
 
-    border-radius: 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     overflow: hidden;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-color: rgba(0, 0, 0, 0.08);
+    }
 
     .product-card__action {
         position: relative;
@@ -61,6 +69,19 @@
     }
     .product-card__image {
         display: block;
+        position: relative;
+        overflow: hidden;
+
+        .image--type--product .image__body {
+            background: #fafafa;
+        }
+        .image--type--product .image__tag {
+            object-fit: contain;
+            transition: transform 0.25s ease;
+        }
+        &:hover .image--type--product .image__tag {
+            transform: scale(1.03);
+        }
     }
     .product-card__rating {
         color: map_get($card-scheme, opposite-alt);
@@ -145,9 +166,9 @@
         font-size: 25px !important;
         font-weight: $font-weight-medium;
         letter-spacing: -0.04em;
-        color: $price-color;
-    }
-    .product-card__price--new {
+        font-size: 18px !important;
+        font-weight: $font-weight-bold;
+        letter-spacing: -0.02em;
         color: $price-new-color;
     }
     .product-card__price--old {
@@ -166,6 +187,9 @@
         align-items: start;
         font-size: 30px;
         flex-shrink: 0;
+        align-items: flex-start;
+        font-size: 30px;
+        flex-shrink: 0;
 
         svg {
             width: 30px;
@@ -174,8 +198,9 @@
     }
 
     .product-card__shipping-info__text {
-        font-size: 14px;
-        color: #333;
+        font-size: 13px;
+        color: map_get($card-scheme, opposite-alt);
+        line-height: 1.35;
     }
 
     .product-card__prices-and-buttons {
@@ -187,9 +212,10 @@
     .product-card__vat-and-shipping-info {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0 8px;
-        font-size: 12px;
+        gap: 0 6px;
+        font-size: 11px;
         align-items: baseline;
+        color: map_get($card-scheme, muted);
 
         &__left {
             min-width: 0;
@@ -433,13 +459,14 @@
         display: none;
     }
 
-    $local-padding: 12px;
+    $local-padding: 14px;
     $local-actions-transition-duration: 0.2s;
     $local-actions-transition-delay: 0.05s;
 
     display: flex;
     flex-direction: column;
     position: relative;
+    padding: 0;
 
     &:after {
         display: block;
@@ -477,9 +504,13 @@
     .product-card__image {
         display: block;
         position: relative;
-        // Shorter image area in grid: wider aspect (e.g. ~1.54:1) so height is reduced
+        flex-shrink: 0;
+        // Compact aspect: controlled height, no huge white gaps
         .image--type--product .image__body {
-            padding-bottom: 65%;
+            padding-bottom: 72%;
+        }
+        .image--type--product .image__tag {
+            object-fit: contain;
         }
     }
     .product-card__fit {
@@ -493,16 +524,17 @@
         }
     }
     .product-card__meta {
-        padding: 4px $local-padding;
-        margin-top: 6px;
-        margin-bottom: 4px;
+        padding: 2px $local-padding 0;
+        margin-top: 4px;
+        margin-bottom: 2px;
     }
     .product-card__name {
         padding: 0 $local-padding;
-        line-height: 1.2;
+        font-size: 14px;
+        font-weight: $font-weight-medium;
+        line-height: 1.3;
         margin-top: 2px !important;
-        /* Fixed height for 2 lines so meta/shipping/price align across cards */
-        min-height: 2.4em;
+        min-height: 2.6em;
     }
     .product-card__rating {
         margin: -3px 0 -2px 0;
@@ -528,14 +560,15 @@
         display: none;
     }
     .product-card__footer {
-        padding: $local-padding;
+        padding: 10px $local-padding $local-padding;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
     }
     .product-card__prices {
         flex-grow: 1;
-        font-size: 17px;
+        font-size: 16px;
+        font-weight: $font-weight-bold;
         display: flex;
         align-items: flex-end;
         flex-wrap: wrap;
@@ -549,26 +582,44 @@
     }
     .product-card__addtocart-icon {
         margin: -3px;
+        min-width: 40px;
+        min-height: 40px;
+        padding: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .product-card__action {
+        min-width: 40px;
+        min-height: 40px;
+        padding: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
     .product-card__quantity-and-cart {
         gap: 6px;
     }
     .product-card__quantity .input-number__input {
-        padding: 8px 24px;
-        min-width: 52px;
-        font-size: 15px;
+        padding: 8px 16px;
+        min-width: 48px;
+        font-size: 14px;
     }
     .product-card__addtocart-full {
-        padding: 8px 0 !important;
+        padding: 10px 12px !important;
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
     .product-card__prices-and-buttons {
-        gap: 8px;
+        gap: 6px;
     }
     .product-card__shipping-info__text {
-        font-size: 13px;
+        font-size: 12px;
     }
     .product-card__vat-and-shipping-info {
-        font-size: 11px;
+        font-size: 10px;
     }
 
     @media (hover: hover) {
@@ -851,7 +902,7 @@
         width: 280px;
         display: flex;
         flex-direction: column-reverse;
-        justify-content: start;
+        justify-content: flex-start;
         padding: 10px;
         gap: 10px;
 
@@ -966,9 +1017,8 @@
         "footer footer";
     gap: 0;
     padding: $local-padding;
-    align-items: start;
+    align-items: flex-start;
 
-    // Top row: info uses full width (1fr), image only as wide as needed – no empty strip
     .product-card__actions-list {
         position: absolute;
         top: $local-padding;

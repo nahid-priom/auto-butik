@@ -17,7 +17,7 @@ import { useCartAddItem } from "~/store/cart/cartHooks";
 import { useCompareAddItem } from "~/store/compare/compareHooks";
 import { useQuickviewOpen } from "~/store/quickview/quickviewHooks";
 import { useWishlistAddItem } from "~/store/wishlist/wishlistHooks";
-import { Cart20Svg, Compare16Svg, Quickview16Svg, Wishlist16Svg } from "~/svg";
+import { Cart20Svg, Compare16Svg, Wishlist16Svg } from "~/svg";
 
 export type IProductCardElement =
     | "actions"
@@ -160,9 +160,7 @@ function ProductCard(props: Props) {
                             })}
                             aria-label={intl.formatMessage({ id: "BUTTON_QUICKVIEW" })}
                             onClick={run}
-                        >
-                            <Quickview16Svg />
-                        </button>
+                        />
                     )}
                 />
 
@@ -205,7 +203,14 @@ function ProductCard(props: Props) {
             <div className="product-card__image">
                 <div className="image image--type--product">
                     <AppLink href={url.product(product)} className="image__body">
-                        {product.images && <AppImage className="image__tag" src={product.images[0]} />}
+                        {product.images && (
+                        <AppImage
+                            className="image__tag"
+                            src={product.images[0]}
+                            loading="lazy"
+                            decoding="async"
+                        />
+                    )}
                     </AppLink>
                 </div>
 

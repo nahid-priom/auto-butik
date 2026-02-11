@@ -85,7 +85,7 @@ function PageContent() {
         return (
             <React.Fragment>
                 {pageHeader}
-                <div className="block-split block-split--has-sidebar">
+                <div className="block-split block-split--has-sidebar block-split--catalog">
                     <div className="container">
                         <div className="block-split__row row no-gutters">
                             <div className="block-split__item block-split__item-sidebar col-auto">{sidebar}</div>
@@ -122,7 +122,7 @@ function PageContent() {
                 subtitle={carName || undefined}
             />
             {pageHeader}
-            <div className="block-split block-split--has-sidebar">
+            <div className="block-split block-split--has-sidebar block-split--catalog">
                 <div className="container">
                     <div className="block-split__row row no-gutters">
                         <div className="block-split__item block-split__item-sidebar col-auto">{sidebar}</div>

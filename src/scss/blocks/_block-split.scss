@@ -31,7 +31,33 @@
         @include local-layout(260px, 32px);
     }
 }
+// Catalog pages: reference layout — sidebar 280–320px, 8px spacing scale
+.block-split--catalog.block-split--has-sidebar {
+    .block-split__row {
+        align-items: flex-start;
+        margin: 0 -8px;
+    }
+    .block-split__item {
+        padding: 0 8px;
+    }
+}
+@include media-breakpoint-up(xxl) {
+    .block-split--catalog.block-split--has-sidebar {
+        @include local-layout(300px, 24px);
+    }
+}
+@include media-breakpoint-between(lg, xl) {
+    .block-split--catalog.block-split--has-sidebar {
+        @include local-layout(280px, 24px);
+    }
+}
 @include media-breakpoint-down(md) {
+    .block-split--catalog .block-split__row {
+        margin: 0;
+    }
+    .block-split--catalog .block-split__item {
+        padding: 0;
+    }
     .block-split__item-sidebar {
         width: 100%;
         order: 1;

@@ -11,6 +11,7 @@ export const posts: IPost[] = [
         image: '/images/posts/post-1.jpg',
         categories: ['Special Offers'],
         date: '2019-10-10',
+        excerpt: 'Keep your car safe and reliable during the Swedish winter with these maintenance tips.',
     },
     {
         id: 2,
@@ -25,8 +26,9 @@ export const posts: IPost[] = [
         title: 'Top 10 Signs Your Brake System Needs Attention',
         titleKey: 'BLOG_POST_3_TITLE',
         image: '/images/posts/post-3.jpg',
-        categories: ['New Arrivals'],
+        categories: ['Recensioner'],
         date: '2019-04-12',
+        excerpt: 'Learn the key warning signs that your brake system may need service or replacement.',
     },
     {
         id: 4,
@@ -65,8 +67,9 @@ export const posts: IPost[] = [
         title: 'How to Identify and Fix Common Engine Problems',
         titleKey: 'BLOG_POST_8_TITLE',
         image: '/images/posts/post-8.jpg',
-        categories: ['Latest News'],
+        categories: ['Recensioner'],
         date: '2019-03-29',
+        excerpt: 'A practical guide to diagnosing and fixing the most common engine issues.',
     },
     {
         id: 9,

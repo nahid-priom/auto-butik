@@ -21,6 +21,10 @@
         opacity: 0;
         transform: translateY(26px);
         visibility: hidden;
+        z-index: $z-dropdown;
+        max-height: min(70vh, 600px);
+        overflow-x: hidden;
+        overflow-y: auto;
         transition:
             opacity $local-duration $local-timing,
             transform $local-duration $local-timing,

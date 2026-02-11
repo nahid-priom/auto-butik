@@ -30,7 +30,7 @@ jobs:
             git reset --hard origin/prod
       
             echo "🔹 Installing dependencies"
-            npm install --force
+            npm ci
       
             echo "🔹 Building production bundle"
             npm run build

@@ -27,7 +27,7 @@ function PostCard(props: Props) {
         <div className={rootClasses}>
             <div className="post-card__image">
                 <AppLink href={url.post(post)}>
-                    <AppImage src={post.image} />
+                    <AppImage src={post.image || '/images/posts/post-1.jpg'} alt="" />
                 </AppLink>
             </div>
             <div className="post-card__content">
@@ -58,14 +58,13 @@ function PostCard(props: Props) {
                     {' on '}
                     {post.date}
                 </div>
-                <div className="post-card__excerpt">
-                    <div className="typography">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec facilisis neque ut purus
-                        fermentum, ac pretium nibh facilisis. Vivamus venenatis viverra iaculis. Suspendisse tempor
-                        orci non sapien ullamcorper dapibus. Suspendisse at velit diam. Donec pharetra nec enim
-                        blandit vulputate.
+                {(post.excerpt || post.title) && (
+                    <div className="post-card__excerpt">
+                        <div className="typography post-card__excerpt-inner">
+                            {post.excerpt || post.title}
+                        </div>
                     </div>
-                </div>
+                )}
                 <div className="post-card__more">
                     <AppLink href={url.post(post)} className="btn btn-secondary btn-sm">
                         Read more

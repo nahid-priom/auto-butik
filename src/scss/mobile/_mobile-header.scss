@@ -8,32 +8,47 @@
 
 
 @include mobile-header-variant-selector {
+    /* Overflow guard: header must not cause horizontal scroll at 320px+ (regression test: check at 320px width) */
     .mobile-header {
         display: block;
         background: map_get($mobile-header-scheme, main);
         box-shadow: map_get($mobile-header-scheme, shadow);
-        position: relative;
+        position: sticky;
+        top: 0;
         z-index: 100;
+        max-width: 100vw;
+        overflow-x: hidden;
 
         @include media-breakpoint-up(xl) {
             display: none;
         }
     }
+    .mobile-header .container {
+        max-width: 100%;
+        min-width: 0;
+    }
     .mobile-header__body {
         height: 50px;
+        min-height: 44px;
         display: flex;
+        align-items: center;
+        gap: 0;
+        min-width: 0;
     }
     .mobile-header__menu-button {
-        width: 52px;
+        width: 44px;
+        min-width: 44px;
         height: 100%;
+        min-height: 44px;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0;
+        padding: 0 8px;
         margin: 0;
         border: none;
         background: map_get($mobile-header-scheme, main);
         fill: map_get($mobile-header-scheme, icon-color);
+        flex-shrink: 0;
 
         &:hover {
             background: map_get($mobile-header-scheme, hover);
@@ -52,8 +67,9 @@
     .mobile-header__logo {
         display: flex;
         align-items: center;
-        padding: 0 14px;
+        padding: 0 8px;
         flex-shrink: 0;
+        min-width: 0;
     }
     .mobile-header__logo-img {
         display: block;
@@ -65,9 +81,12 @@
         display: flex;
         align-items: center;
         height: 50px;
+        min-height: 44px;
         max-width: 440px;
         flex-grow: 1;
-        padding: 0 12px;
+        flex-shrink: 1;
+        min-width: 0;
+        padding: 0 8px;
         margin: 0 auto;
     }
     .mobile-header__indicators {
@@ -75,6 +94,8 @@
         flex-shrink: 0;
         align-items: center;
         height: 50px;
+        min-width: 0;
+        gap: 0;
 
         @include direction {
             #{$margin-inline-start}: auto;
@@ -87,14 +108,15 @@
             align-items: center;
             justify-content: center;
             height: 50px;
-            min-height: 50px;
+            min-height: 44px;
         }
         .mobile-indicator__button {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 50px;
-            padding: 0;
+            min-height: 44px;
+            padding: 0 8px;
         }
         .mobile-indicator__icon {
             display: flex;
@@ -102,6 +124,7 @@
             justify-content: center;
             width: 24px;
             height: 24px;
+            min-width: 24px;
             line-height: 0;
 
             svg {
@@ -123,21 +146,26 @@
     .mobile-header__garage {
         position: relative;
     }
+    .mobile-header__garage {
+        min-width: 0;
+        max-width: 50%;
+    }
     .mobile-header__garage-button {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 6px;
         height: 50px;
-        min-height: 50px;
+        min-height: 44px;
         min-width: 44px;
-        padding: 0 12px;
+        padding: 0 8px;
         margin: 0;
         border: none;
         background: transparent;
         color: inherit;
         fill: currentColor;
         box-sizing: border-box;
+        max-width: 100%;
 
         &:focus {
             outline: none;
@@ -170,6 +198,7 @@
         display: inline-flex;
         align-items: center;
         min-height: 24px;
+        min-width: 0;
         max-width: 90px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -181,7 +210,7 @@
         margin: 0;
 
         @include media-breakpoint-down(sm) {
-            max-width: 70px;
+            max-width: 56px;
             font-size: 11px;
         }
     }
@@ -323,18 +352,21 @@
 
     @include media-breakpoint-down(sm) {
         .mobile-header {
-            position: relative;
+            position: sticky;
+            top: 0;
         }
         .mobile-header .container {
             padding: 0 8px;
         }
         .mobile-header__menu-button {
             width: 44px;
+            min-width: 44px;
+            padding: 0 8px;
         }
         .mobile-header__logo {
             @include direction {
-                #{$padding-inline-start}: 10px;
-                #{$padding-inline-end}: 10px;
+                #{$padding-inline-start}: 8px;
+                #{$padding-inline-end}: 8px;
             }
         }
         .mobile-header__search {

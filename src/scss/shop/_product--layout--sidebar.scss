@@ -871,7 +871,7 @@
         display: grid;
         grid-template-columns: 1fr 300px;
         gap: 40px;
-        align-items: start;
+        align-items: flex-start;
         margin-bottom: 40px;
     }
 
@@ -949,7 +949,7 @@
         position: sticky;
         top: 20px;
         z-index: 100;
-        align-self: start;
+        align-self: flex-start;
         height: fit-content;
     }
 

@@ -125,8 +125,15 @@ function MobileHeader() {
     const currentVehicle = currentCarId
         ? vehicles.find((v) => v.id === currentCarId)
         : undefined;
-    const searchPlaceholder = currentVehicle
-        ? intl.formatMessage({ id: 'INPUT_SEARCH_PLACEHOLDER_VEHICLE' }, { ...(currentVehicle.data as any) })
+    const vehiclePlaceholderValues = currentVehicle?.data
+        ? {
+            year: (currentVehicle.data as any).Fordons_ar ?? (currentVehicle.data as any).Ar_fran ?? (currentVehicle.data as any).C_fran_ar ?? '',
+            make: (currentVehicle.data as any).C_merke ?? '',
+            model: (currentVehicle.data as any).C_modell ?? '',
+          }
+        : null;
+    const searchPlaceholder = vehiclePlaceholderValues
+        ? intl.formatMessage({ id: 'INPUT_SEARCH_PLACEHOLDER_VEHICLE' }, vehiclePlaceholderValues)
         : intl.formatMessage({ id: 'INPUT_SEARCH_PLACEHOLDER' });
 
     return (

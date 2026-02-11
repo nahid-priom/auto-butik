@@ -3,8 +3,7 @@ import {
     TecdocProductData,
     TecdocProductResponse,
 } from '~/interfaces/tecdoc';
-
-const TECDOC_API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+import { getBackendUrl } from '~/config/backendUrl';
 
 interface UseTecdocProductResult {
     data: TecdocProductData | null;
@@ -45,7 +44,7 @@ export function useTecdocProduct(productId: number | null): UseTecdocProductResu
             setError(null);
 
             try {
-                const response = await fetch(`${TECDOC_API_URL}/tecdoc/product/${productId}`);
+                const response = await fetch(`${getBackendUrl()}/tecdoc/product/${productId}`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

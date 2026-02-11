@@ -5,4 +5,6 @@ export interface IPost {
     image: string;
     categories: string[];
     date: string;
+    /** Optional excerpt; clamped to 2–3 lines in UI when set */
+    excerpt?: string;
 }

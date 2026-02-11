@@ -5,13 +5,23 @@
 @import '../mixins/loader';
 @import '../mixins/direction';
 @import '../mixins/product-card';
+@import '../mixins/breakpoints';
 
-
-$local-carousel-expand: 10px;
-
+$local-carousel-expand: 8px;
 
 .block-products-carousel {
-    --block-products-carousel-gutter: 20px;
+    --block-products-carousel-gutter: 16px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+
+    @include media-breakpoint-up(md) {
+        padding-top: 32px;
+        padding-bottom: 32px;
+    }
+    @include media-breakpoint-up(lg) {
+        padding-top: 48px;
+        padding-bottom: 48px;
+    }
 }
 .block-products-carousel__carousel {
     position: relative;
@@ -104,6 +114,56 @@ $local-carousel-expand: 10px;
 
 .block-products-carousel[data-layout|="grid"] {
     @include media-breakpoint-down(lg) {
-        --block-products-carousel-gutter: 16px;
+        --block-products-carousel-gutter: 12px;
+    }
+    @include media-breakpoint-down(sm) {
+        --block-products-carousel-gutter: 10px;
+    }
+}
+
+// Prevent horizontal scroll and overflow
+.block-products-carousel__carousel .slick-list {
+    overflow: hidden;
+}
+.block-products-carousel__cell {
+    min-width: 0;
+    overflow: hidden;
+}
+.block-products-carousel__cell .product-card {
+    min-width: 0;
+    overflow: hidden;
+}
+
+// Mobile: compact product cards in carousel
+@include media-breakpoint-down(sm) {
+    .block-products-carousel__cell .product-card {
+        .product-card__footer {
+            padding: 8px 10px 10px;
+            gap: 4px;
+        }
+        .product-card__name {
+            font-size: 13px;
+            min-height: 2.5em;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        .product-card__meta {
+            padding-left: 10px;
+            padding-right: 10px;
+            font-size: 10px;
+        }
+        .product-card__prices {
+            font-size: 15px;
+        }
+        .product-card__vat-and-shipping-info {
+            font-size: 10px;
+        }
+        .product-card__shipping-info__text {
+            font-size: 11px;
+            line-height: 1.3;
+        }
+        .product-card__image .image--type--product .image__body {
+            padding-bottom: 68%;
+        }
     }
 }

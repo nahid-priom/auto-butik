@@ -8,55 +8,11 @@ const dataMobileMenuLinks: IMobileMenuLink[] = [
     },
     {
         title: 'Shop',
-        url: '/demo/shop/shop-grid-4-sidebar',
+        url: '/catalog',
         submenu: [
-            {
-                title: 'Category',
-                url: '/demo/shop/category-columns-4-sidebar',
-                submenu: [
-                    { title: '3 Columns Sidebar', url: '/demo/shop/category-columns-3-sidebar' },
-                    { title: '4 Columns Sidebar', url: '/demo/shop/category-columns-4-sidebar' },
-                    { title: '5 Columns Sidebar', url: '/demo/shop/category-columns-5-sidebar' },
-                    { title: '4 Columns Full', url: '/demo/shop/category-columns-4-full' },
-                    { title: '5 Columns Full', url: '/demo/shop/category-columns-5-full' },
-                    { title: '6 Columns Full', url: '/demo/shop/category-columns-6-full' },
-                    { title: '7 Columns Full', url: '/demo/shop/category-columns-7-full' },
-                    { title: 'Right Sidebar', url: '/demo/shop/category-right-sidebar' },
-                ],
-            },
-            {
-                title: 'Shop Grid',
-                url: '/demo/shop/shop-grid-4-sidebar',
-                submenu: [
-                    { title: '6 Columns Full', url: '/demo/shop/shop-grid-6-full' },
-                    { title: '5 Columns Full', url: '/demo/shop/shop-grid-5-full' },
-                    { title: '4 Columns Full', url: '/demo/shop/shop-grid-4-full' },
-                    { title: '4 Columns Sidebar', url: '/demo/shop/shop-grid-4-sidebar' },
-                    { title: '3 Columns Sidebar', url: '/demo/shop/shop-grid-3-sidebar' },
-                ],
-            },
-            { title: 'Shop List', url: '/demo/shop/shop-list' },
-            { title: 'Shop Table', url: '/demo/shop/shop-table' },
-            { title: 'Shop Right Sidebar', url: '/demo/shop/shop-right-sidebar' },
-            {
-                title: 'Shop Navigation',
-                url: '/demo/shop/shop-cursor-navigation',
-                submenu: [
-                    { title: 'Cursor-Based', url: '/demo/shop/shop-cursor-navigation' },
-                    { title: 'Page-Based', url: '/demo/shop/shop-page-navigation' },
-                ],
-            },
-            {
-                title: 'Product',
-                url: '/demo/shop/product-full',
-                submenu: [
-                    { title: 'Full Width', url: '/demo/shop/product-full' },
-                    { title: 'Left Sidebar', url: '/demo/shop/product-sidebar' },
-                ],
-            },
+            { title: 'Catalog', url: '/catalog' },
             { title: 'Cart', url: '/cart' },
             { title: 'Checkout', url: '/cart/checkout' },
-            { title: 'Order Success', url: '/demo/shop/order-success' },
             { title: 'Wishlist', url: '/wishlist' },
             { title: 'Compare', url: '/compare' },
             { title: 'Track Order', url: '/track-order' },
@@ -65,42 +21,6 @@ const dataMobileMenuLinks: IMobileMenuLink[] = [
     {
         title: 'Blog',
         url: '/blog',
-        submenu: [
-            {
-                title: 'Blog Classic',
-                url: '/demo/blog/classic-right-sidebar',
-                submenu: [
-                    { title: 'Left Sidebar', url: '/demo/blog/classic-left-sidebar' },
-                    { title: 'Right Sidebar', url: '/demo/blog/classic-right-sidebar' },
-                ],
-            },
-            {
-                title: 'Blog List',
-                url: '/demo/blog/list-right-sidebar',
-                submenu: [
-                    { title: 'Left Sidebar', url: '/demo/blog/list-left-sidebar' },
-                    { title: 'Right Sidebar', url: '/demo/blog/list-right-sidebar' },
-                ],
-            },
-            {
-                title: 'Blog Grid',
-                url: '/demo/blog/grid-right-sidebar',
-                submenu: [
-                    { title: 'Left Sidebar', url: '/demo/blog/grid-left-sidebar' },
-                    { title: 'Right Sidebar', url: '/demo/blog/grid-right-sidebar' },
-                ],
-            },
-            {
-                title: 'Post Page',
-                url: '/demo/blog/post-full-width',
-                submenu: [
-                    { title: 'Full Width', url: '/demo/blog/post-full-width' },
-                    { title: 'Left Sidebar', url: '/demo/blog/post-left-sidebar' },
-                    { title: 'Right Sidebar', url: '/demo/blog/post-right-sidebar' },
-                ],
-            },
-            { title: 'Post Without Image', url: '/demo/blog/post-without-image' },
-        ],
     },
     {
         title: 'Account',
@@ -134,13 +54,10 @@ const dataMobileMenuLinks: IMobileMenuLink[] = [
         url: '/about-us',
         submenu: [
             { title: 'About Us', url: '/about-us' },
-            { title: 'Contact Us v1', url: '/demo/site/contact-us-v1' },
-            { title: 'Contact Us v2', url: '/demo/site/contact-us-v2' },
-            { title: '404', url: '/demo/site/not-found' },
+            { title: 'Contact Us', url: '/contact-us' },
+            { title: '404', url: '/404' },
             { title: 'Terms And Conditions', url: '/terms' },
             { title: 'FAQ', url: '/faq' },
-            { title: 'Components', url: '/demo/site/components' },
-            { title: 'Typography', url: '/demo/site/typography' },
         ],
     },
 ];

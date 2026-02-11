@@ -1,6 +1,7 @@
 // react
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState, useLayoutEffect } from 'react';
 // third-party
+import classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 // application
 import AccountMenu from '~/components/header/AccountMenu';
@@ -21,11 +22,77 @@ import { useOptions } from '~/store/options/optionsHooks';
 import { useUser } from '~/store/user/userHooks';
 import { useWishlist } from '~/store/wishlist/wishlistHooks';
 
+// Hysteresis: enter compact only after scrolling past ENTER; exit only when back above EXIT.
+const SCROLL_ENTER_COMPACT_PX = 80;
+const SCROLL_EXIT_COMPACT_PX = 32;
+// Ignore tiny scroll deltas to avoid 1px jitter and re-renders.
+const SCROLL_DELTA_MIN_PX = 8;
+// After toggling compact, ignore opposite transition briefly (avoids layout feedback loop).
+const COMPACT_COOLDOWN_MS = 120;
+
 function Header() {
     const user = useUser();
     const wishlist = useWishlist();
     const options = useOptions();
     const desktopLayout = options.desktopHeaderLayout;
+    const [isCompact, setIsCompact] = useState(false);
+    const lastCompactRef = useRef(false);
+    const lastScrollYRef = useRef(0);
+    const lastToggleAtRef = useRef(0);
+
+    useLayoutEffect(() => {
+        if (typeof window === 'undefined') return;
+        let ticking = false;
+
+        const updateCompact = () => {
+            const y = window.scrollY;
+            const now = Date.now();
+            const cooldownActive = now - lastToggleAtRef.current < COMPACT_COOLDOWN_MS;
+
+            if (cooldownActive) {
+                ticking = false;
+                return;
+            }
+
+            const nextCompact = lastCompactRef.current
+                ? y > SCROLL_EXIT_COMPACT_PX
+                : y > SCROLL_ENTER_COMPACT_PX;
+
+            if (nextCompact !== lastCompactRef.current) {
+                lastCompactRef.current = nextCompact;
+                lastToggleAtRef.current = now;
+                setIsCompact(nextCompact);
+            }
+            ticking = false;
+        };
+
+        const onScroll = () => {
+            const y = window.scrollY;
+            const delta = Math.abs(y - lastScrollYRef.current);
+            const nearEnter = Math.abs(y - SCROLL_ENTER_COMPACT_PX) <= SCROLL_DELTA_MIN_PX;
+            const nearExit = Math.abs(y - SCROLL_EXIT_COMPACT_PX) <= SCROLL_DELTA_MIN_PX;
+            const shouldUpdate = delta >= SCROLL_DELTA_MIN_PX || nearEnter || nearExit;
+
+            if (!shouldUpdate) {
+                return;
+            }
+            lastScrollYRef.current = y;
+
+            if (!ticking) {
+                ticking = true;
+                window.requestAnimationFrame(updateCompact);
+            }
+        };
+
+        // Sync with initial scroll before first paint (no extra setState flash).
+        const initialY = window.scrollY;
+        lastScrollYRef.current = initialY;
+        lastCompactRef.current = initialY > SCROLL_ENTER_COMPACT_PX;
+        setIsCompact(lastCompactRef.current);
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
 
     const departmentsLabel = useMemo(() => (
         desktopLayout === 'spaceship'
@@ -42,7 +109,7 @@ function Header() {
     const cartIndicatorCtrl = useRef<IIndicatorController | null>(null);
 
     return (
-        <div className="header">
+        <div className={classNames('header', isCompact && 'header--compact')}>
             <div className="header__megamenu-area megamenu-area" />
             {desktopLayout === 'spaceship' && (
                 <React.Fragment>

@@ -105,7 +105,7 @@ export function shopFetchCategoryThunk(categorySlug: string | null): ShopThunkAc
 
         const category = await request;
 
-        if (canceled && process.browser) {
+        if (canceled && typeof window !== 'undefined') {
             return;
         }
 
@@ -132,7 +132,7 @@ export function shopFetchProductsListThunk(): ShopThunkAction<Promise<void>> {
 
         const productsList = await shopApi.getProductsList(shopState.options, filters);
 
-        if (canceled && process.browser) {
+        if (canceled && typeof window !== 'undefined') {
             return;
         }
 

@@ -1,0 +1,30 @@
+# Runs lint and TypeScript check. Does not block deploy (deploy workflow is separate).
+# Once errors are fixed, consider enabling strict Next.js build (remove ignoreDuringBuilds / ignoreBuildErrors).
+name: Lint and TypeScript
+
+on:
+  pull_request:
+    branches: [prod, main]
+  push:
+    branches: [prod, main]
+
+jobs:
+  lint-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npm run typecheck
+
+      - name: ESLint
+        run: npm run lint

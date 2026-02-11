@@ -97,14 +97,21 @@ function BlockZone(props: Props) {
 
         setIsLoading(true);
 
-        tab.source().then((result) => {
-            if (canceled) {
-                return;
-            }
-
-            setIsLoading(false);
-            setProducts(result);
-        });
+        tab.source()
+            .then((result) => {
+                if (canceled) {
+                    return;
+                }
+                setIsLoading(false);
+                setProducts(result);
+            })
+            .catch(() => {
+                if (canceled) {
+                    return;
+                }
+                setIsLoading(false);
+                setProducts([]);
+            });
     };
 
     const onTabClick = (tab: IBlockZoneTab) => {
@@ -120,13 +127,19 @@ function BlockZone(props: Props) {
     useEffect(() => {
         let canceled = false;
 
-        shopApi.getCategoryBySlug(categorySlug, { depth: 1 }).then((result) => {
-            if (canceled) {
-                return;
-            }
-
-            setCategory(result);
-        });
+        shopApi.getCategoryBySlug(categorySlug, { depth: 1 })
+            .then((result) => {
+                if (canceled) {
+                    return;
+                }
+                setCategory(result);
+            })
+            .catch(() => {
+                if (canceled) {
+                    return;
+                }
+                setCategory(null);
+            });
 
         setCurrentTab(tabs[0]);
         load(tabs[0]);

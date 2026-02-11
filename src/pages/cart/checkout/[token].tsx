@@ -16,13 +16,19 @@ function Page() {
         let canceled = false;
 
         if ((typeof token === 'string')) {
-            accountApi.getOrderByToken(token).then((result) => {
-                if (canceled) {
-                    return;
-                }
-
-                setOrder(result);
-            });
+            accountApi.getOrderByToken(token)
+                .then((result) => {
+                    if (canceled) {
+                        return;
+                    }
+                    setOrder(result);
+                })
+                .catch(() => {
+                    if (canceled) {
+                        return;
+                    }
+                    setOrder(null);
+                });
         } else {
             setOrder(null);
         }

@@ -1,0 +1,95 @@
+/*
+// Sticky shrinking header: .header--compact
+// Collapses topbar + category/navbar row on scroll; keeps main row only.
+*/
+@import '../variables';
+@import '../mixins/breakpoints';
+@import '../mixins/direction';
+@import '../mixins/header';
+
+$header-compact-transition-duration: 0.35s;
+$header-compact-opacity-duration: 0.25s;
+
+@include desktop-header-variant-selector {
+    @if($header-layout == classic) {
+        .header {
+            transition: box-shadow $header-compact-opacity-duration ease,
+                background-color $header-compact-opacity-duration ease;
+        }
+        .header__topbar-classic-bg,
+        .header__topbar-classic {
+            min-height: 0;
+            overflow: hidden;
+            transition: opacity $header-compact-opacity-duration ease;
+        }
+        .header__navbar {
+            min-height: 0;
+            overflow: visible; // do not clip dropdowns (e.g. departments mega menu)
+            transition: opacity $header-compact-opacity-duration ease;
+        }
+
+        .header.header--compact {
+            grid-template-rows: 0px auto 0px;
+            transition: grid-template-rows $header-compact-transition-duration ease;
+            box-shadow: 0 1px 0 0 $dt-border-color-subtle;
+        }
+        .header.header--compact .header__topbar-classic-bg,
+        .header.header--compact .header__topbar-classic {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+        .header.header--compact .header__navbar {
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            pointer-events: none;
+            visibility: hidden;
+            border: none;
+        }
+    }
+
+    @if($header-layout == spaceship) {
+        .header {
+            transition: box-shadow $header-compact-opacity-duration ease,
+                background-color $header-compact-opacity-duration ease;
+        }
+        .header__topbar-start-bg,
+        .header__topbar-end-bg,
+        .header__topbar-start,
+        .header__topbar-end {
+            min-height: 0;
+            overflow: hidden;
+            transition: opacity $header-compact-opacity-duration ease;
+        }
+        .header__navbar {
+            min-height: 0;
+            max-height: 60px;
+            overflow: visible; // do not clip dropdowns (e.g. departments mega menu)
+            transition: opacity $header-compact-opacity-duration ease,
+                max-height $header-compact-transition-duration ease;
+        }
+
+        .header.header--compact {
+            grid-template-rows: 0px auto;
+            transition: grid-template-rows $header-compact-transition-duration ease;
+            box-shadow: 0 1px 0 0 $dt-border-color-subtle;
+        }
+        .header.header--compact .header__topbar-start-bg,
+        .header.header--compact .header__topbar-end-bg,
+        .header.header--compact .header__topbar-start,
+        .header.header--compact .header__topbar-end {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+        .header.header--compact .header__navbar {
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+    }
+}

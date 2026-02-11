@@ -5,9 +5,9 @@
 @import "../mixins/breakpoints";
 
 $local-title-padding-y: 36px;
-$local-breadcrumb-height: 21px;
-$local-breadcrumb-padding-top: 16px;
-$local-breadcrumb-padding-bottom: 40px;
+$local-breadcrumb-height: 20px;
+$local-breadcrumb-padding-top: 12px;
+$local-breadcrumb-padding-bottom: 14px;
 $local-breadcrumb-padding-y: $local-breadcrumb-padding-top +
     $local-breadcrumb-padding-bottom;
 
@@ -21,6 +21,7 @@ $local-breadcrumb-padding-y: $local-breadcrumb-padding-top +
 .block-header__breadcrumb {
     padding-top: $local-breadcrumb-padding-top;
     padding-bottom: $local-breadcrumb-padding-bottom;
+    margin-bottom: 0;
 }
 
 // Reduce spacing on product pages but keep enough for clickability

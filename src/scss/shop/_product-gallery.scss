@@ -145,8 +145,18 @@
 
 
 .product-gallery--layout--product-full {
-    .product-gallery__featured .image {
-        max-width: var(--product-gallery-image-max-width, 100%);
+    .product-gallery__featured {
+        aspect-ratio: 1;
+        min-height: 280px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .image {
+            max-width: var(--product-gallery-image-max-width, 100%);
+            width: 100%;
+            height: auto;
+        }
     }
     .product-gallery__zoom {
         top: 0;
@@ -154,5 +164,15 @@
         @include direction {
             #{$inset-inline-end}: 0;
         }
+    }
+    .product-gallery__thumbnails-item {
+        border-radius: 6px;
+
+        &:before {
+            border-radius: 4px;
+        }
+    }
+    .product-gallery__thumbnails-item--active:before {
+        box-shadow: 0 0 0 2px $product-gallery-thumbnail-current-border-color inset;
     }
 }

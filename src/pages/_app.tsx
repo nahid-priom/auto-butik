@@ -22,6 +22,7 @@ import { AppDispatch } from '~/store/types';
 import { CurrentVehicleGarageProvider } from '~/services/current-vehicle';
 import { getLanguageByLocale } from '~/services/i18n/utils';
 import { load, save, wrapper } from '~/store/store';
+import { setStoreRef } from '~/store/storeRef';
 import { optionsSetAll } from '~/store/options/optionsActions';
 import { useApplyClientState } from '~/store/client';
 import { useLoadUserVehicles } from '~/store/garage/garageHooks';
@@ -54,13 +55,19 @@ function App(props: Props) {
     const applyClientState = useApplyClientState();
     const loadUserVehicles = useLoadUserVehicles();
 
+    // Expose store to API layer for loading tracker (TopLoader) and GET cache
+    useEffect(() => {
+        setStoreRef(store);
+        return () => setStoreRef(null);
+    }, [store]);
+
     // Loading and saving state on the client side (cart, wishlist, etc.).
     useEffect(() => {
         const state = load();
 
         applyClientState(state || {});
 
-        if (process.browser) {
+        if (typeof window !== 'undefined') {
             store.subscribe(() => {
                 save(store.getState());
             });
@@ -84,7 +91,7 @@ function App(props: Props) {
             }
         };
 
-        if (process.browser) {
+        if (typeof window !== 'undefined') {
             initializeAuth();
         }
     }, [store]);

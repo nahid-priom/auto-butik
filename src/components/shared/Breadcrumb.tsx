@@ -23,7 +23,7 @@ function Breadcrumb(props: Props) {
     const rootClasses = classNames('breadcrumb', className);
 
     return (
-        <div className={rootClasses} aria-label="breadcrumb">
+        <nav className={rootClasses} aria-label="Brödsmulor">
             <ol className="breadcrumb__list">
                 {afterHeader && <li className="breadcrumb__spaceship-safe-area" role="presentation" />}
 
@@ -40,9 +40,9 @@ function Breadcrumb(props: Props) {
 
                     return (
                         <li key={index} className={itemClasses} aria-current={isLast ? 'page' : undefined}>
-                            {isLast && <span className="breadcrumb__item-link">{item.title}</span>}
+                            {isLast && <span className="breadcrumb__item-link breadcrumb__item-link--current">{item.title}</span>}
                             {!isLast && (
-                                <AppLink href={item.url} className="breadcrumb__item-link">
+                                <AppLink href={item.url} className="breadcrumb__item-link" title={item.title}>
                                     {item.title}
                                 </AppLink>
                             )}
@@ -52,7 +52,7 @@ function Breadcrumb(props: Props) {
 
                 {withPageTitle && <li className="breadcrumb__title-safe-area" role="presentation" />}
             </ol>
-        </div>
+        </nav>
     );
 }
 

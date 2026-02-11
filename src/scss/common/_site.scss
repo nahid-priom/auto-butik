@@ -6,6 +6,11 @@
 
 .site {
     height: 100%;
+    // Single source of truth for overlay stacking (usable in JS or other CSS)
+    --z-header: #{$z-header};
+    --z-dropdown: #{$z-dropdown};
+    --z-modal: #{$z-modal};
+    --z-toast: #{$z-toast};
 }
 .site__container {
     min-height: 100%;
@@ -15,6 +20,10 @@
 }
 .site__header {
     flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: $z-header;
+    box-shadow: 0 1px 0 0 $dt-border-color-subtle;
 }
 .site__body {
     flex-grow: 1;

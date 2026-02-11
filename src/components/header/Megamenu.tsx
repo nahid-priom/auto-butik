@@ -1,5 +1,5 @@
 // react
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 // third-party
 import classNames from "classnames";
 // application
@@ -72,11 +72,13 @@ function Megamenu(props: Props) {
         return leftCategories;
     }, [leftCategories, hasNestedMenus, columns]);
 
-    // Handle left category click
-    const handleLeftCategoryClick = (category: any, index: number) => {
-        setActiveCategory(category);
-        onItemClick && onItemClick(category);
-    };
+    const handleLeftCategoryClick = useCallback(
+        (category: ILink & { links?: ILink[] }) => {
+            setActiveCategory(category);
+            onItemClick?.(category);
+        },
+        [onItemClick]
+    );
 
     // Single column layout - all items shown in grid (when no nested menus)
     if (!hasNestedMenus) {
@@ -87,6 +89,7 @@ function Megamenu(props: Props) {
                         <div className="mm-blocks">
                             <div className="mm-blocks-grid mm-blocks-grid--single">
                                 {allItems.map((item, index) => {
+                                    const titleStr = typeof item.title === "string" ? item.title : "";
                                     const title =
                                         typeof item.title === "string" ? (
                                             <FormattedMessage id={item.title} />
@@ -99,14 +102,16 @@ function Megamenu(props: Props) {
                                             key={index}
                                             href={item.url || "#"}
                                             className="mm-item mm-item--single"
-                                            onClick={() => onItemClick && onItemClick(item)}
+                                            title={titleStr || undefined}
+                                            onClick={() => onItemClick?.(item)}
                                         >
-                                            {/* Icon on top */}
                                             <span className="mm-item__thumb mm-item__thumb--single">
-                                                <AppImage src={getItemImage(item)} alt={typeof item.title === "string" ? item.title : "item"} />
+                                                <AppImage
+                                                    src={getItemImage(item)}
+                                                    alt={titleStr || "item"}
+                                                    loading="lazy"
+                                                />
                                             </span>
-
-                                            {/* Text below */}
                                             <span className="mm-item__label mm-item__label--single">{title}</span>
                                         </AppLink>
                                     );
@@ -131,7 +136,7 @@ function Megamenu(props: Props) {
                     {leftCategories.map((category, index) => {
                         const title =
                             typeof category.title === "string" ? (
-                                <FormattedMessage id={category.title} />
+                                <FormattedMessage id={category.title} defaultMessage={category.title} />
                             ) : (
                                 category.title
                             );
@@ -145,19 +150,23 @@ function Megamenu(props: Props) {
                                 className={classNames("mm-cat", { active: isActive })}
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    handleLeftCategoryClick(category, index);
+                                    handleLeftCategoryClick(category);
                                 }}
                                 onMouseEnter={() => !isActive && setActiveCategory(category)}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter" || e.key === " ") {
                                         e.preventDefault();
-                                        handleLeftCategoryClick(category, index);
+                                        handleLeftCategoryClick(category);
                                     }
                                 }}
                             >
                                 {/* Icon on the left */}
                                 <span className="mm-cat__icon">
-                                    <AppImage src={getItemImage(category)} alt={typeof category.title === "string" ? category.title : "category"} />
+                                    <AppImage
+                                        src={getItemImage(category)}
+                                        alt={typeof category.title === "string" ? category.title : "category"}
+                                        loading="lazy"
+                                    />
                                 </span>
 
                                 {/* Category title */}
@@ -180,9 +189,10 @@ function Megamenu(props: Props) {
                         <div className="mm-blocks">
                             <div className="mm-blocks-grid mm-blocks-grid--double">
                                 {rightItems.map((item, index) => {
+                                    const titleStr = typeof item.title === "string" ? item.title : "";
                                     const title =
                                         typeof item.title === "string" ? (
-                                            <FormattedMessage id={item.title} />
+                                            <FormattedMessage id={item.title} defaultMessage={item.title} />
                                         ) : (
                                             item.title
                                         );
@@ -192,14 +202,16 @@ function Megamenu(props: Props) {
                                             key={index}
                                             href={item.url || "#"}
                                             className="mm-item mm-item--double"
-                                            onClick={() => onItemClick && onItemClick(item)}
+                                            title={titleStr || undefined}
+                                            onClick={() => onItemClick?.(item)}
                                         >
-                                            {/* Icon on top */}
                                             <span className="mm-item__thumb mm-item__thumb--double">
-                                                <AppImage src={getItemImage(item)} alt={typeof item.title === "string" ? item.title : "item"} />
+                                                <AppImage
+                                                    src={getItemImage(item)}
+                                                    alt={titleStr || "item"}
+                                                    loading="lazy"
+                                                />
                                             </span>
-
-                                            {/* Text below */}
                                             <span className="mm-item__label mm-item__label--double">{title}</span>
                                         </AppLink>
                                     );

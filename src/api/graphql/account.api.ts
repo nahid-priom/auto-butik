@@ -5,6 +5,8 @@ import { IAddress } from '~/interfaces/address';
 import { IOrder } from '~/interfaces/order';
 import { IListOptions, IOrdersList } from '~/interfaces/list';
 import { IEditAddressData } from '~/api/base';
+import { logger } from '~/utils/logger';
+import { getBackendUrl } from '~/config/backendUrl';
 
 // Define GraphQL response types
 interface CurrentUser {
@@ -30,8 +32,7 @@ const getApiUrl = () => {
     return '/shop-api';
   }
   // On the server side (SSR), call the actual backend URL
-  const base = process.env.NEXT_PUBLIC_API_URL || process.env.BASE_PATH || 'http://localhost:3000';
-  return `${base}/shop-api`;
+  return `${getBackendUrl()}/shop-api`;
 };
 
 const httpLink = createHttpLink({
@@ -341,7 +342,7 @@ export const customerApi = {
             identifier: currentUser.identifier,
           };
         } catch (error) {
-          console.error('Error fetching user data after login:', error);
+          logger.error('Error fetching user data after login:', error);
           // Return a minimal user object even if we can't fetch full data
           return {
             id: currentUser.id,
@@ -558,8 +559,8 @@ export const customerApi = {
 
   async signUp(email: string, password: string, firstName: string, lastName: string, phone?: string): Promise<{ success: boolean }> {
     try {
-      console.log('Attempting registration with:', { email, firstName, lastName, phone });
-      
+      logger.debug('Attempting registration with:', { email, firstName, lastName, phone });
+
       const { data } = await graphqlClient.mutate<{ registerCustomerAccount: RegisterResponse }>({
         mutation: REGISTER_MUTATION,
         variables: {
@@ -573,33 +574,33 @@ export const customerApi = {
         },
       });
 
-      console.log('Registration response:', data);
+      logger.debug('Registration response:', data);
 
       if (!data?.registerCustomerAccount) {
-        console.error('No response from server');
+        logger.error('No response from server');
         throw new Error('No response from server');
       }
 
       if (data.registerCustomerAccount.__typename === 'Success') {
-        console.log('Registration successful');
+        logger.debug('Registration successful');
         return { success: true };
       }
 
       // Handle specific error types
       if (data.registerCustomerAccount.__typename === 'PasswordValidationError') {
-        console.error('Password validation error:', data.registerCustomerAccount);
+        logger.error('Password validation error:', data.registerCustomerAccount);
         throw new Error('PASSWORD_VALIDATION_ERROR');
       }
 
       const errorResult = data.registerCustomerAccount as ErrorResult;
-      console.error('Registration failed with error:', errorResult);
+      logger.error('Registration failed with error:', errorResult);
       throw new Error(
         errorResult.errorCode || errorResult.message || 'Registration failed'
       );
     } catch (error) {
-      console.error('Registration error details:', error);
+      logger.error('Registration error details:', error);
       if (error instanceof ApolloError) {
-        console.error('Apollo error:', error.graphQLErrors, error.networkError);
+        logger.error('Apollo error:', error.graphQLErrors, error.networkError);
         throw new Error(error.message);
       }
       // Re-throw the error if it's already been processed above
@@ -619,7 +620,7 @@ export const customerApi = {
 
       // If there are GraphQL errors or no data, return null
       if (errors || !data?.activeCustomer) {
-        console.error('Failed to fetch current user:', errors || 'No user data');
+        logger.error('Failed to fetch current user:', errors || 'No user data');
         return null;
       }
 
@@ -637,7 +638,7 @@ export const customerApi = {
       };
     } catch (error) {
       // Handle network or other errors
-      console.error('Error in getCurrentUser:', error);
+      logger.error('Error in getCurrentUser:', error);
       return null;
     }
   },
