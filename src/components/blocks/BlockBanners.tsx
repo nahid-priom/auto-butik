@@ -36,10 +36,10 @@ function BlockBanners() {
 
                     <AppLink href="/" className="block-banners__item block-banners__item--style--two">
                         <span className="block-banners__item-image">
-                            <AppImage className="reflect-rtl" src="/images/banners/banner2.jpg" />
+                            <AppImage className="reflect-rtl" src="/images/banners/banner2.webp" />
                         </span>
                         <span className="block-banners__item-image block-banners__item-image--blur">
-                            <AppImage className="reflect-rtl" src="/images/banners/banner2.jpg" />
+                            <AppImage className="reflect-rtl" src="/images/banners/banner2.webp" />
                         </span>
                         <span className="block-banners__item-title">
                             <FormattedMessage id="TEXT_BANNER_TWO_TITLE" />

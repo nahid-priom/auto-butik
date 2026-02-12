@@ -4,8 +4,6 @@
 import React, {
     useContext,
     useEffect,
-    useMemo,
-    useState,
 } from 'react';
 // third-party
 import classNames from 'classnames';
@@ -19,22 +17,35 @@ import { Cross12Svg } from '~/svg';
 import { SidebarContext } from '~/services/sidebar';
 import { useMedia } from '~/store/hooks';
 import { IShopPageOffCanvasSidebar } from '~/interfaces/pages';
+import { useVehicleCatalogContext } from '~/contexts/VehicleCatalogContext';
 
 interface Props {
     offcanvas: IShopPageOffCanvasSidebar;
+    /** When set, render this instead of default filter widgets (e.g. catalog page uses CatalogFiltersSidebar) */
+    contentOverride?: React.ReactNode;
 }
 
 function ShopSidebar(props: Props) {
-    const { offcanvas } = props;
+    const { offcanvas, contentOverride } = props;
     const [isOpen, setIsOpen] = useContext(SidebarContext);
     const isMobile = useMedia('(max-width: 991px)');
+    const catalogContext = useVehicleCatalogContext();
 
     const rootClasses = classNames('sidebar', `sidebar--offcanvas--${offcanvas}`, {
         'sidebar--open': isOpen,
+        'sidebar--catalog-drawer': !!contentOverride,
     });
 
     const close = () => {
         setIsOpen(false);
+    };
+
+    const handleRensa = () => {
+        if (catalogContext) {
+            catalogContext.setSelectedBrand(null);
+            catalogContext.setSelectedPosition(null);
+        }
+        close();
     };
 
     useEffect(() => {
@@ -55,24 +66,42 @@ function ShopSidebar(props: Props) {
         }
     }, [offcanvas, isOpen, setIsOpen, isMobile]);
 
+    const showRensa = !!contentOverride && !!catalogContext;
+
     return (
         <div className={rootClasses}>
             <div className="sidebar__backdrop" onClick={close} />
             <div className="sidebar__body">
                 <div className="sidebar__header">
                     <div className="sidebar__title">
-                        <FormattedMessage id="HEADER_FILTERS" />
+                        <FormattedMessage id="HEADER_FILTERS" defaultMessage="Filter" />
                     </div>
-                    <button className="sidebar__close" type="button" onClick={close}>
+                    {showRensa && (
+                        <button type="button" className="sidebar__rensabtn" onClick={handleRensa}>
+                            <FormattedMessage id="BUTTON_RESET_FILTERS" defaultMessage="Rensa" />
+                        </button>
+                    )}
+                    <button className="sidebar__close" type="button" onClick={close} aria-label="Stäng">
                         <Cross12Svg />
                     </button>
                 </div>
                 <div className="sidebar__content">
-                    <WidgetFilters offcanvasSidebar={offcanvas} />
-                    <WidgetBrandFilter offcanvasSidebar={offcanvas} />
-                    <WidgetPositionFilter offcanvasSidebar={offcanvas} />
-                    <WidgetVehicleCategories offcanvasSidebar={offcanvas} onCategoryClick={close} />
+                    {contentOverride ?? (
+                        <>
+                            <WidgetFilters offcanvasSidebar={offcanvas} />
+                            <WidgetBrandFilter offcanvasSidebar={offcanvas} />
+                            <WidgetPositionFilter offcanvasSidebar={offcanvas} />
+                            <WidgetVehicleCategories offcanvasSidebar={offcanvas} onCategoryClick={close} />
+                        </>
+                    )}
                 </div>
+                {contentOverride && (
+                    <div className="sidebar__footer">
+                        <button type="button" className="sidebar__footerbtn" onClick={close}>
+                            <FormattedMessage id="TEXT_VIEW_RESULTS" />
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -1,35 +1,60 @@
 // react
-import React from "react";
+import React, { useContext, useMemo } from "react";
 // application
 import BlockHeader from "~/components/blocks/BlockHeader";
 import BlockSpace from "~/components/blocks/BlockSpace";
 import SEO from "~/components/shared/SEO";
+import BlockCatalogHero from "~/components/blocks/BlockCatalogHero";
 import GraphQLProductsView from "~/components/shop/GraphQLProductsView";
 import VehicleProductsView from "~/components/shop/VehicleProductsView";
 import SearchProductsView from "~/components/shop/SearchProductsView";
 import ShopSidebar from "~/components/shop/ShopSidebar";
+import CatalogFiltersSidebar from "~/components/catalog/CatalogFiltersSidebar";
 import url from "~/services/url";
 import { CurrentVehicleScopeProvider } from "~/services/current-vehicle";
 import { SidebarProvider } from "~/services/sidebar";
+import { SidebarContext } from "~/services/sidebar";
 import { useIntl } from "react-intl";
 import { useRouter } from "next/router";
-import BlockVehicleHero from "~/components/blocks/BlockVehicleHero";
 import { useCurrentActiveCar } from "~/contexts/CarContext";
+import { useCategoryTree } from "~/contexts/CategoryTreeContext";
+import pageStyles from "./[slug]/CatalogProductsPage.module.scss";
 
 const MIN_SEARCH_LENGTH = 2;
+
+/** Renders CatalogFiltersSidebar for the mobile drawer and closes drawer on category click */
+function CatalogFiltersDrawerContent({ title }: { title: string }) {
+    const [, setSidebarOpen] = useContext(SidebarContext);
+    return (
+        <CatalogFiltersSidebar
+            title={title}
+            embedded
+            onCategoryClick={() => setSidebarOpen(false)}
+        />
+    );
+}
 
 function PageContent() {
     const intl = useIntl();
     const router = useRouter();
     const { currentActiveCar } = useCurrentActiveCar();
+    const { tree, findCategoryById } = useCategoryTree();
     const searchQuery = typeof router.query.search === "string" ? router.query.search.trim() : "";
     const hasActiveCar = !!currentActiveCar;
     const isSearchPage = searchQuery.length >= MIN_SEARCH_LENGTH;
-    
-    // Check if there's a collection filter from megamenu (collectionSlug or collectionId)
-    const hasCollectionFilter = 
-        typeof router.query.collectionSlug === "string" || 
-        typeof router.query.collectionId === "string";
+
+    const collectionIdParam = typeof router.query.collectionId === "string" ? router.query.collectionId : null;
+    const hasCollectionFilter =
+        typeof router.query.collectionSlug === "string" || !!collectionIdParam;
+
+    const categoryId = collectionIdParam ? parseInt(collectionIdParam, 10) : null;
+    const currentCategory = useMemo(() => {
+        if (!categoryId || !tree || isNaN(categoryId)) return null;
+        return findCategoryById(categoryId);
+    }, [categoryId, tree, findCategoryById]);
+
+    const heroTitle = currentCategory?.name ?? intl.formatMessage({ id: "HEADER_SHOP" });
+    const sidebarTitle = currentCategory?.name ?? intl.formatMessage({ id: "HEADER_CATEGORIES", defaultMessage: "Kategorier" });
 
     const pageHeader = (
         <BlockHeader
@@ -41,20 +66,18 @@ function PageContent() {
         />
     );
 
-    const sidebar = <ShopSidebar offcanvas="mobile" />;
+    const sidebar = (
+        <ShopSidebar
+            offcanvas="mobile"
+            contentOverride={<CatalogFiltersDrawerContent title={sidebarTitle} />}
+        />
+    );
 
-    // Dynamic title and description based on search
     const pageTitle = searchQuery ? `Search Results for "${searchQuery}"` : intl.formatMessage({ id: "HEADER_SHOP" });
-
     const pageDescription = searchQuery
         ? `Browse auto parts matching "${searchQuery}". Quality products with fast delivery.`
         : "Shop quality auto parts for all makes and models. Browse our extensive catalog of brake pads, filters, engine parts, and more.";
 
-    // Determine which view to use:
-    // 1. Search query present → SearchProductsView (REST API)
-    // 2. Collection filter from megamenu → VehicleProductsView (REST API, with or without car)
-    // 3. Active car → VehicleProductsView (REST API, filtered by car)
-    // 4. No car, no collection → GraphQLProductsView (fallback)
     const content =
         isSearchPage ? (
             <SearchProductsView
@@ -62,22 +85,22 @@ function PageContent() {
                 layout="list"
                 gridLayout="grid-3-sidebar"
                 offCanvasSidebar="mobile"
+                useCatalogLayout
             />
         ) : hasCollectionFilter || hasActiveCar ? (
-            // Use REST API for collection browsing (with or without car)
-            // If car is active, products are filtered by vehicle compatibility
-            // If no car, allowWithoutCar=true uses "all" to show all products in collection
             <VehicleProductsView
                 layout="list"
                 gridLayout="grid-3-sidebar"
                 offCanvasSidebar="mobile"
                 allowWithoutCar={hasCollectionFilter}
+                useCatalogLayout
             />
         ) : (
             <GraphQLProductsView
                 layout="list"
                 gridLayout="grid-3-sidebar"
                 offCanvasSidebar="mobile"
+                useCatalogLayout
             />
         );
 
@@ -89,21 +112,24 @@ function PageContent() {
                 keywords="auto parts catalog, car parts shop, vehicle parts, automotive parts, brake pads, filters, engine parts"
                 type="website"
             />
-            <BlockVehicleHero />
-            {pageHeader}
-
-            <div className="block-split block-split--has-sidebar block-split--catalog">
-                <div className="container">
-                    <div className="block-split__row row no-gutters">
-                        <div className="block-split__item block-split__item-sidebar col-auto">{sidebar}</div>
-
-                        <div className="block-split__item block-split__item-content col-auto flex-grow-1">
-                            <div className="block">{content}</div>
+            <BlockCatalogHero
+                title={heroTitle}
+                subtitle={currentActiveCar?.data ? `${(currentActiveCar.data as any).C_merke || ""} ${(currentActiveCar.data as any).C_modell || ""}`.trim() || undefined : undefined}
+            />
+            <div className={pageStyles.pageWrap}>
+                {pageHeader}
+                <div className={pageStyles.root}>
+                    {sidebar}
+                    <div className={pageStyles.container}>
+                        <div className={pageStyles.layout}>
+                            <div className={pageStyles.sidebarCol}>
+                                <CatalogFiltersSidebar title={sidebarTitle} />
+                            </div>
+                            <main className={pageStyles.mainCol}>{content}</main>
                         </div>
                     </div>
                 </div>
             </div>
-
             <BlockSpace layout="before-footer" />
         </React.Fragment>
     );

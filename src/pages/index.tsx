@@ -7,11 +7,17 @@ import { useIntl } from 'react-intl';
 import { fetchBrandsIfNeeded } from '~/store/homepage/homepageActions';
 import { pageLoadStart } from '~/store/page-load/pageLoadActions';
 import { useAppAction } from '~/store/hooks';
-import BlockVehicleSearchHero from '~/components/blocks/BlockVehicleSearchHero';
 import BlockSpace from '~/components/blocks/BlockSpace';
 import BlockSkeleton from '~/components/shared/BlockSkeleton';
 import LazySection from '~/components/shared/LazySection';
 import SEO from '~/components/shared/SEO';
+import HeroSkeleton from '~/components/blocks/HeroSkeleton';
+
+/** Hero loads after first paint so the shell/skeleton appears instantly when navigating home. */
+const BlockVehicleSearchHero = dynamic(
+    () => import('~/components/blocks/BlockVehicleSearchHero'),
+    { loading: () => <HeroSkeleton />, ssr: false }
+);
 
 const BlockCategoryNavigation = dynamic(
     () => import('~/components/blocks/BlockCategoryNavigation'),
@@ -25,10 +31,11 @@ const BlockCategoryTabs = dynamic(
     () => import('~/components/blocks/BlockCategoryTabs'),
     { loading: () => <BlockSkeleton minHeight={220} />, ssr: false }
 );
-const BlockSlideshow = dynamic(
-    () => import('~/components/blocks/BlockSlideshow'),
-    { loading: () => <BlockSkeleton minHeight={320} />, ssr: false }
-);
+// Commented out: hero slideshow – no need to render now
+// const BlockSlideshow = dynamic(
+//     () => import('~/components/blocks/BlockSlideshow'),
+//     { loading: () => <BlockSkeleton minHeight={320} />, ssr: false }
+// );
 const BlockProductsCarousel = dynamic(
     () => import('~/components/blocks/BlockProductsCarousel'),
     { loading: () => <BlockSkeleton minHeight={280} />, ssr: false }
@@ -82,45 +89,50 @@ function Page() {
     const fetchBrands = useAppAction(fetchBrandsIfNeeded);
     const startPageLoad = useAppAction(pageLoadStart);
 
+    // Defer non-critical work so first paint (hero shell) is not blocked
     useEffect(() => {
-        startPageLoad();
-        fetchBrands(true);
+        const id = setTimeout(() => {
+            startPageLoad();
+            fetchBrands(true);
+        }, 0);
+        return () => clearTimeout(id);
     }, [startPageLoad, fetchBrands]);
 
-    const slides = useMemo(() => [
-        {
-            url: '/catalog/products',
-            desktopImage: '/images/Hero1.webp',
-            mobileImage: '/images/Hero1.webp',
-            title: intl.formatMessage({ id: 'SLIDE_1_TITLE' }),
-            details: intl.formatMessage({ id: 'SLIDE_1_DETAILS' }),
-            buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
-        },
-        {
-            url: '/catalog/products',
-            desktopImage: '/images/Hero2.webp',
-            mobileImage: '/images/Hero2.webp',
-            title: intl.formatMessage({ id: 'SLIDE_2_TITLE' }),
-            details: intl.formatMessage({ id: 'SLIDE_2_DETAILS' }),
-            buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
-        },
-        {
-            url: '/catalog/products',
-            desktopImage: '/images/Hero3.webp',
-            mobileImage: '/images/Hero3.webp',
-            title: intl.formatMessage({ id: 'SLIDE_3_TITLE' }),
-            details: intl.formatMessage({ id: 'SLIDE_3_DETAILS' }),
-            buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
-        },
-        {
-            url: '/catalog/products',
-            desktopImage: '/images/Hero4.webp',
-            mobileImage: '/images/Hero4.webp',
-            title: intl.formatMessage({ id: 'SLIDE_4_TITLE' }),
-            details: intl.formatMessage({ id: 'SLIDE_4_DETAILS' }),
-            buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
-        },
-    ], [intl]);
+    // Commented out: hero slideshow (Kvalitetsreservdelar / Handla nu carousel) – no need to render now
+    // const slides = useMemo(() => [
+    //     {
+    //         url: '/catalog/products',
+    //         desktopImage: '/images/Hero1.webp',
+    //         mobileImage: '/images/Hero1.webp',
+    //         title: intl.formatMessage({ id: 'SLIDE_1_TITLE' }),
+    //         details: intl.formatMessage({ id: 'SLIDE_1_DETAILS' }),
+    //         buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
+    //     },
+    //     {
+    //         url: '/catalog/products',
+    //         desktopImage: '/images/Hero2.webp',
+    //         mobileImage: '/images/Hero2.webp',
+    //         title: intl.formatMessage({ id: 'SLIDE_2_TITLE' }),
+    //         details: intl.formatMessage({ id: 'SLIDE_2_DETAILS' }),
+    //         buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
+    //     },
+    //     {
+    //         url: '/catalog/products',
+    //         desktopImage: '/images/Hero3.webp',
+    //         mobileImage: '/images/Hero3.webp',
+    //         title: intl.formatMessage({ id: 'SLIDE_3_TITLE' }),
+    //         details: intl.formatMessage({ id: 'SLIDE_3_DETAILS' }),
+    //         buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
+    //     },
+    //     {
+    //         url: '/catalog/products',
+    //         desktopImage: '/images/Hero4.webp',
+    //         mobileImage: '/images/Hero4.webp',
+    //         title: intl.formatMessage({ id: 'SLIDE_4_TITLE' }),
+    //         details: intl.formatMessage({ id: 'SLIDE_4_DETAILS' }),
+    //         buttonLabel: intl.formatMessage({ id: 'BUTTON_SHOP_NOW' }),
+    //     },
+    // ], [intl]);
 
     const brands = useDeferredData(() => shopApi.getBrands({ limit: 48 }), []);
     const blockSale = useDeferredData(() => shopApi.getSpecialOffers(8), []);
@@ -202,16 +214,14 @@ function Page() {
                 <BlockCategoryTabs />
             </LazySection>
             <BlockSpace layout="divider-nl" />
-            <LazySection minHeight={320}>
-                <BlockSlideshow slides={slides} />
+            <LazySection minHeight={280}>
+                <BlockProductsCarousel
+                    blockTitle={intl.formatMessage({ id: 'HEADER_FEATURED_PRODUCTS' })}
+                    layout="grid-5"
+                    loading={featuredProducts.isLoading}
+                    products={featuredProducts.data}
+                />
             </LazySection>
-            <BlockSpace layout="divider-nl" />
-            <BlockProductsCarousel
-                blockTitle={intl.formatMessage({ id: 'HEADER_FEATURED_PRODUCTS' })}
-                layout="grid-5"
-                loading={featuredProducts.isLoading}
-                products={featuredProducts.data}
-            />
             <BlockSpace layout="divider-nl" />
             <LazySection minHeight={160}>
                 <BlockBenefits />

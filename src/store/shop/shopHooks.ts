@@ -11,6 +11,9 @@ import {
     shopSetOptionValueThunk,
 } from '~/store/shop/shopActions';
 
+/** Stable empty array for selectors; avoids new reference when productsList?.filters is null/undefined */
+const EMPTY_FILTERS: readonly unknown[] = [];
+
 export function useShopSelector<T extends(state: IShopState) => any>(selector: T): ReturnType<T> {
     return useAppSelector((state) => selector(state[SHOP_NAMESPACE]));
 }
@@ -23,7 +26,8 @@ export const useShopProductsList = () => useShopSelector((state) => state.produc
 
 export const useShopOptions = () => useShopSelector((state) => state.options);
 
-export const useShopFilters = () => useShopSelector((state) => state.productsList?.filters || []);
+export const useShopFilters = () =>
+    useShopSelector((state) => state.productsList?.filters ?? EMPTY_FILTERS);
 
 export const useShopFilterValues = () => useShopSelector((state) => state.filters);
 

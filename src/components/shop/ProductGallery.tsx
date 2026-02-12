@@ -345,12 +345,16 @@ function ProductGallery(props: Props) {
         getIndexDependOnDirRef.current = getIndexDependOnDir;
     }, [getIndexDependOnDir]);
 
-    // When gallery images change (e.g. new product), reset to first image so cover always shows
+    // Default featured image: when no dedicated featured image, use first thumbnail.
+    // When gallery images change (e.g. new product), reset to first image so featured is never empty.
     useEffect(() => {
         setState((prev) => ({ ...prev, currentIndex: 0 }));
-        if (slickFeaturedRef.current != null) {
-            slickFeaturedRef.current.slickGoTo(getIndexDependOnDir(0), true);
-        }
+        const timer = setTimeout(() => {
+            if (slickFeaturedRef.current != null) {
+                slickFeaturedRef.current.slickGoTo(getIndexDependOnDir(0), true);
+            }
+        }, 0);
+        return () => clearTimeout(timer);
     }, [galleryImages.length, galleryImages[0], getIndexDependOnDir]);
 
     const rootClasses = classNames('product-gallery', `product-gallery--layout--${layout}`, className);

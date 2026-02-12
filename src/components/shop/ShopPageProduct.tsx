@@ -39,12 +39,12 @@ import {
     Wishlist16Svg,
 } from "~/svg";
 import { useCartAddItem } from "~/store/cart/cartHooks";
-import { useGarage } from "~/contexts/GarageContext";
-import { FaBoxes, FaCalendarCheck, FaCheckCircle, FaShippingFast, FaInfoCircle } from "react-icons/fa";
+import { FaBoxes, FaShippingFast, FaInfoCircle } from "react-icons/fa";
 import ProductQuestion from "./ProductQuestion";
 import ProductInformation from "./ProductInformation";
 import CompatibleVehicles from "./CompatibleVehiclies";
 import OriginalPartNumber from "./OriginalPartNumber";
+import ProductFitmentBanner from "./ProductFitmentBanner";
 import { useTecdocProduct } from "~/hooks/useTecdocProduct";
 import { TechnicalSpec } from "~/interfaces/tecdoc";
 import { getFeaturedProducts } from "~/data/featuredProducts";
@@ -70,16 +70,6 @@ function ShopPageProduct(props: Props) {
     const productForm = useProductForm(product);
 
     const cartAddItem = useCartAddItem();
-    const { vehicles, currentCarId } = useGarage();
-
-    const currentVehicleName = (() => {
-        const current = currentCarId ? vehicles.find((v) => v.id === currentCarId) : vehicles[0];
-        if (!current?.data) return null;
-        const d = current.data as { C_merke?: string; C_modell?: string };
-        const make = d.C_merke || "";
-        const model = d.C_modell || "";
-        return [make, model].filter(Boolean).join(" ") || null;
-    })();
 
     const addToWishlist = () => wishlistAddItem(product);
     const addToCompare = () => compareAddItem(product);
@@ -616,22 +606,10 @@ function ShopPageProduct(props: Props) {
                                                     </React.Fragment>
                                                 </div>
 
-                                                <div className="vehicle-compatibility">
-                                                    <div className="compatibility-content">
-                                                        <div className="compatibility-icon">
-                                                            <FaCheckCircle />
-                                                        </div>
-                                                        <div className="compatibility-text">
-                                                            <FormattedMessage
-                                                                id="VEHICLE_COMPATIBILITY_TEXT"
-                                                                values={{ vehicleName: currentVehicleName ?? "" }}
-                                                            />{" "}
-                                                            <button className="compatibility-link">
-                                                                <FormattedMessage id="WILL_IT_REALLY_FIT" />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                <ProductFitmentBanner
+                                                    product={product}
+                                                    fitmentDetailsSectionId="compatible-vehicles"
+                                                />
 
                                                 <div className="product-card__stock-row">
                                                     <div className="stock-info">

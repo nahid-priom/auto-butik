@@ -1,0 +1,141 @@
+// ProductFitmentBanner: green (match) / red (no-match) / skeleton
+
+.banner {
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 14px 0;
+  border: 1px solid transparent;
+}
+
+.content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.title {
+  font-weight: 600;
+}
+
+.vehicleLabel {
+  opacity: 0.9;
+}
+
+.link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  color: inherit;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+// Match: soft green
+.bannerMatch {
+  background: rgba(34, 139, 34, 0.1);
+  border-color: rgba(34, 139, 34, 0.3);
+  color: #1a5f1a;
+
+  .icon {
+    color: #228b22;
+  }
+}
+
+// No match / unknown: soft red
+.bannerNoMatch {
+  background: rgba(180, 50, 50, 0.08);
+  border-color: rgba(180, 50, 50, 0.25);
+  color: #8b2a2a;
+
+  .icon {
+    color: #b33232;
+  }
+}
+
+// Skeleton (SSR / loading)
+.bannerSkeleton {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.iconSkeleton {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.textSkeleton {
+  display: inline-block;
+  height: 14px;
+  width: 70%;
+  max-width: 240px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .banner {
+    padding: 14px;
+    margin: 14px 0;
+  }
+
+  .content {
+    gap: 10px;
+  }
+
+  .icon {
+    font-size: 18px;
+  }
+
+  .text {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .banner {
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 6px;
+  }
+
+  .content {
+    gap: 8px;
+  }
+
+  .icon {
+    font-size: 16px;
+  }
+
+  .text {
+    font-size: 12px;
+  }
+}

@@ -3,7 +3,6 @@ import React from 'react';
 // third-party
 import { FormattedMessage } from 'react-intl';
 // application
-import AppImage from '~/components/shared/AppImage';
 import AppLink from '~/components/shared/AppLink';
 import Decor from '~/components/shared/Decor';
 import FooterContacts from '~/components/footer/FooterContacts';
@@ -68,8 +67,17 @@ export function Footer() {
                             <FormattedMessage id="TEXT_COPYRIGHT" values={{ year: currentYear }} />
                             {/* copyright / end */}
                         </div>
-                        <div className="site-footer__payments">
-                            <AppImage src="/images/payments.png" />
+                        <div className="site-footer__badges">
+                            <img
+                                src="/TecDoc%20Inside%20Badge%20Full.png"
+                                alt="TecDoc Inside"
+                                className="site-footer__badge site-footer__badge--tecdoc"
+                            />
+                            <img
+                                src="/images/Logo.png"
+                                alt="Autobutik"
+                                className="site-footer__badge site-footer__badge--logo"
+                            />
                         </div>
                     </div>
                 </div>

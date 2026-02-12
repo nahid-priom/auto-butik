@@ -104,9 +104,7 @@ $local-bottom-decor-height: 24px;
 // Layout with sidebar: 4–5 cols desktop, 3 tablet, 2 mobile
 .block-categories--layout--columns-4-sidebar {
     margin-top: 0;
-    background: #f7f8fa;
-    padding: 20px 0 24px;
-    border-radius: 12px;
+    padding: 0 0 24px;
 
     .block-categories__list {
         margin: -6px;

@@ -14,10 +14,16 @@ import { Search20Svg, ArrowRoundedLeft7x11Svg } from "~/svg";
 interface Props {
     offcanvasSidebar: IShopPageOffCanvasSidebar;
     onCategoryClick?: () => void;
+    /** When set (e.g. on catalog products page), show this as the sidebar title and hide back link */
+    categoryTitleOverride?: string;
+    /** When true, do not render header (title/back); used when wrapping in CatalogSidebar which provides its own title */
+    hideHeader?: boolean;
+    /** When true, do not apply card styling (used when nested inside CatalogSidebar) */
+    embedded?: boolean;
 }
 
 function WidgetVehicleCategories(props: Props) {
-    const { offcanvasSidebar, onCategoryClick } = props;
+    const { offcanvasSidebar, onCategoryClick, categoryTitleOverride, hideHeader = false, embedded = false } = props;
     const intl = useIntl();
     const router = useRouter();
     const { tree, loading: categoriesLoading, error, findCategoryById, getBreadcrumb } = useCategoryTree();
@@ -63,7 +69,9 @@ function WidgetVehicleCategories(props: Props) {
         return currentCategory;
     }, [currentCategory, parentCategory, isProductsPage]);
 
-    const rootClasses = classNames("widget", "widget-vehicle-categories", `widget-vehicle-categories--offcanvas--${offcanvasSidebar}`);
+    const rootClasses = classNames("widget", "widget-vehicle-categories", `widget-vehicle-categories--offcanvas--${offcanvasSidebar}`, {
+        "widget-vehicle-categories--embedded": embedded,
+    });
 
     // Flatten tree for search functionality
     const flattenTree = (nodes: ICategoryTreeNode[]): ICategoryTreeNode[] => {
@@ -166,26 +174,29 @@ function WidgetVehicleCategories(props: Props) {
     };
 
     // Determine if we're in a subcategory view (not at root)
-    const isInSubcategory = !!displayParent && !!displayTitle;
+    const isInSubcategory = !!displayParent && !!displayTitle && !categoryTitleOverride;
+    const headerTitle = categoryTitleOverride ?? (isInSubcategory && displayTitle ? displayTitle : null);
 
     return (
         <div className={rootClasses}>
-            <div className="widget-vehicle-categories__header">
-                {isInSubcategory && backUrl ? (
-                    <AppLink href={backUrl} className="widget-vehicle-categories__back-link">
-                        <span className="widget-vehicle-categories__back-arrow">
-                            <ArrowRoundedLeft7x11Svg />
-                        </span>
-                        <h4 className="widget-vehicle-categories__title widget-vehicle-categories__title--with-back">
-                            {displayTitle}
+            {!hideHeader && (
+                <div className="widget-vehicle-categories__header">
+                    {isInSubcategory && backUrl ? (
+                        <AppLink href={backUrl} className="widget-vehicle-categories__back-link">
+                            <span className="widget-vehicle-categories__back-arrow">
+                                <ArrowRoundedLeft7x11Svg />
+                            </span>
+                            <h4 className="widget-vehicle-categories__title widget-vehicle-categories__title--with-back">
+                                {displayTitle}
+                            </h4>
+                        </AppLink>
+                    ) : (
+                        <h4 className="widget-vehicle-categories__title">
+                            {headerTitle ?? <FormattedMessage id="HEADER_CATEGORIES" defaultMessage="Kategorier" />}
                         </h4>
-                    </AppLink>
-                ) : (
-                    <h4 className="widget-vehicle-categories__title">
-                        <FormattedMessage id="HEADER_CATEGORIES" defaultMessage="Kategorier" />
-                    </h4>
-                )}
-            </div>
+                    )}
+                </div>
+            )}
             <div className="widget-vehicle-categories__body">
                 <div className="widget-vehicle-categories__search">
                     <div className="widget-vehicle-categories__search-icon">

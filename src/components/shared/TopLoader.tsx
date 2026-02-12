@@ -93,7 +93,7 @@ function TopLoader() {
     const barStyle: React.CSSProperties = {
         height: '100%',
         width: `${Math.min(100, Math.max(0, progressPercent))}%`,
-        backgroundColor: 'var(--top-loader-color, #0066cc)',
+        backgroundColor: 'var(--top-loader-color, #ff3333)',
         transition: reducedMotion ? 'none' : 'width 0.2s ease-out',
     };
 

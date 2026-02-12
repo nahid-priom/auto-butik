@@ -31,7 +31,12 @@
         @include local-layout(260px, 32px);
     }
 }
-// Catalog pages: reference layout — sidebar 280–320px, 8px spacing scale
+// Catalog pages: reference layout — sidebar 280–320px, 8px spacing scale, max width 1280px
+.block-split--catalog {
+    .container {
+        max-width: 1280px;
+    }
+}
 .block-split--catalog.block-split--has-sidebar {
     .block-split__row {
         align-items: flex-start;

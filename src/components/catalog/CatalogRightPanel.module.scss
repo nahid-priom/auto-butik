@@ -1,0 +1,49 @@
+// Right-side content for catalog products page: one top bar + product list
+// Scoped to avoid legacy Bootstrap / old card styles affecting the panel
+
+.panel {
+    width: 100%;
+    min-width: 0;
+}
+
+// Single top bar only; list below
+.productList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 0;
+}
+
+.productListItem {
+    margin: 0;
+}
+
+// Grid layout (when view toggle is grid)
+.productList[data-layout="grid"] {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+@media (min-width: 768px) {
+    .productList[data-layout="grid"] {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 992px) {
+    .productList[data-layout="grid"] {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+// Mobile: compact list gap, no legacy overflow
+@media (max-width: 767px) {
+    .panel {
+        padding: 0;
+    }
+
+    .productList {
+        gap: 12px;
+    }
+}

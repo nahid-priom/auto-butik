@@ -29,6 +29,7 @@
 @include desktop-header-variant-selector {
     .main-menu {
         height: 100%;
+        overflow: visible;
     }
     .main-menu__list {
         position: relative;
@@ -38,6 +39,10 @@
         display: flex;
         flex-wrap: wrap;
         height: 100%;
+        overflow: visible;
+    }
+    .main-menu__item {
+        overflow: visible;
     }
     .main-menu__link {
         display: block;
@@ -86,6 +91,7 @@
 
     .main-menu__item--submenu--menu {
         position: relative;
+        overflow: visible;
 
         .main-menu__submenu {
             position: absolute;
@@ -96,6 +102,7 @@
             transform-origin: top;
             transform: rotateX(45deg);
             transition: transform 0.2s, opacity 0.2s;
+            overflow: visible;
 
             @include direction {
                 #{$inset-inline-start}: 0;

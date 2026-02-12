@@ -43,6 +43,26 @@
     align-items: center;
 }
 
+.site-footer__badges {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.site-footer__badge {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+
+    &--tecdoc {
+        max-height: 40px;
+    }
+
+    &--logo {
+        max-height: 36px;
+    }
+}
 
 @include media-breakpoint-down(sm) {
     .site-footer__decor {
@@ -55,7 +75,27 @@
         height: auto;
         flex-direction: column;
         padding: 20px 0 24px;
+        gap: 16px;
     }
+
+    .site-footer__badges {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 16px;
+    }
+
+    .site-footer__badge {
+        height: 32px;
+
+        &--tecdoc {
+            max-height: 36px;
+        }
+
+        &--logo {
+            max-height: 32px;
+        }
+    }
+
     .site-footer__payments {
         margin-top: 12px;
     }

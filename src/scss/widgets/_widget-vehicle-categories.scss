@@ -7,12 +7,22 @@
 
 .widget-vehicle-categories {
     @include card;
-    
+
     display: block;
     margin-bottom: 24px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     border-radius: 4px;
+}
+
+// When nested inside CatalogSidebar: no card chrome, just content
+.widget-vehicle-categories--embedded {
+    margin-bottom: 0;
+    padding: 0;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    background: transparent;
 }
 
 .widget-vehicle-categories__header {

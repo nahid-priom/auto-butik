@@ -1,0 +1,60 @@
+// Catalog sidebar: sticky card, ~280–320px, no internal scroll (uses page scroll)
+
+.root {
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.card {
+    background: var(--card-main, #fff);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+}
+
+.title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: inherit;
+}
+
+.body {
+    padding: 12px 0 16px;
+    flex: 1;
+    min-height: 0;
+}
+
+// Desktop: sticky below header; no internal scroll (page scroll)
+@media (min-width: 992px) {
+    .root {
+        width: 280px;
+        max-width: 320px;
+    }
+
+    .card {
+        position: sticky;
+        top: 24px;
+    }
+
+    .body {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .root {
+        width: 300px;
+    }
+}

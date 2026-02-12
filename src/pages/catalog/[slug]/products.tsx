@@ -1,5 +1,5 @@
 // react
-import React, { useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 // third-party
 import { useRouter } from "next/router";
 // application
@@ -9,6 +9,8 @@ import BlockCatalogHero from "~/components/blocks/BlockCatalogHero";
 import VehicleProductsView from "~/components/shop/VehicleProductsView";
 import GraphQLProductsView from "~/components/shop/GraphQLProductsView";
 import ShopSidebar from "~/components/shop/ShopSidebar";
+import CatalogFiltersSidebar from "~/components/catalog/CatalogFiltersSidebar";
+import { SidebarContext } from "~/services/sidebar";
 import url from "~/services/url";
 import { CurrentVehicleScopeProvider } from "~/services/current-vehicle";
 import { SidebarProvider } from "~/services/sidebar";
@@ -18,9 +20,22 @@ import { useCategoryTree } from "~/contexts/CategoryTreeContext";
 import PageTitle from "~/components/shared/PageTitle";
 import { GetServerSideProps } from "next";
 import { ILink } from "~/interfaces/link";
+import pageStyles from "./CatalogProductsPage.module.scss";
 
 interface Props {
     slug: string | null;
+}
+
+/** Renders CatalogFiltersSidebar for the mobile drawer and closes drawer on category click */
+function CatalogFiltersDrawerContent({ title }: { title: string }) {
+    const [, setSidebarOpen] = useContext(SidebarContext);
+    return (
+        <CatalogFiltersSidebar
+            title={title}
+            embedded
+            onCategoryClick={() => setSidebarOpen(false)}
+        />
+    );
 }
 
 function PageContent() {
@@ -78,7 +93,14 @@ function PageContent() {
         />
     );
 
-    const sidebar = <ShopSidebar offcanvas="mobile" />;
+    const sidebar = slug ? (
+        <ShopSidebar
+            offcanvas="mobile"
+            contentOverride={<CatalogFiltersDrawerContent title={categoryName || intl.formatMessage({ id: "HEADER_CATEGORIES", defaultMessage: "Kategorier" })} />}
+        />
+    ) : (
+        <ShopSidebar offcanvas="mobile" />
+    );
 
     // If no slug (category), show regular GraphQL products view
     if (!slug) {
@@ -117,26 +139,32 @@ function PageContent() {
     return (
         <React.Fragment>
             <PageTitle>{categoryName || intl.formatMessage({ id: "HEADER_SHOP" })}</PageTitle>
-            <BlockCatalogHero 
+            <BlockCatalogHero
                 title={categoryName || intl.formatMessage({ id: "HEADER_SHOP" })}
                 subtitle={carName || undefined}
             />
-            {pageHeader}
-            <div className="block-split block-split--has-sidebar block-split--catalog">
-                <div className="container">
-                    <div className="block-split__row row no-gutters">
-                        <div className="block-split__item block-split__item-sidebar col-auto">{sidebar}</div>
-                        <div className="block-split__item block-split__item-content col-auto flex-grow-1">
-                            <div className="block">
-                                <VehicleProductsView
-                                    layout="list"
-                                    gridLayout="grid-3-sidebar"
-                                    offCanvasSidebar="mobile"
-                                    allowWithoutCar={true}
-                                />
-                            </div>
+            <div className={pageStyles.pageWrap}>
+                {pageHeader}
+                <div className={pageStyles.root}>
+                    {sidebar}
+                    <div className={pageStyles.container}>
+                    <div className={pageStyles.layout}>
+                        <div className={pageStyles.sidebarCol}>
+                            <CatalogFiltersSidebar
+                                title={categoryName || intl.formatMessage({ id: "HEADER_CATEGORIES", defaultMessage: "Kategorier" })}
+                            />
                         </div>
+                        <main className={pageStyles.mainCol}>
+                            <VehicleProductsView
+                                layout="list"
+                                gridLayout="grid-3-sidebar"
+                                offCanvasSidebar="mobile"
+                                allowWithoutCar={true}
+                                useCatalogLayout
+                            />
+                        </main>
                     </div>
+                </div>
                 </div>
             </div>
             <BlockSpace layout="before-footer" />

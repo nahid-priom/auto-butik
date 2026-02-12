@@ -7,6 +7,9 @@ import { useRouter } from "next/router";
 // application
 import Navigation, { INavigationEvent } from "~/components/shared/Navigation";
 import ProductCard from "~/components/shared/ProductCard";
+import CatalogTopControls from "~/components/catalog/CatalogTopControls";
+import CatalogProductRowCard from "~/components/catalog/CatalogProductRowCard";
+import rightPanelStyles from "~/components/catalog/CatalogRightPanel.module.scss";
 import { isEmptyList } from "~/services/utils";
 import { IShopPageGridLayout, IShopPageLayout, IShopPageOffCanvasSidebar } from "~/interfaces/pages";
 import { SidebarContext } from "~/services/sidebar";
@@ -26,6 +29,8 @@ interface Props {
     layout: IShopPageLayout;
     gridLayout: IShopPageGridLayout;
     offCanvasSidebar: IShopPageOffCanvasSidebar;
+    /** When true, use catalog presentational layout (CatalogTopControls, CatalogProductRowCard) to match /catalog/[id]/products */
+    useCatalogLayout?: boolean;
 }
 
 const convertVehicleProductToIProduct = (vp: IVehicleProduct, index: number): IProduct => {
@@ -70,8 +75,10 @@ const convertVehicleProductToIProduct = (vp: IVehicleProduct, index: number): IP
     };
 };
 
+const catalogSortOptions = [{ value: "popularity", label: "Popularitet" }];
+
 function SearchProductsView(props: Props) {
-    const { term, modelId, layout: layoutProps, gridLayout, offCanvasSidebar } = props;
+    const { term, modelId, layout: layoutProps, gridLayout, offCanvasSidebar, useCatalogLayout = false } = props;
     const intl = useIntl();
     const router = useRouter();
     const [, setSidebarIsOpen] = useContext(SidebarContext);
@@ -217,129 +224,167 @@ function SearchProductsView(props: Props) {
 
                 {!isEmptyList(navigation) && (
                     <React.Fragment>
-                        <div className={viewOptionsClasses}>
-                            <div className="view-options__body">
-                                <button
-                                    type="button"
-                                    className="view-options__filters-button filters-button"
-                                    onClick={handleFiltersClick}
+                        {useCatalogLayout ? (
+                            <div className={rightPanelStyles.panel}>
+                                <CatalogTopControls
+                                    limit={limit}
+                                    onLimitChange={handleLimitChange}
+                                    layout={layout}
+                                    onLayoutChange={setLayout}
+                                    navigation={navigation}
+                                    page={page}
+                                    onNavigate={onNavigate}
+                                    onFiltersClick={offCanvasSidebar === "mobile" ? handleFiltersClick : undefined}
+                                    filtersButtonLabel="Kategori"
+                                    filterCount={0}
+                                    sortValue="popularity"
+                                    sortOptions={catalogSortOptions}
+                                />
+                                <div
+                                    className={rightPanelStyles.productList}
+                                    data-layout={layout === "grid-with-features" ? "grid" : layout}
                                 >
-                                    <span className="filters-button__icon">
-                                        <Filters16Svg />
-                                    </span>
-                                    <span className="filters-button__title">
-                                        <FormattedMessage id="BUTTON_FILTERS" />
-                                    </span>
-                                    <span className="filters-button__counter">0</span>
-                                </button>
+                                    {productsList.items.map((product) => (
+                                        <div key={product.id} className={rightPanelStyles.productListItem}>
+                                            {layout === "list" ? (
+                                                <CatalogProductRowCard product={product} />
+                                            ) : (
+                                                <ProductCard
+                                                    product={product}
+                                                    layout={layout === "grid-with-features" ? "grid" : layout}
+                                                />
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <div className={viewOptionsClasses}>
+                                    <div className="view-options__body">
+                                        <button
+                                            type="button"
+                                            className="view-options__filters-button filters-button"
+                                            onClick={handleFiltersClick}
+                                        >
+                                            <span className="filters-button__icon">
+                                                <Filters16Svg />
+                                            </span>
+                                            <span className="filters-button__title">
+                                                <FormattedMessage id="BUTTON_FILTERS" />
+                                            </span>
+                                            <span className="filters-button__counter">0</span>
+                                        </button>
 
-                                <div className="view-options__layout layout-switcher">
-                                    <div className="layout-switcher__list">
-                                        {layoutButtons.map((button) => {
-                                            const buttonClasses = classNames("layout-switcher__button", {
-                                                "layout-switcher__button--active": button.layout === layout,
-                                            });
-                                            return (
-                                                <button
-                                                    key={button.layout}
-                                                    type="button"
-                                                    className={buttonClasses}
-                                                    onClick={() => setLayout(button.layout)}
-                                                >
-                                                    {button.icon}
-                                                </button>
-                                            );
-                                        })}
+                                        <div className="view-options__layout layout-switcher">
+                                            <div className="layout-switcher__list">
+                                                {layoutButtons.map((button) => {
+                                                    const buttonClasses = classNames("layout-switcher__button", {
+                                                        "layout-switcher__button--active": button.layout === layout,
+                                                    });
+                                                    return (
+                                                        <button
+                                                            key={button.layout}
+                                                            type="button"
+                                                            className={buttonClasses}
+                                                            onClick={() => setLayout(button.layout)}
+                                                        >
+                                                            {button.icon}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        <div className="view-options__legend">
+                                            {navigation.type === "page" && (
+                                                <FormattedMessage
+                                                    id="TEXT_SHOWING_PRODUCTS"
+                                                    values={{
+                                                        from: navigation.from,
+                                                        to: navigation.to,
+                                                        total: navigation.total,
+                                                    }}
+                                                />
+                                            )}
+                                        </div>
+
+                                        <div className="view-options__spring" />
+
+                                        <div className="view-options__select">
+                                            <label htmlFor="search-view-option-limit">
+                                                <FormattedMessage id="INPUT_LIMIT_LABEL" />:
+                                            </label>
+                                            <select
+                                                id="search-view-option-limit"
+                                                className="form-control form-control-sm"
+                                                value={limit}
+                                                onChange={handleLimitChange}
+                                            >
+                                                <option value="8">8</option>
+                                                <option value="16">16</option>
+                                                <option value="24">24</option>
+                                                <option value="32">32</option>
+                                            </select>
+                                        </div>
+                                        <div className="view-options__pagination">
+                                            {navigation && (
+                                                <Navigation data={navigation} page={page} onNavigate={onNavigate} />
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="view-options__legend">
-                                    {navigation.type === "page" && (
-                                        <FormattedMessage
-                                            id="TEXT_SHOWING_PRODUCTS"
-                                            values={{
-                                                from: navigation.from,
-                                                to: navigation.to,
-                                                total: navigation.total,
-                                            }}
-                                        />
-                                    )}
-                                </div>
-
-                                <div className="view-options__spring" />
-
-                                <div className="view-options__select">
-                                    <label htmlFor="search-view-option-limit">
-                                        <FormattedMessage id="INPUT_LIMIT_LABEL" />:
-                                    </label>
-                                    <select
-                                        id="search-view-option-limit"
-                                        className="form-control form-control-sm"
-                                        value={limit}
-                                        onChange={handleLimitChange}
-                                    >
-                                        <option value="8">8</option>
-                                        <option value="16">16</option>
-                                        <option value="24">24</option>
-                                        <option value="32">32</option>
-                                    </select>
-                                </div>
-                                <div className="view-options__pagination">
-                                    {navigation && (
-                                        <Navigation data={navigation} page={page} onNavigate={onNavigate} />
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div
-                            className={productListClasses}
-                            data-layout={layout === "grid-with-features" ? "grid" : layout}
-                            data-with-features={layout === "grid-with-features" ? "true" : "false"}
-                        >
-                            <div className="products-list__head">
-                                <div className="products-list__column products-list__column--image">
-                                    <FormattedMessage id="TABLE_IMAGE" />
-                                </div>
-                                <div className="products-list__column products-list__column--meta">
-                                    <FormattedMessage id="TABLE_SKU" />
-                                </div>
-                                <div className="products-list__column products-list__column--product">
-                                    <FormattedMessage id="TABLE_PRODUCT" />
-                                </div>
-                                <div className="products-list__column products-list__column--rating">
-                                    <FormattedMessage id="TABLE_RATING" />
-                                </div>
-                                <div className="products-list__column products-list__column--price">
-                                    <FormattedMessage id="TABLE_PRICE" />
-                                </div>
-                            </div>
-                            <div className="products-list__content">
-                                {productsList.items.map((product) => (
-                                    <div key={product.id} className="products-list__item">
-                                        <ProductCard product={product} />
+                                <div
+                                    className={productListClasses}
+                                    data-layout={layout === "grid-with-features" ? "grid" : layout}
+                                    data-with-features={layout === "grid-with-features" ? "true" : "false"}
+                                >
+                                    <div className="products-list__head">
+                                        <div className="products-list__column products-list__column--image">
+                                            <FormattedMessage id="TABLE_IMAGE" />
+                                        </div>
+                                        <div className="products-list__column products-list__column--meta">
+                                            <FormattedMessage id="TABLE_SKU" />
+                                        </div>
+                                        <div className="products-list__column products-list__column--product">
+                                            <FormattedMessage id="TABLE_PRODUCT" />
+                                        </div>
+                                        <div className="products-list__column products-list__column--rating">
+                                            <FormattedMessage id="TABLE_RATING" />
+                                        </div>
+                                        <div className="products-list__column products-list__column--price">
+                                            <FormattedMessage id="TABLE_PRICE" />
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
+                                    <div className="products-list__content">
+                                        {productsList.items.map((product) => (
+                                            <div key={product.id} className="products-list__item">
+                                                <ProductCard product={product} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
 
-                        <div className="products-view__pagination">
-                            <nav aria-label="Page navigation example">
-                                {navigation && <Navigation data={navigation} page={page} onNavigate={onNavigate} />}
-                            </nav>
-                            <div className="products-view__pagination-legend">
-                                {navigation.type === "page" && (
-                                    <FormattedMessage
-                                        id="TEXT_SHOWING_PRODUCTS"
-                                        values={{
-                                            from: navigation.from,
-                                            to: navigation.to,
-                                            total: navigation.total,
-                                        }}
-                                    />
-                                )}
-                            </div>
-                        </div>
+                                <div className="products-view__pagination">
+                                    <nav aria-label="Page navigation example">
+                                        {navigation && <Navigation data={navigation} page={page} onNavigate={onNavigate} />}
+                                    </nav>
+                                    <div className="products-view__pagination-legend">
+                                        {navigation.type === "page" && (
+                                            <FormattedMessage
+                                                id="TEXT_SHOWING_PRODUCTS"
+                                                values={{
+                                                    from: navigation.from,
+                                                    to: navigation.to,
+                                                    total: navigation.total,
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </React.Fragment>
                 )}
             </div>

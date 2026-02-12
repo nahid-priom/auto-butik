@@ -1,5 +1,5 @@
 /*
-// .main-menu (Updated megamenu styling)
+// .main-menu — Megamenu: header-container width, fit-content height
 */
 @import "../variables";
 @import "../functions";
@@ -8,132 +8,199 @@
 @import "../mixins/scheme";
 @import "../mixins/header";
 
+// Lock background scroll when megamenu is open
+body.megamenu-open {
+    overflow: hidden;
+}
+
+// Mega menu dropdown: fixed to viewport top (independent of navbar height)
+$megamenu-panel-top: 20px !default;
+
 @include desktop-header-variant-selector {
+    // Prevent header/navbar from clipping the fixed megamenu dropdown
+    .header,
+    .header__navbar {
+        overflow: visible;
+    }
+
     .main-menu__item--submenu--megamenu {
         position: relative;
 
         .main-menu__submenu {
-            position: absolute;
-            z-index: $z-dropdown;
+            position: fixed;
+            top: $megamenu-panel-top;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: auto;
+            z-index: 10002; // Above header and sticky navbar
             opacity: 0;
             visibility: hidden;
             transform-origin: top;
-            transform: rotateX(45deg);
-            transition: transform 0.2s, opacity 0.2s;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%) rotateX(45deg);
+            transform: translateY(-8px);
+            transition: transform 0.2s ease, opacity 0.2s ease, visibility 0.2s;
+            pointer-events: none;
         }
     }
 
-    .main-menu__item--has-submenu.main-menu__item--hover {
-        .main-menu__submenu {
-            visibility: visible;
-            opacity: 1;
-            transform: translateX(-50%) rotateX(0);
-        }
+    .main-menu__item--has-submenu.main-menu__item--hover .main-menu__submenu {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
     }
 
-    // Updated megamenu sizing and styling
+    // Inner panel: same max-width as header container, centered, fit-content height
+    // overflow: visible so 3rd-level flyouts (e.g. from right-column items) are not clipped
     .main-menu__megamenu {
         padding: 0;
         background-color: map_get($menu-scheme, main);
         box-shadow: map_get($menu-scheme, shadow);
-        border-radius: 8px;
-        overflow-x: hidden;
-        overflow-y: auto;
-        width: 90vw;
-        max-width: 1200px;
-        max-height: min(70vh, 600px);
-        margin-top: 5px;
+        border-radius: 0 0 8px 8px;
+        overflow: visible;
+        width: 100%;
+        max-width: map_get($container-max-widths, xxl);
+        margin: 0 auto;
+        height: auto;
     }
 
-    // Override all megamenu sizes to be consistent
     .main-menu__megamenu--size--xxl,
     .main-menu__megamenu--size--xl,
     .main-menu__megamenu--size--lg,
     .main-menu__megamenu--size--md,
     .main-menu__megamenu--size--nl,
     .main-menu__megamenu--size--sm {
-        width: 90vw;
-        max-width: 1200px;
+        width: 100%;
+        max-width: map_get($container-max-widths, xxl);
     }
 
-    // Megamenu inner layout
+    @include media-breakpoint-only(xl) {
+        .main-menu__megamenu,
+        .main-menu__megamenu--size--xxl,
+        .main-menu__megamenu--size--xl,
+        .main-menu__megamenu--size--lg,
+        .main-menu__megamenu--size--md,
+        .main-menu__megamenu--size--nl,
+        .main-menu__megamenu--size--sm {
+            max-width: map_get($container-max-widths, xl);
+        }
+    }
+
+    @include media-breakpoint-only(lg) {
+        .main-menu__megamenu,
+        .main-menu__megamenu--size--xxl,
+        .main-menu__megamenu--size--xl,
+        .main-menu__megamenu--size--lg,
+        .main-menu__megamenu--size--md,
+        .main-menu__megamenu--size--nl,
+        .main-menu__megamenu--size--sm {
+            max-width: map_get($container-max-widths, lg);
+        }
+    }
+
+    @include media-breakpoint-only(md) {
+        .main-menu__megamenu,
+        .main-menu__megamenu--size--xxl,
+        .main-menu__megamenu--size--xl,
+        .main-menu__megamenu--size--lg,
+        .main-menu__megamenu--size--md,
+        .main-menu__megamenu--size--nl,
+        .main-menu__megamenu--size--sm {
+            max-width: map_get($container-max-widths, md);
+        }
+    }
+
+    @include media-breakpoint-down(sm) {
+        .main-menu__megamenu,
+        .main-menu__megamenu--size--xxl,
+        .main-menu__megamenu--size--xl,
+        .main-menu__megamenu--size--lg,
+        .main-menu__megamenu--size--md,
+        .main-menu__megamenu--size--nl,
+        .main-menu__megamenu--size--sm {
+            max-width: 100%;
+        }
+    }
+
     .main-menu__megamenu-inner {
-        min-height: 400px;
         display: flex;
         width: 100%;
+        overflow: visible;
     }
 
-    // Full width layout (single column)
     .main-menu__megamenu-full {
-        padding: 20px;
+        padding: 16px 20px;
         width: 100%;
+        max-width: map_get($container-max-widths, xxl);
+        margin: 0 auto;
     }
 
-    // Left column styling - UPDATED
+    // Left sidebar — compact; overflow visible so any 3rd-level flyout is not clipped
     .main-menu__megamenu-left {
-        width: 25%;
-        min-width: 250px;
+        width: 280px;
+        min-width: 260px;
+        max-width: 320px;
+        flex-shrink: 0;
         border-right: 1px solid #e5e5e5;
-        padding: 20px 0;
+        padding: 8px 0;
         background: #fff;
+        overflow: visible;
 
         .mm-cat {
             display: flex;
             align-items: center;
-            padding: 12px 20px;
+            padding: 10px 12px;
+            min-height: 40px;
             text-decoration: none;
-            color: #000 !important; // Black text color
+            color: #000 !important;
             background-color: transparent;
-            border-right: 2px solid transparent;
-            transition: all 0.2s ease;
+            border-right: 3px solid transparent;
+            transition: background 0.15s ease, border-color 0.15s ease;
             position: relative;
+            flex-shrink: 0;
 
             &:hover {
-                background-color: #f8f8f8; // Light background only on hover
-                // No color change on hover - text stays black
+                background-color: #f5f5f5;
             }
 
             &.active {
                 background-color: #f0f0f0;
-                color: #000; // Black text for active state
                 font-weight: 600;
                 border-right-color: #000;
             }
 
             .mm-cat__icon {
-                width: 30px; // Increased to 30px
-                height: 30px; // Increased to 30px
-                margin-right: 12px;
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0;
+                margin-right: 10px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background-color: #fff; // White background for images
+                background-color: #fff;
                 border-radius: 4px;
 
                 img {
                     width: 100%;
                     height: 100%;
                     object-fit: contain;
-                    background-color: #fff; // White background for image element
                 }
             }
 
             .mm-cat__title {
                 flex: 1;
-                font-size: 14px;
+                font-size: 13px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
 
             .mm-cat__arrow {
-                width: 16px;
-                height: 16px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-left: 8px;
-                color: #000 !important; // Black arrow icon
+                width: 12px;
+                height: 12px;
+                flex-shrink: 0;
+                margin-left: 6px;
+                color: #666;
 
                 svg {
                     width: 100%;
@@ -143,42 +210,40 @@
             }
 
             &.active .mm-cat__arrow {
-                color: #000; // Black arrow for active state
+                color: #000;
             }
         }
     }
 
-    // Right column styling - UPDATED
+    // Right column — compact grid; overflow visible for 3rd-level flyouts
     .main-menu__megamenu-right {
         flex: 1;
-        padding: 20px;
+        min-width: 0;
+        padding: 16px 20px;
         background: #fff;
-        min-height: 300px;
+        overflow: visible;
     }
 
-    // Blocks grid system
+    .main-menu__megamenu-right .mm-blocks {
+        display: flex;
+        flex-direction: column;
+    }
+
     .mm-blocks-grid {
         display: grid;
-        gap: 20px;
+        gap: 12px;
 
         &--single {
-            grid-template-columns: repeat(
-                5,
-                1fr
-            ); // 5 items per row for single column
-            gap: 15px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
         }
 
         &--double {
-            grid-template-columns: repeat(
-                5,
-                1fr
-            ); // 5 items per row for double column
-            gap: 15px;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
         }
     }
 
-    // Item styling
     .mm-item {
         display: flex;
         flex-direction: column;
@@ -189,7 +254,7 @@
 
         &--single {
             color: #000;
-            padding: 10px;
+            padding: 8px;
             border-radius: 8px;
             background: transparent;
 
@@ -200,79 +265,95 @@
 
         &--double {
             color: #333;
-            padding: 15px;
+            padding: 10px 8px;
             border-radius: 8px;
             transition: all 0.2s ease;
-            background-color: #ffffff;
+            background-color: #fff;
 
             &:hover {
-                background-color: #ffffff;
-                transform: translateY(-2px);
+                background-color: #fff;
+                transform: translateY(-1px);
                 color: #333;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             }
         }
     }
 
-    // Thumb styling
     .mm-item__thumb {
         display: flex;
         align-items: center;
         justify-content: center;
 
         &--single {
-            padding: 8px;
-            margin-bottom: 10px;
-            background: #fff; // White background for images
-            border-radius: 8px;
+            padding: 6px;
+            margin-bottom: 8px;
+            background: #fff;
+            border-radius: 6px;
 
             img {
-                width: 90px; // Increased size for single column
-                height: 90px; // Increased size for single column
+                width: 72px;
+                height: 72px;
                 object-fit: contain;
-                background-color: #fff; // White background for image element
             }
         }
 
         &--double {
-            width: 90px; // Increased to 90px
-            height: 90px; // Increased to 90px
-            margin-bottom: 12px;
-            background-color: #fff; // White background for images
-            border-radius: 8px;
-            padding: 10px; // Slightly increased padding
+            width: 64px;
+            height: 64px;
+            margin-bottom: 8px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            padding: 6px;
 
             img {
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
-                background-color: #fff; // White background for image element
             }
         }
     }
 
-    // Label styling
     .mm-item__label {
         font-weight: 500;
+        font-size: 12px;
         line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
 
         &--single {
-            font-size: 13px; // Slightly larger for better readability
+            font-size: 12px;
         }
 
         &--double {
-            font-size: 13px;
+            font-size: 12px;
         }
     }
 
-    // Empty state
     .mm-blocks-empty {
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 200px;
+        min-height: 120px;
         color: #999;
-        font-size: 14px;
+        font-size: 13px;
+    }
+
+    .mm-blocks-more {
+        margin-top: 12px;
+        flex-shrink: 0;
+    }
+
+    .mm-blocks-more-link {
+        font-size: 13px;
+        font-weight: 500;
+        color: map_get($theme-scheme, main);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
     }
 
     // Ensure the parent menu item can contain the megamenu
@@ -421,13 +502,8 @@
         }
     }
 
-    // Responsive adjustments
+    // Responsive: fewer columns, keep full-height and no internal scroll
     @include media-breakpoint-down(xl) {
-        .main-menu__megamenu {
-            width: 95vw;
-        }
-
-        // Keep 5 columns for laptop screens (xl breakpoint)
         .mm-blocks-grid--single,
         .mm-blocks-grid--double {
             grid-template-columns: repeat(5, 1fr);
@@ -435,26 +511,18 @@
     }
 
     @include media-breakpoint-down(lg) {
-        // 4 columns for smaller laptop screens
         .mm-blocks-grid--single,
         .mm-blocks-grid--double {
             grid-template-columns: repeat(4, 1fr);
         }
 
         .main-menu__megamenu-left {
-            width: 30%;
-            min-width: 200px;
+            width: 260px;
+            min-width: 240px;
         }
     }
 
     @include media-breakpoint-down(md) {
-        .main-menu__megamenu {
-            width: 98vw;
-            max-height: 85vh;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
         .main-menu__megamenu-inner {
             flex-direction: column;
         }
@@ -462,13 +530,11 @@
         .main-menu__megamenu-left {
             width: 100%;
             min-width: auto;
+            max-width: none;
             border-right: none;
             border-bottom: 1px solid #e5e5e5;
-            max-height: 200px;
-            overflow-y: auto;
         }
 
-        // 3 columns for tablets
         .mm-blocks-grid--single,
         .mm-blocks-grid--double {
             grid-template-columns: repeat(3, 1fr);
@@ -476,7 +542,6 @@
     }
 
     @include media-breakpoint-down(sm) {
-        // 2 columns for mobile
         .mm-blocks-grid--single,
         .mm-blocks-grid--double {
             grid-template-columns: repeat(2, 1fr);
@@ -484,42 +549,18 @@
     }
 
     @include media-breakpoint-down(xs) {
-        // 1 column for very small screens
         .mm-blocks-grid--single,
         .mm-blocks-grid--double {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
         }
     }
 }
 
-// RTL support using separate selectors
-[dir="ltr"] .main-menu__item--submenu--megamenu .main-menu__submenu {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%) rotateX(45deg);
-}
-
-[dir="rtl"] .main-menu__item--submenu--megamenu .main-menu__submenu {
-    right: 50%;
-    left: auto;
-    transform: translateX(50%) rotateX(45deg);
-}
-
-[dir="ltr"]
-    .main-menu__item--has-submenu.main-menu__item--hover
-    .main-menu__submenu {
-    transform: translateX(-50%) rotateX(0);
-}
-
-[dir="rtl"]
-    .main-menu__item--has-submenu.main-menu__item--hover
-    .main-menu__submenu {
-    transform: translateX(50%) rotateX(0);
-}
+// Megamenu uses fixed full-width panel (no LTR/RTL position override)
 
 // Handle left column arrow positioning for RTL
 [dir="ltr"] .main-menu__megamenu-left .mm-cat .mm-cat__icon {
-    margin-right: 12px;
+    margin-right: 10px;
     margin-left: 0;
 }
 
@@ -529,21 +570,28 @@
 }
 
 [dir="ltr"] .main-menu__megamenu-left .mm-cat .mm-cat__arrow {
-    margin-left: 8px;
+    margin-left: 6px;
     margin-right: 0;
 }
 
 [dir="rtl"] .main-menu__megamenu-left .mm-cat .mm-cat__arrow {
-    margin-right: 8px;
+    margin-right: 6px;
     margin-left: 0;
 }
 
+[dir="ltr"] .main-menu__megamenu-left .mm-cat {
+    border-right-width: 3px;
+    border-left-width: 0;
+}
 [dir="ltr"] .main-menu__megamenu-left .mm-cat.active {
     border-right-color: #000;
-    border-left-color: transparent;
 }
 
+[dir="rtl"] .main-menu__megamenu-left .mm-cat {
+    border-left-width: 3px;
+    border-right-width: 0;
+    border-left-color: transparent;
+}
 [dir="rtl"] .main-menu__megamenu-left .mm-cat.active {
     border-left-color: #000;
-    border-right-color: transparent;
 }

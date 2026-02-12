@@ -1,0 +1,455 @@
+// Catalog product row card: 180px image | details (flex) | price/actions
+// 16px base typography, professional layout — UI only, no logic changes
+
+.card {
+    display: grid;
+    grid-template-columns: 180px 1fr minmax(200px, 280px);
+    align-items: center;
+    gap: 0 20px;
+    min-height: 212px;
+    padding: 14px 16px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        border-color: rgba(0, 0, 0, 0.12);
+    }
+}
+
+// Zone 1: Image — fixed 180×180, object-contain, centered, no distortion
+.zone1 {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 180px;
+    min-width: 180px;
+    height: 180px;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.imageWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 180px;
+    height: 180px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    padding: 0;
+}
+
+.image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+}
+
+// Zone 2: Title, meta, specs — 16px base, vertically centered, compact spacing
+.zone2 {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+}
+
+.title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
+    a {
+        color: inherit;
+        text-decoration: none;
+
+        &:hover {
+            color: #0066cc;
+        }
+    }
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tagChip {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: #e5e7eb;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+}
+
+.idText {
+    font-size: 16px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.specs {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #374151;
+
+    li {
+        margin: 0 0 2px;
+    }
+}
+
+.specName {
+    color: #6b7280;
+}
+
+.specValue {
+    color: #111;
+    font-weight: 500;
+}
+
+.showAllLink {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: #0066cc;
+    text-decoration: underline;
+    cursor: pointer;
+    align-self: flex-start;
+    margin-top: 2px;
+    line-height: 1.5;
+
+    &:hover {
+        color: #004499;
+    }
+}
+
+// Zone 3: Price 18–20px, VAT 14px, qty+button grouped, right-aligned
+.zone3 {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    text-align: right;
+}
+
+.price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.3;
+}
+
+.vatRow {
+    font-size: 14px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: flex-end;
+    line-height: 1.4;
+}
+
+.vatDivider {
+    color: #d1d5db;
+}
+
+.vatText,
+.shippingText {
+    color: #6b7280;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.qtySelect {
+    height: 40px;
+    min-width: 58px;
+    padding: 0 10px;
+    padding-right: 28px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 16px;
+    color: inherit;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23444' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+
+    &:focus {
+        outline: none;
+        border-color: #0066cc;
+    }
+}
+
+// Match /products/[id] Add to cart red (theme primary: #ff3333)
+.buyBtn {
+    height: 40px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 8px;
+    background: #ff3333;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover:not(:disabled) {
+        background: #e62e2e;
+    }
+
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+}
+
+.compareLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.compareInput {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: #0066cc;
+}
+
+.compareText {
+    user-select: none;
+}
+
+.delivery {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.deliveryIcon {
+    flex-shrink: 0;
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+// Slightly smaller screens: keep 180px image, reduce horizontal padding
+@media (max-width: 1199px) {
+    .card {
+        gap: 0 16px;
+        padding: 12px 14px;
+    }
+
+    .title {
+        font-size: 15px;
+    }
+
+    .price {
+        font-size: 18px;
+    }
+}
+
+// Tablet narrow: reduce image to fit three columns
+@media (max-width: 991px) {
+    .card {
+        grid-template-columns: 180px 1fr minmax(180px, 1fr);
+        min-height: 212px;
+        gap: 0 14px;
+        padding: 12px 14px;
+    }
+
+    .zone1,
+    .imageWrap {
+        width: 180px;
+        min-width: 180px;
+        height: 180px;
+    }
+
+    .title {
+        font-size: 15px;
+    }
+
+    .specs,
+    .idText {
+        font-size: 14px;
+    }
+
+    .tagChip {
+        font-size: 13px;
+    }
+
+    .price {
+        font-size: 18px;
+    }
+
+    .vatRow {
+        font-size: 13px;
+    }
+}
+
+// Mobile: stack — image max 180px, 16px typography, full-width price + actions
+@media (max-width: 767px) {
+    .card {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        min-height: 0;
+        gap: 0;
+        padding: 14px 16px;
+        border-radius: 12px;
+    }
+
+    .zone1 {
+        grid-column: 1;
+        grid-row: 1;
+        align-self: center;
+        justify-self: center;
+        width: 100%;
+        max-width: 180px;
+        height: 180px;
+        min-height: 0;
+    }
+
+    .imageWrap {
+        width: 100%;
+        max-width: 180px;
+        height: 180px;
+        margin: 0 auto;
+        border-radius: 10px;
+    }
+
+    .zone2 {
+        grid-column: 1;
+        grid-row: 2;
+        gap: 6px;
+        padding-top: 12px;
+    }
+
+    .title {
+        font-size: 15px;
+        -webkit-line-clamp: 2;
+    }
+
+    .meta {
+        gap: 8px;
+    }
+
+    .tagChip {
+        font-size: 14px;
+        padding: 3px 8px;
+    }
+
+    .idText {
+        font-size: 16px;
+    }
+
+    .specs {
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    .showAllLink {
+        font-size: 16px;
+        margin-top: 4px;
+    }
+
+    .zone3 {
+        grid-column: 1;
+        grid-row: 3;
+        align-items: stretch;
+        text-align: left;
+        width: 100%;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        padding-top: 12px;
+        margin-top: 8px;
+        gap: 6px;
+    }
+
+    .price {
+        font-size: 18px;
+    }
+
+    .vatRow {
+        justify-content: flex-start;
+        font-size: 14px;
+    }
+
+    .actions {
+        flex-wrap: nowrap;
+        gap: 10px;
+        margin-top: 0;
+    }
+
+    .qtySelect {
+        flex: 0 0 auto;
+        min-width: 52px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .buyBtn {
+        flex: 1;
+        min-width: 0;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .compareLabel {
+        font-size: 14px;
+    }
+
+    .compareInput {
+        width: 16px;
+        height: 16px;
+    }
+
+    .delivery {
+        font-size: 14px;
+    }
+}

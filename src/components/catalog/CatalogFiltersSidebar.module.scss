@@ -1,0 +1,236 @@
+// Catalog filters sidebar: single source, compact, height fit-content (no internal scroll)
+
+.root {
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 14px;
+    height: fit-content;
+}
+
+.header {
+    flex-shrink: 0;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: inherit;
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0 -2px;
+    padding: 0 2px;
+    height: fit-content;
+}
+
+.embedded {
+    .card {
+        box-shadow: none;
+        border-radius: 0;
+        border: none;
+        padding: 12px 16px 16px;
+    }
+    .header {
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+    }
+}
+
+// Drawer: accordion-style filter groups, tap-friendly
+.root.embedded :global(.widget-brand-filter__title-row),
+.root.embedded :global(.widget-position-filter__title-row) {
+    min-height: 44px;
+    padding: 0 8px 0 0;
+    border-radius: 8px;
+}
+
+.root.embedded :global(.widget-brand-filter__item),
+.root.embedded :global(.widget-position-filter__item) {
+    min-height: 44px;
+    padding: 8px 0;
+}
+
+.root.embedded :global(.widget-vehicle-categories__link) {
+    min-height: 44px;
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+// Desktop: sidebar width only (no sticky, no max-height, no internal scroll)
+@media (min-width: 992px) {
+    .root {
+        width: 280px;
+        max-width: 320px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .root {
+        width: 300px;
+    }
+}
+
+// Scoped overrides: compact widget groups (no legacy leakage)
+.root :global(.widget-vehicle-categories) {
+    margin-bottom: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+
+.root :global(.widget-vehicle-categories__body) {
+    gap: 8px;
+}
+
+.root :global(.widget-vehicle-categories__search) {
+    border-radius: 8px;
+    min-height: 36px;
+}
+
+.root :global(.widget-vehicle-categories__search-input) {
+    padding: 8px 10px;
+    font-size: 13px;
+}
+
+.root :global(.widget-vehicle-categories__item) {
+    margin-bottom: 0;
+}
+
+.root :global(.widget-vehicle-categories__link) {
+    padding: 6px 0;
+    font-size: 13px;
+}
+
+.root :global(.widget-brand-filter),
+.root :global(.widget-position-filter),
+.root :global(.widget-filters) {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+}
+
+.root :global(.widget-vehicle-categories) + :global(.widget-brand-filter),
+.root :global(.widget-vehicle-categories) + :global(.widget-position-filter),
+.root :global(.widget-vehicle-categories) + :global(.widget-filters),
+.root :global(.widget-brand-filter) + :global(.widget-position-filter),
+.root :global(.widget-brand-filter) + :global(.widget-filters),
+.root :global(.widget-position-filter) + :global(.widget-filters) {
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.root :global(.widget-brand-filter__header),
+.root :global(.widget-position-filter__header) {
+    margin-bottom: 6px;
+}
+
+.root :global(.widget-brand-filter__title-row),
+.root :global(.widget-position-filter__title-row) {
+    min-height: 32px;
+    padding: 4px 0;
+    font-size: 13px;
+    font-weight: 600;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: inherit;
+}
+
+.root :global(.widget-brand-filter__title),
+.root :global(.widget-position-filter__title) {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.root :global(.widget-brand-filter__body),
+.root :global(.widget-position-filter__body) {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.root :global(.widget-brand-filter__search),
+.root :global(.widget-position-filter__search) {
+    min-height: 32px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.root :global(.widget-brand-filter__search-input),
+.root :global(.widget-position-filter__search-input) {
+    padding: 6px 8px;
+    font-size: 13px;
+}
+
+.root :global(.widget-brand-filter__item),
+.root :global(.widget-position-filter__item) {
+    min-height: 28px;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.root :global(.widget-brand-filter__label),
+.root :global(.widget-position-filter__label) {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.root :global(.widget-filters__header) {
+    margin-bottom: 6px;
+}
+
+.root :global(.widget-filters__header h4) {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+}
+
+.root :global(.widget-filters__list) {
+    padding-top: 4px;
+}
+
+.root :global(.widget-filters__actions) {
+    margin-top: 10px;
+}
+
+.root :global(.widget-filters__actions .btn) {
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 8px;
+}

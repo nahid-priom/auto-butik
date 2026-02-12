@@ -1,0 +1,91 @@
+// Catalog products page: 2-column layout, no Bootstrap grid
+// Page max width 1280px
+
+.pageWrap {
+    width: 100%;
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+.root {
+    width: 100%;
+}
+
+// Single filter sidebar on desktop: hide the drawer (ShopSidebar) so only the left column shows
+.root :global(.sidebar--offcanvas--mobile) {
+    @media (min-width: 992px) {
+        display: none !important;
+    }
+}
+
+.container {
+    width: 100%;
+}
+
+.layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-top: 16px;
+}
+
+.sidebarCol {
+    flex-shrink: 0;
+    display: none;
+}
+
+.mainCol {
+    flex: 1;
+    min-width: 0;
+}
+
+// Desktop: show sidebar
+@media (min-width: 992px) {
+    .sidebarCol {
+        display: block;
+    }
+}
+
+@media (max-width: 1199px) {
+    .pageWrap {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .layout {
+        gap: 32px;
+    }
+}
+
+// Mobile: compact breadcrumb, same container width as rest of page, tight vertical rhythm
+@media (max-width: 767px) {
+    .pageWrap {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .pageWrap :global(.block-header) {
+        margin-bottom: 0;
+    }
+
+    .pageWrap :global(.block-header .container) {
+        padding-left: 0;
+        padding-right: 0;
+        max-width: 100%;
+    }
+
+    .pageWrap :global(.block-header__breadcrumb) {
+        padding-top: 6px;
+        padding-bottom: 6px;
+        margin-bottom: 0;
+    }
+
+    .layout {
+        margin-top: 10px;
+    }
+}

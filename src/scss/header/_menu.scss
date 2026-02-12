@@ -1,5 +1,5 @@
 /*
-// .menu
+// .menu — nested flyouts (2nd/3rd level) must not be clipped; clear z-index stacking
 */
 @import '../variables';
 @import '../mixins/direction';
@@ -18,8 +18,10 @@
         background-color: map_get($menu-small-scheme, main);
         box-shadow: map_get($menu-small-scheme, shadow);
         width: 200px;
+        min-width: 200px;
         font-size: 15px;
         line-height: 22px;
+        overflow: visible;
 
         @include scheme-font-weight($menu-small-scheme, opposite, $font-weight-medium);
     }
@@ -27,6 +29,7 @@
         list-style: none;
         margin: 0;
         padding: $local-padding-y 0;
+        overflow: visible;
     }
     .menu__submenu {
         position: absolute;
@@ -34,9 +37,14 @@
         visibility: hidden;
         opacity: 0;
         transition: opacity .2s;
-
+        z-index: 100;
+        min-width: 260px;
+        max-width: 320px;
+        pointer-events: auto;
+        // Small overlap so cursor doesn't leave hover boundary when moving into flyout (no flicker)
         @include direction {
             #{$inset-inline-start}: 100%;
+            #{$margin-inline-start}: -2px;
         }
     }
     .menu__link {
@@ -86,8 +94,17 @@
         }
     }
 
-    // item / has-submenu
+    // item / has-submenu — keep flyout in same hover boundary (no gap)
     .menu__item--has-submenu {
         position: relative;
+        overflow: visible;
+    }
+
+    // Ensure nested .menu (inside flyout) also allows its flyout to show
+    .menu__submenu .menu {
+        overflow: visible;
+    }
+    .menu__submenu .menu__list {
+        overflow: visible;
     }
 }

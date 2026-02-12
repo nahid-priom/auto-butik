@@ -626,6 +626,18 @@
 
 .block-vehicle-search-hero__form {
     animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s backwards;
-    
+}
+
+// Hero skeleton (instant first paint when navigating home)
+.block-vehicle-search-hero--skeleton {
+    .block-vehicle-search-hero__title-skeleton-bar,
+    .block-vehicle-search-hero__subtitle-skeleton-bar {
+        max-width: 70%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .block-vehicle-search-hero__subtitle-skeleton-bar {
+        max-width: 40%;
+    }
 }
 

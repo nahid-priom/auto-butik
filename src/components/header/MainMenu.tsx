@@ -1,5 +1,5 @@
 // react
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 // third-party
 import classNames from "classnames";
 // application
@@ -12,12 +12,15 @@ import { IMainMenuLink } from "~/interfaces/main-menu-link";
 import { useOptions } from "~/store/options/optionsHooks";
 import { useCategoryTreeSafe } from "~/contexts/CategoryTreeContext";
 
+const MEGAMENU_BODY_CLASS = "megamenu-open";
+
 function MainMenu() {
     const { headerMenu } = useCategoryTreeSafe();
     const items: IMainMenuLink[] = headerMenu ?? [];
     const [currentItem, setCurrentItem] = useState<IMainMenuLink | null>(null);
     const options = useOptions();
     const desktopLayout = options.desktopHeaderLayout;
+    const isMegamenuOpen = !!currentItem?.submenu && currentItem.submenu.type === "megamenu";
 
     const handleItemMouseEnter = (item: IMainMenuLink) => {
         setCurrentItem(item);
@@ -29,9 +32,30 @@ function MainMenu() {
         }
     };
 
-    const handleItemClick = () => {
+    const handleItemClick = useCallback(() => {
         setCurrentItem(null);
-    };
+    }, []);
+
+    // Lock body scroll when megamenu is open
+    useEffect(() => {
+        if (typeof document === "undefined") return;
+        if (isMegamenuOpen) {
+            document.body.classList.add(MEGAMENU_BODY_CLASS);
+        } else {
+            document.body.classList.remove(MEGAMENU_BODY_CLASS);
+        }
+        return () => document.body.classList.remove(MEGAMENU_BODY_CLASS);
+    }, [isMegamenuOpen]);
+
+    // Escape closes megamenu
+    useEffect(() => {
+        if (!isMegamenuOpen) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setCurrentItem(null);
+        };
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, [isMegamenuOpen]);
 
     return (
         <div className="main-menu">
