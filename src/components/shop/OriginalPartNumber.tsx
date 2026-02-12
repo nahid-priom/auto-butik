@@ -2,6 +2,7 @@ import React from "react";
 import { FormattedMessage } from "react-intl";
 import { OeReferenceGroup } from "~/interfaces/tecdoc";
 import ProductSectionEmpty from "~/components/shop/ProductSectionEmpty";
+import { makeUniqueKeys } from "~/utils/reactKeys";
 
 interface OriginalPartNumberProps {
     productName?: string;
@@ -62,12 +63,20 @@ const OriginalPartNumber: React.FC<OriginalPartNumberProps> = ({
 
             <div className="part-number-table-container">
                 <div className="part-number-table">
-                    {oeReferences.map((group, index) => (
-                        <div key={index} className="table-row">
+                    {makeUniqueKeys(
+                        oeReferences,
+                        (group, i) => group.manufacturer || `oe-${i}`,
+                        { prefix: "oe", reportLabel: "OriginalPartNumber.groups" }
+                    ).map(({ item: group, key: groupKey }) => (
+                        <div key={groupKey} className="table-row">
                             <div className="table-cell brand-cell">{group.manufacturer}</div>
                             <div className="table-cell number-cell">
-                                {group.references.map((ref, refIndex) => (
-                                    <span key={refIndex} className="oe-reference-number">
+                                {makeUniqueKeys(
+                                    group.references,
+                                    (ref, j) => ref || `ref-${j}`,
+                                    { prefix: "ref", reportLabel: "OriginalPartNumber.references" }
+                                ).map(({ item: ref, key: refKey }) => (
+                                    <span key={refKey} className="oe-reference-number">
                                         {ref}
                                     </span>
                                 ))}

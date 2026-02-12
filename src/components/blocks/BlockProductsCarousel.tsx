@@ -9,6 +9,7 @@ import ProductCard, { IProductCardElement, IProductCardLayout } from '~/componen
 import SectionHeader, { ISectionHeaderGroup } from '~/components/shared/SectionHeader';
 import { ILink } from '~/interfaces/link';
 import { IProduct } from '~/interfaces/product';
+import { makeUniqueKeys } from '~/utils/reactKeys';
 
 export type IBlockProductsCarouselLayout =
     'grid-4' |
@@ -181,6 +182,17 @@ function BlockProductsCarousel<T extends ISectionHeaderGroup>(props: Props<T>) {
         return result;
     }, [rows, products]);
 
+    const productKeyMap = useMemo(() => {
+        const withKeys = makeUniqueKeys(
+            products,
+            (p, i) => String(p.id ?? p.slug ?? "") || `p-${i}`,
+            { prefix: "related", reportLabel: "BlockProductsCarousel.products" }
+        );
+        const map = new Map<IProduct, string>();
+        withKeys.forEach(({ item, key }) => map.set(item, key));
+        return map;
+    }, [products]);
+
     const carousel = useMemo(() => {
         const productCardLayout = productCardLayoutMap[layout];
         const productCardExclude = productCardExcludeMap[productCardLayout];
@@ -191,7 +203,7 @@ function BlockProductsCarousel<T extends ISectionHeaderGroup>(props: Props<T>) {
                     <div key={columnIdx} className="block-products-carousel__column">
                         {column.map((product, productIdx) => (
                             <ProductCard
-                                key={productIdx}
+                                key={productKeyMap.get(product) ?? `col-${columnIdx}-${productIdx}`}
                                 className="block-products-carousel__cell"
                                 product={product}
                                 layout={productCardLayout}
@@ -202,7 +214,7 @@ function BlockProductsCarousel<T extends ISectionHeaderGroup>(props: Props<T>) {
                 ))}
             </AppSlick>
         );
-    }, [columns, layout]);
+    }, [columns, layout, productKeyMap]);
 
     return (
         <div className="block block-products-carousel" data-layout={layout}>

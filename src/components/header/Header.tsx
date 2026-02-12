@@ -1,5 +1,6 @@
 // react
-import React, { useMemo, useRef, useState, useLayoutEffect } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
+import { useIsomorphicLayoutEffect } from '~/hooks/useIsomorphicLayoutEffect';
 // third-party
 import classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
@@ -40,7 +41,7 @@ function Header() {
     const lastScrollYRef = useRef(0);
     const lastToggleAtRef = useRef(0);
 
-    useLayoutEffect(() => {
+    useIsomorphicLayoutEffect(() => {
         if (typeof window === 'undefined') return;
         let ticking = false;
 

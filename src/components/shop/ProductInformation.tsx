@@ -2,6 +2,7 @@ import React from "react";
 import { FormattedMessage } from "react-intl";
 import { TechnicalSpec } from "~/interfaces/tecdoc";
 import ProductSectionEmpty from "~/components/shop/ProductSectionEmpty";
+import { makeUniqueKeys } from "~/utils/reactKeys";
 
 interface ProductInformationProps {
     productName?: string;
@@ -51,8 +52,12 @@ const ProductInformation: React.FC<ProductInformationProps> = ({
                 <FormattedMessage id="TECHNICAL_INFORMATION_TITLE" values={{ productName }} />
             </h2>
             <div className="product-info-grid">
-                {technicalSpecs.map((spec, index) => (
-                    <div key={index} className="info-row">
+                {makeUniqueKeys(
+                    technicalSpecs,
+                    (spec, i) => `${spec.name}|${spec.value}` || `spec-${i}`,
+                    { prefix: "info", reportLabel: "ProductInformation.specs" }
+                ).map(({ item: spec, key }) => (
+                    <div key={key} className="info-row">
                         <div className="info-key">{spec.name}</div>
                         <div className="info-value">{spec.value}</div>
                     </div>

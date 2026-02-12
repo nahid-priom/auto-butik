@@ -2,6 +2,7 @@ import React, { useState, ChangeEvent, useMemo } from "react";
 import { FormattedMessage } from "react-intl";
 import { VehicleGroup, Vehicle } from "~/interfaces/tecdoc";
 import ProductSectionEmpty from "~/components/shop/ProductSectionEmpty";
+import { makeUniqueKeys } from "~/utils/reactKeys";
 
 interface CompatibleVehiclesProps {
     compatibleVehicles?: VehicleGroup[];
@@ -117,8 +118,8 @@ const CompatibleVehicles: React.FC<CompatibleVehiclesProps> = ({
                         <option value="">
                             <FormattedMessage id="SELECT_MAKE_PLACEHOLDER" />
                         </option>
-                        {allMakes.map((make, index) => (
-                            <option key={index} value={make}>
+                        {makeUniqueKeys(allMakes, (make, i) => make || `make-${i}`, { prefix: "make", reportLabel: "CompatibleVehicles.makes" }).map(({ item: make, key }) => (
+                            <option key={key} value={make}>
                                 {make}
                             </option>
                         ))}
@@ -135,8 +136,8 @@ const CompatibleVehicles: React.FC<CompatibleVehiclesProps> = ({
                         <option value="">
                             <FormattedMessage id="SELECT_MODEL_PLACEHOLDER" />
                         </option>
-                        {modelsForSelectedMake.map((model, index) => (
-                            <option key={index} value={model}>
+                        {makeUniqueKeys(modelsForSelectedMake, (model, i) => model || `model-${i}`, { prefix: "model", reportLabel: "CompatibleVehicles.models" }).map(({ item: model, key }) => (
+                            <option key={key} value={model}>
                                 {model}
                             </option>
                         ))}
@@ -151,17 +152,22 @@ const CompatibleVehicles: React.FC<CompatibleVehiclesProps> = ({
             </div>
 
             <div className="vehicles-list">
-                {compatibleVehicles.map((group, index) => {
-                    // Skip manufacturers that don't match the filter
-                    if (selectedMake && group.manufacturer !== selectedMake) {
-                        return null;
-                    }
-
+                {makeUniqueKeys(
+                    compatibleVehicles.filter((group) => !selectedMake || group.manufacturer === selectedMake),
+                    (group) => [group.manufacturerCode, group.manufacturer].filter(Boolean).join("|") || "group",
+                    { prefix: "vg", reportLabel: "CompatibleVehicles.groups" }
+                ).map(({ item: group, key: groupKey }) => {
                     const filteredVehicles = getFilteredVehicles(group.vehicles);
                     if (filteredVehicles.length === 0) return null;
 
+                    const vehicleKeys = makeUniqueKeys(
+                        filteredVehicles,
+                        (v) => [v.ktypno, v.model, v.years, v.engine].filter(Boolean).join("|") || "v",
+                        { prefix: "v", reportLabel: "CompatibleVehicles.vehicles" }
+                    );
+
                     return (
-                        <div key={group.manufacturerCode || index} className="vehicle-item">
+                        <div key={groupKey} className="vehicle-item">
                             <div className="vehicle-make accordion-header" onClick={() => toggleMake(group.manufacturer)}>
                                 <span className="accordion-icon">
                                     <svg
@@ -186,17 +192,13 @@ const CompatibleVehicles: React.FC<CompatibleVehiclesProps> = ({
 
                             <div className="vehicle-models-container">
                                 <div className={`vehicle-models ${isMakeExpanded(group.manufacturer) ? "expanded" : ""}`}>
-                                    {/* Table header */}
                                     <div className="vehicle-models-table-header">
                                         <span className="vehicle-col-model">Modell</span>
                                         <span className="vehicle-col-years">År</span>
                                         <span className="vehicle-col-engine">Motor / Drivlina</span>
                                     </div>
-                                    {filteredVehicles.map((vehicle, vehicleIndex) => (
-                                        <div
-                                            key={vehicle.ktypno || vehicleIndex}
-                                            className="vehicle-model vehicle-detail"
-                                        >
+                                    {vehicleKeys.map(({ item: vehicle, key: vehicleKey }) => (
+                                        <div key={vehicleKey} className="vehicle-model vehicle-detail">
                                             <span className="vehicle-col-model model-text">{vehicle.model}</span>
                                             <span className="vehicle-col-years vehicle-years">{vehicle.years}</span>
                                             <span className="vehicle-col-engine vehicle-engine">{vehicle.engine}</span>

@@ -103,6 +103,7 @@ $local-bottom-decor-height: 24px;
 
 // Layout with sidebar: 4–5 cols desktop, 3 tablet, 2 mobile
 .block-categories--layout--columns-4-sidebar {
+    margin-top: 0;
     background: #f7f8fa;
     padding: 20px 0 24px;
     border-radius: 12px;
@@ -149,17 +150,38 @@ $local-bottom-decor-height: 24px;
     }
     @include media-breakpoint-down(sm) {
         .block-categories__item {
-            width: calc((100% - 24px) / 2);
+            width: calc((100% - 24px) / 3);
         }
     }
     @media (max-width: 474px) {
+        .block-categories__list {
+            margin: -4px;
+        }
         .block-categories__item {
-            width: calc(100% - 12px);
+            margin: 4px;
+            width: calc((100% - 24px) / 3);
         }
     }
 
     // Card uses shared classic styles; ensure min-height for alignment
     .block-categories__item {
         min-height: 0;
+    }
+
+    // Compact card on mobile so three items fit cleanly in one row
+    @include media-breakpoint-down(sm) {
+        .category-card__body {
+            padding: 10px 6px;
+        }
+        .category-card__image {
+            height: 64px;
+            min-height: 64px;
+            max-height: 64px;
+            margin-bottom: 6px;
+        }
+        .category-card__name {
+            font-size: 12px;
+            line-height: 1.3;
+        }
     }
 }

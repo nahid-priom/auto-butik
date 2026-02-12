@@ -48,6 +48,7 @@ import OriginalPartNumber from "./OriginalPartNumber";
 import { useTecdocProduct } from "~/hooks/useTecdocProduct";
 import { TechnicalSpec } from "~/interfaces/tecdoc";
 import { getFeaturedProducts } from "~/data/featuredProducts";
+import { makeUniqueKeys } from "~/utils/reactKeys";
 // Payment method logos are imported as images
 
 interface Props {
@@ -457,8 +458,8 @@ function ShopPageProduct(props: Props) {
             {product.tags && product.tags.length > 0 && (
                 <div className="product__tags tags tags--sm">
                     <div className="tags__list">
-                        {product.tags.map((tag, index) => (
-                            <AppLink href="/" key={index}>
+                        {makeUniqueKeys(product.tags, (tag, i) => (typeof tag === "string" ? tag : String(tag)) || `tag-${i}`, { prefix: "tag", reportLabel: "ShopPageProduct.tags" }).map(({ item: tag, key }) => (
+                            <AppLink href="/" key={key}>
                                 {tag}
                             </AppLink>
                         ))}
@@ -517,6 +518,7 @@ function ShopPageProduct(props: Props) {
                                 <div className="product__body">
                                     <div className="product__section">
                                         <ProductGallery
+                                            key={product.id}
                                             images={product.images || []}
                                             layout={galleryLayout}
                                             className="product__gallery"
@@ -781,18 +783,34 @@ function ShopPageProduct(props: Props) {
                                                             }`}
                                                         >
                                                             <div className="product-card__features-column">
-                                                                {displayedFeatures
-                                                                    .slice(
+                                                                {makeUniqueKeys(
+                                                                    displayedFeatures.slice(
                                                                         0,
                                                                         showAllFeatures
                                                                             ? Math.ceil(displayedFeatures.length / 2)
                                                                             : 4
-                                                                    )
-                                                                    .map((spec, index) => (
-                                                                        <div
-                                                                            key={index}
-                                                                            className="product-card__feature-item"
-                                                                        >
+                                                                    ),
+                                                                    (spec, i) => `${spec.name}|${spec.value}` || `spec-${i}`,
+                                                                    { prefix: "spec", reportLabel: "ShopPageProduct.features" }
+                                                                ).map(({ item: spec, key: specKey }) => (
+                                                                    <div key={specKey} className="product-card__feature-item">
+                                                                        {spec.name}
+                                                                        {": "}
+                                                                        <span className="product-card__feature-value">
+                                                                            {spec.value}
+                                                                        </span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+
+                                                            {showAllFeatures && (
+                                                                <div className="product-card__features-column">
+                                                                    {makeUniqueKeys(
+                                                                        displayedFeatures.slice(Math.ceil(displayedFeatures.length / 2)),
+                                                                        (spec, i) => `${spec.name}|${spec.value}` || `spec-${i}`,
+                                                                        { prefix: "spec2", reportLabel: "ShopPageProduct.featuresCol2" }
+                                                                    ).map(({ item: spec, key: specKey }) => (
+                                                                        <div key={specKey} className="product-card__feature-item">
                                                                             {spec.name}
                                                                             {": "}
                                                                             <span className="product-card__feature-value">
@@ -800,27 +818,6 @@ function ShopPageProduct(props: Props) {
                                                                             </span>
                                                                         </div>
                                                                     ))}
-                                                            </div>
-
-                                                            {showAllFeatures && (
-                                                                <div className="product-card__features-column">
-                                                                    {displayedFeatures
-                                                                        .slice(Math.ceil(displayedFeatures.length / 2))
-                                                                        .map((spec, index) => (
-                                                                            <div
-                                                                                key={
-                                                                                    index +
-                                                                                    Math.ceil(displayedFeatures.length / 2)
-                                                                                }
-                                                                                className="product-card__feature-item"
-                                                                            >
-                                                                                {spec.name}
-                                                                                {": "}
-                                                                                <span className="product-card__feature-value">
-                                                                                    {spec.value}
-                                                                                </span>
-                                                                            </div>
-                                                                        ))}
                                                                 </div>
                                                             )}
                                                         </div>
