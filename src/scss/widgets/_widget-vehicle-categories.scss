@@ -173,6 +173,21 @@
     }
 }
 
+.widget-vehicle-categories__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+
+    img {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+    }
+}
+
 .widget-vehicle-categories__name {
     flex: 1;
     min-width: 0;

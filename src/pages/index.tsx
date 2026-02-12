@@ -220,6 +220,7 @@ function Page() {
                     layout="grid-5"
                     loading={featuredProducts.isLoading}
                     products={featuredProducts.data}
+                    compactCards
                 />
             </LazySection>
             <BlockSpace layout="divider-nl" />

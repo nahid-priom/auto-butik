@@ -13,8 +13,7 @@ body.megamenu-open {
     overflow: hidden;
 }
 
-// Mega menu dropdown: fixed to viewport top (independent of navbar height)
-$megamenu-panel-top: 20px !default;
+// Mega menu dropdown: top/left/width set by JS from categories row anchor (see MainMenu.tsx)
 
 @include desktop-header-variant-selector {
     // Prevent header/navbar from clipping the fixed megamenu dropdown
@@ -28,10 +27,7 @@ $megamenu-panel-top: 20px !default;
 
         .main-menu__submenu {
             position: fixed;
-            top: $megamenu-panel-top;
-            left: 0;
-            right: 0;
-            width: 100%;
+            /* top, left, width set via JS from header__navbar.getBoundingClientRect() for alignment under categories row */
             height: auto;
             z-index: 10002; // Above header and sticky navbar
             opacity: 0;

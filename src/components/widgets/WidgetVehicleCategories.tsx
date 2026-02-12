@@ -232,6 +232,11 @@ function WidgetVehicleCategories(props: Props) {
                                     className="widget-vehicle-categories__link"
                                     onClick={handleCategoryClick}
                                 >
+                                    {category.image && (
+                                        <span className="widget-vehicle-categories__icon">
+                                            <img src={category.image} alt="" width={24} height={24} />
+                                        </span>
+                                    )}
                                     <span className="widget-vehicle-categories__name">{category.name}</span>
                                     {hasChildren && (
                                         <span className="widget-vehicle-categories__arrow">›</span>

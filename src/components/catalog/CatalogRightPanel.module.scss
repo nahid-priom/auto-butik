@@ -37,6 +37,11 @@
     }
 }
 
+// Bottom pagination (below product list)
+.panel .products-view__pagination {
+    margin-top: 20px;
+}
+
 // Mobile: compact list gap, no legacy overflow
 @media (max-width: 767px) {
     .panel {

@@ -9,6 +9,7 @@ import Navigation, { INavigationEvent } from "~/components/shared/Navigation";
 import ProductCard from "~/components/shared/ProductCard";
 import CatalogTopControls from "~/components/catalog/CatalogTopControls";
 import CatalogProductRowCard from "~/components/catalog/CatalogProductRowCard";
+import CatalogProductRowCardSkeleton from "~/components/catalog/CatalogProductRowCardSkeleton";
 import rightPanelStyles from "~/components/catalog/CatalogRightPanel.module.scss";
 import { isEmptyList } from "~/services/utils";
 import { IShopPageGridLayout, IShopPageLayout, IShopPageOffCanvasSidebar } from "~/interfaces/pages";
@@ -133,7 +134,9 @@ function VehicleProductsView(props: Props) {
     const [layout, setLayout] = useState(layoutProps);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(24);
-    
+    /** Catalog page: enforce 12 per page (legacy paging unchanged). */
+    const effectiveLimit = useCatalogLayout ? 12 : limit;
+
     // Get search query and collection identifier from URL
     // The value can come from query.collectionSlug, query.collectionId, or query.slug (when on /catalog/[slug]/products)
     const searchQuery = typeof router.query.search === "string" ? router.query.search : "";
@@ -151,7 +154,7 @@ function VehicleProductsView(props: Props) {
     const collectionId = isNumericId ? collectionValue : undefined;
     const collectionSlug = isNumericId ? "" : collectionValue;
 
-    const skip = (page - 1) * limit;
+    const skip = (page - 1) * effectiveLimit;
 
     // Check if we have a collection filter (needed for allowWithoutCar logic)
     const hasCollectionFilter = collectionSlug !== "" || (collectionId !== undefined && collectionId !== "");
@@ -182,7 +185,7 @@ function VehicleProductsView(props: Props) {
         lastFetchPosition,
     } = useVehicleCatalog({
         skip,
-        take: limit,
+        take: effectiveLimit,
         term: searchQuery,
         collectionSlug,
         collectionId,
@@ -209,14 +212,14 @@ function VehicleProductsView(props: Props) {
             convertVehicleProductToIProduct(vp, index)
         );
 
-        const totalPages = Math.ceil(productsResponse.totalItems / limit);
+        const totalPages = Math.ceil(productsResponse.totalItems / effectiveLimit);
         const from = skip + 1;
-        const to = Math.min(skip + limit, productsResponse.totalItems);
+        const to = Math.min(skip + effectiveLimit, productsResponse.totalItems);
 
         return {
             items: convertedProducts,
             page,
-            limit,
+            limit: effectiveLimit,
             sort: "name_asc",
             total: productsResponse.totalItems,
             pages: totalPages,
@@ -229,11 +232,11 @@ function VehicleProductsView(props: Props) {
                 from,
                 to,
                 total: productsResponse.totalItems,
-                limit,
+                limit: effectiveLimit,
                 pages: totalPages,
             },
         };
-    }, [productsResponse, page, limit, skip]);
+    }, [productsResponse, page, effectiveLimit, skip]);
 
     const navigation = productsList?.navigation;
 
@@ -279,7 +282,7 @@ function VehicleProductsView(props: Props) {
     );
 
     const rootClasses = classNames("products-view", {
-        "products-view--loading": isLoading,
+        "products-view--loading": isLoading && !useCatalogLayout,
     });
 
     const viewOptionsClasses = classNames(
@@ -321,8 +324,8 @@ function VehicleProductsView(props: Props) {
         );
     }
 
-    // Show loading state or empty state
-    if (isLoading || !productsList || !navigation) {
+    // Non-catalog layout: show single loader when loading or no data
+    if (!useCatalogLayout && (isLoading || !productsList || !navigation)) {
         return (
             <div className={rootClasses}>
                 <div className="products-view__body">
@@ -337,7 +340,7 @@ function VehicleProductsView(props: Props) {
             <div className="products-view__body">
                 <div className="products-view__loader" />
 
-                {isEmptyList(navigation) && (
+                {navigation && isEmptyList(navigation) && (
                     <div className="products-view__empty">
                         <div className="products-view__empty-title">
                             <FormattedMessage id="TEXT_CATEGORY_IS_EMPTY_TITLE" />
@@ -348,7 +351,7 @@ function VehicleProductsView(props: Props) {
                     </div>
                 )}
 
-                {!isEmptyList(navigation) && (
+                {(!navigation || !isEmptyList(navigation)) && (
                     <React.Fragment>
                         {positionButtons.length > 0 && !useCatalogLayout && (
                             <div className="products-view__positions">
@@ -401,8 +404,9 @@ function VehicleProductsView(props: Props) {
                         {useCatalogLayout ? (
                             <div className={rightPanelStyles.panel}>
                                 <CatalogTopControls
-                                    limit={limit}
+                                    limit={effectiveLimit}
                                     onLimitChange={handleLimitChange}
+                                    hideLimitSelect
                                     layout={layout}
                                     onLayoutChange={setLayout}
                                     navigation={navigation}
@@ -418,19 +422,46 @@ function VehicleProductsView(props: Props) {
                                     className={rightPanelStyles.productList}
                                     data-layout={layout === "grid-with-features" ? "grid" : layout}
                                 >
-                                    {productsList.items.map((product) => (
-                                        <div key={product.id} className={rightPanelStyles.productListItem}>
-                                            {layout === "list" ? (
-                                                <CatalogProductRowCard product={product} />
-                                            ) : (
-                                                <ProductCard
-                                                    product={product}
-                                                    layout={layout === "grid-with-features" ? "grid" : layout}
+                                    {isLoading ? (
+                                        Array.from({ length: 12 }, (_, i) => (
+                                            <div key={`skeleton-${i}`} className={rightPanelStyles.productListItem}>
+                                                <CatalogProductRowCardSkeleton />
+                                            </div>
+                                        ))
+                                    ) : productsList ? (
+                                        productsList.items.map((product) => (
+                                            <div key={product.id} className={rightPanelStyles.productListItem}>
+                                                {layout === "list" ? (
+                                                    <CatalogProductRowCard product={product} />
+                                                ) : (
+                                                    <ProductCard
+                                                        product={product}
+                                                        layout={layout === "grid-with-features" ? "grid" : layout}
+                                                    />
+                                                )}
+                                            </div>
+                                        ))
+                                    ) : null}
+                                </div>
+                                {!isLoading && navigation && (
+                                    <div className="products-view__pagination">
+                                        <nav aria-label="Sidnavigering">
+                                            <Navigation data={navigation} page={page} onNavigate={onNavigate} />
+                                        </nav>
+                                        <div className="products-view__pagination-legend">
+                                            {navigation.type === "page" && (
+                                                <FormattedMessage
+                                                    id="TEXT_SHOWING_PRODUCTS"
+                                                    values={{
+                                                        from: navigation.from,
+                                                        to: navigation.to,
+                                                        total: navigation.total,
+                                                    }}
                                                 />
                                             )}
                                         </div>
-                                    ))}
-                                </div>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className={viewOptionsClasses}>

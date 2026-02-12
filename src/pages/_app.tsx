@@ -23,6 +23,7 @@ import { CurrentVehicleGarageProvider } from '~/services/current-vehicle';
 import { getLanguageByLocale } from '~/services/i18n/utils';
 import { load, save, wrapper } from '~/store/store';
 import { setStoreRef } from '~/store/storeRef';
+import { IRootState } from '~/store/root/rootTypes';
 import { optionsSetAll } from '~/store/options/optionsActions';
 import { useApplyClientState } from '~/store/client';
 import { useLoadUserVehicles } from '~/store/garage/garageHooks';
@@ -51,7 +52,7 @@ interface Props extends AppProps {
 
 function App(props: Props) {
     const { Component, pageProps, languageInitialProps } = props;
-    const store = useStore();
+    const store = useStore<IRootState>();
     const applyClientState = useApplyClientState();
     const loadUserVehicles = useLoadUserVehicles();
 

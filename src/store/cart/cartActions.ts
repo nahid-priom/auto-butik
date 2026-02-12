@@ -23,7 +23,7 @@ export function cartAddItemSuccess(
     toast.success(globalIntl()?.formatMessage(
         { id: 'TEXT_TOAST_PRODUCT_ADDED_TO_CART' },
         { productName: product.name },
-    ), { theme: 'colored' });
+    ), { theme: 'colored', autoClose: 1000 });
 
     return {
         type: CART_ADD_ITEM,

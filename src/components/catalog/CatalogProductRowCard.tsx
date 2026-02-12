@@ -91,9 +91,14 @@ function CatalogProductRowCard(props: CatalogProductRowCardProps) {
     const displayedSpecs = showAllFeatures ? featuredSpecs : featuredSpecs.slice(0, 4);
     const hasMoreSpecs = featuredSpecs.length > 4;
 
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}`;
+    const { deliveryDayName, deliveryDateStr } = useMemo(() => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const locale = intl.locale || "sv";
+        const dayName = tomorrow.toLocaleDateString(locale, { weekday: "long" });
+        const dateStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}`;
+        return { deliveryDayName: dayName, deliveryDateStr: dateStr };
+    }, [intl.locale]);
 
     const compareCount = compareState.items?.length ?? 0;
 
@@ -155,63 +160,67 @@ function CatalogProductRowCard(props: CatalogProductRowCardProps) {
                 )}
             </div>
 
-            {/* Zone 3: Price + Actions */}
+            {/* Zone 3: Price block | Actions block | Delivery block */}
             <div className={styles.zone3}>
-                <div className={styles.price}>
-                    <CurrencyFormat value={product.price} />
+                <div className={styles.priceBlock}>
+                    <div className={styles.price}>
+                        <CurrencyFormat value={product.price} />
+                    </div>
+                    <div className={styles.vatRow}>
+                        <span className={styles.vatText}>
+                            <FormattedMessage id="TEXT_INCL_VAT" />
+                        </span>
+                        <span className={styles.vatDivider}>|</span>
+                        <span className={styles.shippingText}>
+                            <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                        </span>
+                    </div>
                 </div>
-                <div className={styles.vatRow}>
-                    <span className={styles.vatText}>
-                        <FormattedMessage id="TEXT_INCL_VAT" />
-                    </span>
-                    <span className={styles.vatDivider}>|</span>
-                    <span className={styles.shippingText}>
-                        <FormattedMessage id="TEXT_FREE_SHIPPING" />
-                    </span>
+                <div className={styles.actionsBlock}>
+                    <div className={styles.actions}>
+                        <select
+                            className={styles.qtySelect}
+                            value={quantity}
+                            onChange={(e) => setQuantity(Number(e.target.value))}
+                            aria-label={intl.formatMessage({ id: "INPUT_QUANTITY", defaultMessage: "Antal" })}
+                        >
+                            {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                                <option key={n} value={n}>
+                                    {n}
+                                </option>
+                            ))}
+                        </select>
+                        <AsyncAction
+                            action={() => cartAddItem(product, [], quantity)}
+                            render={({ run, loading }) => (
+                                <button
+                                    type="button"
+                                    className={styles.buyBtn}
+                                    onClick={run}
+                                    disabled={loading}
+                                >
+                                    <FormattedMessage id="BUTTON_ADD_TO_CART" defaultMessage="Add to Cart" />
+                                </button>
+                            )}
+                        />
+                    </div>
+                    <label className={styles.compareLabel}>
+                        <input
+                            type="checkbox"
+                            className={styles.compareInput}
+                            checked={compareState.items?.some((p) => p.id === product.id) ?? false}
+                            onChange={() => compareAddItem(product)}
+                        />
+                        <span className={styles.compareText}>
+                            <FormattedMessage id="BUTTON_ADD_TO_COMPARE" defaultMessage="Lägg till i Jämför" />
+                            {" "}({compareCount}/{COMPARE_MAX})
+                        </span>
+                    </label>
                 </div>
-                <div className={styles.actions}>
-                    <select
-                        className={styles.qtySelect}
-                        value={quantity}
-                        onChange={(e) => setQuantity(Number(e.target.value))}
-                        aria-label={intl.formatMessage({ id: "INPUT_QUANTITY", defaultMessage: "Antal" })}
-                    >
-                        {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
-                            <option key={n} value={n}>
-                                {n}
-                            </option>
-                        ))}
-                    </select>
-                    <AsyncAction
-                        action={() => cartAddItem(product, [], quantity)}
-                        render={({ run, loading }) => (
-                            <button
-                                type="button"
-                                className={styles.buyBtn}
-                                onClick={run}
-                                disabled={loading}
-                            >
-                                <FormattedMessage id="BUTTON_ADD_TO_CART" defaultMessage="Add to Cart" />
-                            </button>
-                        )}
-                    />
-                </div>
-                <label className={styles.compareLabel}>
-                    <input
-                        type="checkbox"
-                        className={styles.compareInput}
-                        checked={compareState.items?.some((p) => p.id === product.id) ?? false}
-                        onChange={() => compareAddItem(product)}
-                    />
-                    <span className={styles.compareText}>
-                        <FormattedMessage id="BUTTON_ADD_TO_COMPARE" defaultMessage="Lägg till i Jämför" />
-                        {" "}({compareCount}/{COMPARE_MAX})
-                    </span>
-                </label>
-                <div className={styles.delivery}>
-                    <FaShippingFast className={styles.deliveryIcon} />
-                    <span>
-                        <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />: Måndag, {tomorrowStr}
+                <div className={styles.deliveryBlock}>
+                    <FaShippingFast className={styles.deliveryIcon} aria-hidden />
+                    <span className={styles.deliveryText}>
+                        <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />: {deliveryDayName}, {deliveryDateStr}
                     </span>
                 </div>
             </div>

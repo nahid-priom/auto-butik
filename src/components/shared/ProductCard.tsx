@@ -15,7 +15,6 @@ import url from "~/services/url";
 import { IProduct } from "~/interfaces/product";
 import { useCartAddItem } from "~/store/cart/cartHooks";
 import { useCompareAddItem } from "~/store/compare/compareHooks";
-import { useQuickviewOpen } from "~/store/quickview/quickviewHooks";
 import { useWishlistAddItem } from "~/store/wishlist/wishlistHooks";
 import { Cart20Svg, Compare16Svg, Wishlist16Svg } from "~/svg";
 
@@ -35,10 +34,12 @@ interface Props extends React.HTMLAttributes<HTMLElement> {
     product: IProduct;
     layout?: IProductCardLayout;
     exclude?: IProductCardElement[];
+    /** Compact variant for homepage carousel: fixed heights, tight spacing, no overflow */
+    compact?: boolean;
 }
 
 function ProductCard(props: Props) {
-    const { product, layout, exclude = [], className, ...rootProps } = props;
+    const { product, layout, exclude = [], compact, className, ...rootProps } = props;
     const intl = useIntl();
 
     type FeatureSpec = { name: string; value: string; unit?: string; fromSpecial?: boolean };
@@ -135,35 +136,20 @@ function ProductCard(props: Props) {
 
     const hasMoreFeatures = featuredAttributes.length > 4;
     const cartAddItem = useCartAddItem();
-    const quickviewOpen = useQuickviewOpen();
     const compareAddItem = useCompareAddItem();
     const wishlistAddItem = useWishlistAddItem();
 
-    const showQuickview = () => quickviewOpen(product.slug);
     const addToWishlist = () => wishlistAddItem(product);
     const addToCompare = () => compareAddItem(product);
 
     const rootClasses = classNames("product-card", className, {
         [`product-card--layout--${layout}`]: layout,
+        "product-card--compact": compact,
     });
 
     return (
         <div className={rootClasses} {...rootProps}>
             <div className="product-card__actions-list">
-                <AsyncAction
-                    action={() => showQuickview()}
-                    render={({ run, loading }) => (
-                        <button
-                            type="button"
-                            className={classNames("product-card__action product-card__action--quickview", {
-                                "product-card__action--loading": loading,
-                            })}
-                            aria-label={intl.formatMessage({ id: "BUTTON_QUICKVIEW" })}
-                            onClick={run}
-                        />
-                    )}
-                />
-
                 {!exclude.includes("actions") && (
                     <React.Fragment>
                         <AsyncAction
@@ -237,7 +223,9 @@ function ProductCard(props: Props) {
                             ))}
                         </div>
                     )}
-                    <AppLink href={url.product(product)}>{product.name}</AppLink>
+                    <AppLink href={url.product(product)} className="product-card__name-link">
+                        {product.name}
+                    </AppLink>
                 </div>
 
                 {!exclude.includes("meta") && (

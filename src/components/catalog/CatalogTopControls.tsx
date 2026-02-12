@@ -14,6 +14,8 @@ export interface CatalogTopControlsProps {
     /** Current limit (page size) */
     limit: number;
     onLimitChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+    /** When true, hide limit selector (e.g. catalog page enforces 12 per page) */
+    hideLimitSelect?: boolean;
     /** Current layout: list or grid */
     layout: IShopPageLayout;
     onLayoutChange: (layout: IShopPageLayout) => void;
@@ -37,6 +39,7 @@ function CatalogTopControls(props: CatalogTopControlsProps) {
     const {
         limit,
         onLimitChange,
+        hideLimitSelect = false,
         layout,
         onLayoutChange,
         navigation,
@@ -83,20 +86,23 @@ function CatalogTopControls(props: CatalogTopControlsProps) {
                         ))}
                     </select>
                 </div>
-                <div className={styles.selectWrap + " " + styles.limitWrap}>
-                    <select
-                        id="catalog-limit"
-                        className={styles.select}
-                        value={limit}
-                        onChange={onLimitChange}
-                        aria-label="Antal per sida"
-                    >
-                        <option value={8}>8</option>
-                        <option value={16}>16</option>
-                        <option value={24}>24</option>
-                        <option value={32}>32</option>
-                    </select>
-                </div>
+                {!hideLimitSelect && (
+                    <div className={styles.selectWrap + " " + styles.limitWrap}>
+                        <select
+                            id="catalog-limit"
+                            className={styles.select}
+                            value={limit}
+                            onChange={onLimitChange}
+                            aria-label="Antal per sida"
+                        >
+                            <option value={8}>8</option>
+                            <option value={12}>12</option>
+                            <option value={16}>16</option>
+                            <option value={24}>24</option>
+                            <option value={32}>32</option>
+                        </select>
+                    </div>
+                )}
                 <div className={styles.layoutSwitcher}>
                     <button
                         type="button"

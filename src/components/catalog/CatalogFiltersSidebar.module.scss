@@ -37,7 +37,7 @@
     flex-direction: column;
     gap: 10px;
     margin: 0 -2px;
-    padding: 0 2px;
+    padding: 0 2px 0;
     height: fit-content;
 }
 
@@ -55,10 +55,18 @@
 }
 
 // Drawer: accordion-style filter groups, tap-friendly
+.root.embedded :global(.widget-brand-filter__header),
+.root.embedded :global(.widget-position-filter__header) {
+    padding: 10px 0 8px;
+    box-shadow: none;
+    border: none;
+    border-bottom: none;
+    background: transparent;
+}
 .root.embedded :global(.widget-brand-filter__title-row),
 .root.embedded :global(.widget-position-filter__title-row) {
     min-height: 44px;
-    padding: 0 8px 0 0;
+    padding: 6px 8px 6px 0;
     border-radius: 8px;
 }
 
@@ -73,6 +81,12 @@
     padding: 10px 0;
     display: flex;
     align-items: center;
+}
+
+.root :global(.widget-vehicle-categories__arrow) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 // Desktop: sidebar width only (no sticky, no max-height, no internal scroll)
@@ -116,8 +130,16 @@
 }
 
 .root :global(.widget-vehicle-categories__link) {
+    display: flex;
+    align-items: center;
     padding: 6px 0;
     font-size: 13px;
+}
+
+.root :global(.widget-vehicle-categories__icon) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .root :global(.widget-brand-filter),
@@ -126,6 +148,7 @@
     margin: 0;
     padding: 0;
     border: none;
+    box-shadow: none;
     background: transparent;
     border-radius: 0;
 }
@@ -140,15 +163,22 @@
     border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+// Filter section headers: flat, no shadow or border
 .root :global(.widget-brand-filter__header),
 .root :global(.widget-position-filter__header) {
     margin-bottom: 6px;
+    padding: 8px 0 6px;
+    box-shadow: none;
+    filter: none;
+    border: none;
+    border-bottom: none;
+    background: transparent;
 }
 
 .root :global(.widget-brand-filter__title-row),
 .root :global(.widget-position-filter__title-row) {
-    min-height: 32px;
-    padding: 4px 0;
+    min-height: 36px;
+    padding: 6px 0;
     font-size: 13px;
     font-weight: 600;
     width: 100%;
@@ -167,6 +197,13 @@
     margin: 0;
     font-size: 13px;
     font-weight: 600;
+}
+
+.root :global(.widget-brand-filter__toggle),
+.root :global(.widget-position-filter__toggle) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .root :global(.widget-brand-filter__body),
@@ -208,8 +245,10 @@
     white-space: nowrap;
 }
 
+// Hide redundant "Filter" header and "Återställ" button in catalog sidebar (filtering is reactive; no extra buttons)
 .root :global(.widget-filters__header) {
-    margin-bottom: 6px;
+    display: none !important;
+    margin-bottom: 0;
 }
 
 .root :global(.widget-filters__header h4) {
@@ -226,7 +265,9 @@
 }
 
 .root :global(.widget-filters__actions) {
-    margin-top: 10px;
+    display: none !important;
+    margin-top: 0;
+    padding: 0;
 }
 
 .root :global(.widget-filters__actions .btn) {

@@ -109,6 +109,9 @@ function Header() {
     const cartIndicatorLabel = <FormattedMessage id="TEXT_INDICATOR_CART_LABEL" />;
     const cartIndicatorCtrl = useRef<IIndicatorController | null>(null);
 
+    /** Ref to the categories row (navbar) for mega menu dropdown anchoring (desktop). */
+    const categoriesRowRef = useRef<HTMLDivElement>(null);
+
     return (
         <div className={classNames('header', isCompact && 'header--compact')}>
             <div className="header__megamenu-area megamenu-area" />
@@ -172,12 +175,12 @@ function Header() {
                 </Indicator>
             </div>
 
-            <div className="header__navbar">
+            <div className="header__navbar" ref={categoriesRowRef}>
                 <div className="header__navbar-departments">
                     <Departments label={departmentsLabel} />
                 </div>
                 <div className="header__navbar-menu">
-                    <MainMenu />
+                    <MainMenu categoriesRowRef={categoriesRowRef} />
                 </div>
                 {desktopLayout === 'classic' && (
                     <div className="header__navbar-contact">

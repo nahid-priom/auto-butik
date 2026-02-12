@@ -1,7 +1,6 @@
 // react
 import React, { useEffect } from "react";
 // third-party
-import classNames from "classnames";
 import { FormattedMessage } from "react-intl";
 // application
 import { useShopFilters, useShopFilterValues, useShopResetFiltersThunk } from "~/store/shop/shopHooks";
@@ -22,10 +21,8 @@ function WidgetFilters(props: Props) {
         shopResetFilters();
     }, []);
 
-    const rootClasses = classNames("widget", "widget-filters", `widget-filters--offcanvas--${offcanvasSidebar}`);
-
     return (
-        <div className={rootClasses}>
+        <>
             <div className="widget__header widget-filters__header">
                 <h4>
                     <FormattedMessage id="HEADER_FILTERS" />
@@ -43,7 +40,7 @@ function WidgetFilters(props: Props) {
                     <FormattedMessage id="BUTTON_RESET" />
                 </button>
             </div>
-        </div>
+        </>
     );
 }
 

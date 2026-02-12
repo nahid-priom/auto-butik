@@ -188,17 +188,22 @@
 
         @include scheme-font-weight($departments-menu-scheme, opposite, $font-weight-medium);
     }
+    .departments__item {
+        display: block;
+    }
     .departments__item-link {
         color: inherit;
         display: flex;
         align-items: center;
         position: relative;
+        width: 100%;
         min-height: 42px;
         line-height: 1.35;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         transition: background-color 0.15s ease;
+        box-sizing: border-box;
 
         @include direction {
             #{$border-inline-start}: 3px solid transparent;

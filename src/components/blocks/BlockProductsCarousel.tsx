@@ -29,6 +29,8 @@ interface Props<T extends ISectionHeaderGroup> {
     rows?: number;
     loading?: boolean;
     onChangeGroup?: (group: T) => void;
+    /** Use compact product cards (homepage carousel: fixed height, no overflow) */
+    compactCards?: boolean;
 }
 
 const productCardLayoutMap: Record<IBlockProductsCarouselLayout, IProductCardLayout> = {
@@ -139,6 +141,7 @@ function BlockProductsCarousel<T extends ISectionHeaderGroup>(props: Props<T>) {
         rows = 1,
         loading = false,
         onChangeGroup,
+        compactCards = false,
     } = props;
     const slickRef = useRef<Slick>(null);
 
@@ -208,13 +211,14 @@ function BlockProductsCarousel<T extends ISectionHeaderGroup>(props: Props<T>) {
                                 product={product}
                                 layout={productCardLayout}
                                 exclude={productCardExclude}
+                                compact={compactCards}
                             />
                         ))}
                     </div>
                 ))}
             </AppSlick>
         );
-    }, [columns, layout, productKeyMap]);
+    }, [columns, layout, productKeyMap, compactCards]);
 
     return (
         <div className="block block-products-carousel" data-layout={layout}>

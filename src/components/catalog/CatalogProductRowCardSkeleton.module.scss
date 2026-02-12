@@ -1,0 +1,334 @@
+// Skeleton for CatalogProductRowCard — same layout & dimensions, no content
+// Used during filter/sort/pagination loading on catalog products pages
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.card {
+    display: grid;
+    grid-template-columns: 180px 1fr minmax(200px, 280px);
+    align-items: center;
+    gap: 0 20px;
+    min-height: 202px;
+    padding: 10px 16px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.zone1 {
+    grid-column: 1;
+    grid-row: 1;
+    width: 180px;
+    min-width: 180px;
+    height: 180px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.imagePlaceholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 0%,
+        #e8e8e8 20%,
+        #f0f0f0 40%,
+        #f0f0f0 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.zone2 {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+.titleLine1,
+.titleLine2 {
+    height: 16px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 0%,
+        #e8e8e8 20%,
+        #f0f0f0 40%,
+        #f0f0f0 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.titleLine1 {
+    width: 85%;
+    max-width: 320px;
+}
+
+.titleLine2 {
+    width: 55%;
+    max-width: 200px;
+}
+
+.badgePlaceholder {
+    width: 100px;
+    height: 24px;
+    border-radius: 5px;
+    background: linear-gradient(
+        90deg,
+        #e5e7eb 0%,
+        #d1d5db 20%,
+        #e5e7eb 40%,
+        #e5e7eb 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.idPlaceholder {
+    width: 140px;
+    height: 16px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 0%,
+        #e8e8e8 20%,
+        #f0f0f0 40%,
+        #f0f0f0 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.specLine {
+    height: 16px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 0%,
+        #e8e8e8 20%,
+        #f0f0f0 40%,
+        #f0f0f0 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.specLine1 {
+    width: 120px;
+}
+
+.specLine2 {
+    width: 160px;
+}
+
+.zone3 {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.pricePlaceholder {
+    width: 88px;
+    height: 24px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        #e5e7eb 0%,
+        #d1d5db 20%,
+        #e5e7eb 40%,
+        #e5e7eb 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.vatPlaceholder {
+    width: 180px;
+    height: 14px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 0%,
+        #e8e8e8 20%,
+        #f0f0f0 40%,
+        #f0f0f0 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.actionsRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.qtyPlaceholder {
+    width: 58px;
+    height: 40px;
+    border-radius: 8px;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 0%,
+        #e8e8e8 20%,
+        #f0f0f0 40%,
+        #f0f0f0 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.btnPlaceholder {
+    width: 140px;
+    height: 40px;
+    border-radius: 8px;
+    background: linear-gradient(
+        90deg,
+        #e5e7eb 0%,
+        #d1d5db 20%,
+        #e5e7eb 40%,
+        #e5e7eb 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.comparePlaceholder {
+    width: 160px;
+    height: 20px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 0%,
+        #e8e8e8 20%,
+        #f0f0f0 40%,
+        #f0f0f0 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.deliveryRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.deliveryIconPlaceholder {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    background: linear-gradient(
+        90deg,
+        #e5e7eb 0%,
+        #d1d5db 20%,
+        #e5e7eb 40%,
+        #e5e7eb 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.deliveryTextPlaceholder {
+    width: 200px;
+    height: 14px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 0%,
+        #e8e8e8 20%,
+        #f0f0f0 40%,
+        #f0f0f0 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+}
+
+// Match card responsive breakpoints so no layout shift
+@media (max-width: 1199px) {
+    .card {
+        min-height: 202px;
+        gap: 0 16px;
+        padding: 8px 14px;
+    }
+}
+
+@media (max-width: 991px) {
+    .card {
+        grid-template-columns: 180px 1fr minmax(180px, 1fr);
+        min-height: 202px;
+        gap: 0 14px;
+        padding: 8px 14px;
+    }
+
+    .zone1 {
+        width: 180px;
+        min-width: 180px;
+        height: 180px;
+    }
+}
+
+@media (max-width: 767px) {
+    .card {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        min-height: 0;
+        gap: 0;
+        padding: 10px 16px;
+        border-radius: 12px;
+    }
+
+    .zone1 {
+        grid-column: 1;
+        grid-row: 1;
+        justify-self: center;
+        width: 100%;
+        max-width: 180px;
+        height: 180px;
+    }
+
+    .zone2 {
+        grid-column: 1;
+        grid-row: 2;
+        padding-top: 8px;
+    }
+
+    .zone3 {
+        grid-column: 1;
+        grid-row: 3;
+        align-items: flex-start;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        padding-top: 8px;
+        margin-top: 6px;
+    }
+
+    .pricePlaceholder,
+    .vatPlaceholder {
+        margin-right: 0;
+    }
+
+    .actionsRow {
+        justify-content: flex-start;
+    }
+}
