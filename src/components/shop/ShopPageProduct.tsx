@@ -1,5 +1,6 @@
 // react
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 // third-party
 import classNames from "classnames";
 import { Controller, FormProvider } from "react-hook-form";
@@ -12,7 +13,6 @@ import BlockProductsCarousel from "~/components/blocks/BlockProductsCarousel";
 import BlockSpace from "~/components/blocks/BlockSpace";
 import CompatibilityStatusBadge from "~/components/shared/CompatibilityStatusBadge";
 import CurrencyFormat from "~/components/shared/CurrencyFormat";
-import InputNumber from "~/components/shared/InputNumber";
 import PageTitle from "~/components/shared/PageTitle";
 import SEO from "~/components/shared/SEO";
 import ProductForm from "~/components/shop/ProductForm";
@@ -26,7 +26,6 @@ import url from "~/services/url";
 import { getCategoryPath } from "~/services/utils";
 import { IProduct } from "~/interfaces/product";
 import { IProductPageLayout, IProductPageSidebarPosition } from "~/interfaces/pages";
-import { shopApi } from "~/api";
 import { useCompareAddItem } from "~/store/compare/compareHooks";
 import { useProductForm } from "~/services/forms/product";
 import { useWishlistAddItem } from "~/store/wishlist/wishlistHooks";
@@ -40,16 +39,17 @@ import {
     Wishlist16Svg,
 } from "~/svg";
 import { useCartAddItem } from "~/store/cart/cartHooks";
-import { FaBoxes, FaCalendarCheck, FaCheckCircle } from "react-icons/fa";
+import { useGarage } from "~/contexts/GarageContext";
+import { FaBoxes, FaCalendarCheck, FaCheckCircle, FaShippingFast, FaInfoCircle } from "react-icons/fa";
 import ProductQuestion from "./ProductQuestion";
 import ProductInformation from "./ProductInformation";
 import CompatibleVehicles from "./CompatibleVehiclies";
 import OriginalPartNumber from "./OriginalPartNumber";
-import { BiLogoVisa } from "react-icons/bi";
-import { RiMastercardFill } from "react-icons/ri";
-import { FaCcPaypal } from "react-icons/fa";
-import { FaApplePay } from "react-icons/fa";
-import BlockVehicleHero from "../blocks/BlockVehicleHero";
+import { useTecdocProduct } from "~/hooks/useTecdocProduct";
+import { TechnicalSpec } from "~/interfaces/tecdoc";
+import { getFeaturedProducts } from "~/data/featuredProducts";
+import { makeUniqueKeys } from "~/utils/reactKeys";
+// Payment method logos are imported as images
 
 interface Props {
     product: IProduct;
@@ -66,146 +66,119 @@ function ShopPageProduct(props: Props) {
     const wishlistAddItem = useWishlistAddItem();
     const compareAddItem = useCompareAddItem();
     const galleryLayout = `product-${layout}` as IProductGalleryLayout;
-    const [relatedProducts, setRelatedProducts] = useState<IProduct[]>([]);
+    const relatedProducts = getFeaturedProducts();
     const productForm = useProductForm(product);
 
     const cartAddItem = useCartAddItem();
+    const { vehicles, currentCarId } = useGarage();
+
+    const currentVehicleName = (() => {
+        const current = currentCarId ? vehicles.find((v) => v.id === currentCarId) : vehicles[0];
+        if (!current?.data) return null;
+        const d = current.data as { C_merke?: string; C_modell?: string };
+        const make = d.C_merke || "";
+        const model = d.C_modell || "";
+        return [make, model].filter(Boolean).join(" ") || null;
+    })();
 
     const addToWishlist = () => wishlistAddItem(product);
     const addToCompare = () => compareAddItem(product);
 
-    const features = [
-        {
-            name: "LOCATION",
-            values: [{ name: "Rear axle" }],
-        },
-        {
-            name: "EAN",
-            values: [{ name: "4047024749801" }],
-        },
-        {
-            name: "OUTER_DIAMETER_MM",
-            values: [{ name: "272" }],
-        },
-        {
-            name: "BRAKE_DISC_THICKNESS_MM",
-            values: [{ name: "10" }],
-        },
-        {
-            name: "MINIMUM_THICKNESS_MM",
-            values: [{ name: "8" }],
-        },
-        {
-            name: "HEIGHT_MM",
-            values: [{ name: "48.3" }],
-        },
-        {
-            name: "HOLE_CIRCLE_DIAMETER_MM",
-            values: [{ name: "112" }],
-        },
-        {
-            name: "BRAKE_DISC_TYPE",
-            values: [{ name: "full" }],
-        },
-        {
-            name: "CENTERING_DIAMETER_MM",
-            values: [{ name: "65" }],
-        },
-        {
-            name: "NUMBER_OF_HOLES",
-            values: [{ name: "9" }],
-        },
-        {
-            name: "SURFACE",
-            values: [{ name: "oiled" }],
-        },
-        {
-            name: "MEETS_ECE_STANDARD",
-            values: [{ name: "ECE-R90" }],
-        },
-        {
-            name: "DRILLING_DIAMETER_TO_MM",
-            values: [{ name: "15.3" }],
-        },
-        {
-            name: "PRODUCT_LINE",
-            values: [{ name: "BD1515, E1 90 R - 02C0355/0231" }],
-        },
-        {
-            name: "BRAND_QUALITY",
-            values: [{ name: "Premium" }],
-        },
-        {
-            name: "MANUFACTURER",
-            values: [{ name: "BOSCH" }],
-        },
-        {
-            name: "ITEM_NO",
-            values: [{ name: "0 986 479 677" }],
-        },
-    ];
+    // Fetch TecDoc product data
+    const { 
+        data: tecdocData, 
+        isLoading: tecdocLoading, 
+        hasSpecs, 
+        hasVehicles, 
+        hasOeRefs 
+    } = useTecdocProduct(product?.id || null);
+
+    // Convert TecDoc specs to feature format for display in the quick features section
+    const features: TechnicalSpec[] = tecdocData?.technicalSpecs || [];
 
     const sections = [
         {
             id: "product-information",
-            title: "Product information",
-            component: <ProductInformation />,
+            title: "Produktinformation",
+            component: (
+                <ProductInformation 
+                    productName={product?.name} 
+                    technicalSpecs={tecdocData?.technicalSpecs} 
+                    isLoading={tecdocLoading} 
+                />
+            ),
         },
         {
             id: "compatible-vehicles",
-            title: "Compatible vehicles",
-            component: <CompatibleVehicles />,
+            title: "Kompatibla fordon",
+            component: (
+                <CompatibleVehicles 
+                    compatibleVehicles={tecdocData?.compatibleVehicles} 
+                    isLoading={tecdocLoading} 
+                />
+            ),
         },
         {
             id: "original-part-number",
-            title: "Original part number",
-            component: <OriginalPartNumber />,
+            title: "Originaldelsnummer",
+            component: (
+                <OriginalPartNumber 
+                    productName={product?.name} 
+                    oeReferences={tecdocData?.oeReferences} 
+                    isLoading={tecdocLoading} 
+                />
+            ),
         },
     ];
 
     const [showAllFeatures, setShowAllFeatures] = useState(false);
 
-    const displayedFeatures = showAllFeatures ? features : features.slice(0, 4);
+    const displayedFeatures: TechnicalSpec[] = showAllFeatures ? features : features.slice(0, 4);
     const hasMoreFeatures = features.length > 4;
 
     const [activeSection, setActiveSection] = useState("product-information");
     const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
+    const topButtonRef = useRef<HTMLDivElement>(null);
+    const [stickyBarVisible, setStickyBarVisible] = useState(false);
+    const [stickyQuantity, setStickyQuantity] = useState(1);
+    const [mainQuantity, setMainQuantity] = useState(1);
+    const [isMounted, setIsMounted] = useState(false);
 
     // Section data
     const sectionData = [
         {
             id: "product-information",
-            title: "Product information",
-            content: "Product information content goes here...",
+            title: "Produktinformation",
+            content: "Produktinformation...",
         },
         {
             id: "compatible-vehicles",
-            title: "Compatible vehicles",
-            content: "Compatible vehicles content goes here...",
+            title: "Kompatibla fordon",
+            content: "Kompatibla fordon...",
         },
         {
             id: "original-part-number",
-            title: "Original part number",
-            content: "Original part number content goes here...",
+            title: "Originaldelsnummer",
+            content: "Originaldelsnummer...",
         },
         {
             id: "related-products",
-            title: "Related products",
-            content: "Related products content goes here...",
+            title: "Relaterade produkter",
+            content: "Relaterade produkter...",
         },
         {
             id: "questions-about-product",
-            title: "Questions about the product",
-            content: "Questions about the product content goes here...",
+            title: "Frågor om produkten",
+            content: "Frågor om produkten...",
         },
     ];
 
     const menuItems = [
-        { id: "product-information", label: "Product information" },
-        { id: "compatible-vehicles", label: "Compatible vehicles" },
-        { id: "original-part-number", label: "Original part number" },
-        { id: "related-products", label: "Related products" },
-        { id: "questions-about-product", label: "Questions about the product" },
+        { id: "product-information", label: "Produktinformation" },
+        { id: "compatible-vehicles", label: "Kompatibla fordon" },
+        { id: "original-part-number", label: "Originaldelsnummer" },
+        { id: "related-products", label: "Relaterade produkter" },
+        { id: "questions-about-product", label: "Frågor om produkten" },
     ];
 
     const handleMenuClick = (sectionId: string) => {
@@ -223,21 +196,32 @@ function ShopPageProduct(props: Props) {
         });
     }, []);
 
+    // Only render sticky bar portal after mount to avoid hydration mismatch (server has no document.body).
     useEffect(() => {
-        let canceled = false;
+        setIsMounted(true);
+    }, []);
 
-        shopApi.getRelatedProducts(product.id, 8).then((result) => {
-            if (canceled) {
-                return;
-            }
-
-            setRelatedProducts(result);
-        });
-
-        return () => {
-            canceled = true;
-        };
-    }, [product]);
+    // Show sticky bar only when the top red button has scrolled above the viewport (user scrolled past it).
+    // Don't show when the button is below the viewport (user hasn't reached it yet).
+    useEffect(() => {
+        if (!isMounted) return;
+        const el = topButtonRef.current;
+        if (!el) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setStickyBarVisible(false);
+                } else {
+                    const rect = entry.boundingClientRect;
+                    const isAboveViewport = rect.bottom < 0;
+                    setStickyBarVisible(isAboveViewport);
+                }
+            },
+            { threshold: 0, rootMargin: "0px" }
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [isMounted]);
 
     if (!product) {
         return null;
@@ -403,7 +387,19 @@ function ShopPageProduct(props: Props) {
                             name="quantity"
                             rules={{ required: true }}
                             render={({ field: { ref: fieldRef, ...fieldProps } }) => (
-                                <InputNumber min={1} inputRef={fieldRef} {...fieldProps} />
+                                <select
+                                    ref={fieldRef}
+                                    className="quickview__quantity-select"
+                                    value={fieldProps.value}
+                                    onChange={(e) => fieldProps.onChange(Number(e.target.value))}
+                                    aria-label={intl.formatMessage({ id: "INPUT_QUANTITY", defaultMessage: "Quantity" })}
+                                >
+                                    {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                                        <option key={n} value={n}>
+                                            {n}
+                                        </option>
+                                    ))}
+                                </select>
                             )}
                         />
                     </div>
@@ -462,8 +458,8 @@ function ShopPageProduct(props: Props) {
             {product.tags && product.tags.length > 0 && (
                 <div className="product__tags tags tags--sm">
                     <div className="tags__list">
-                        {product.tags.map((tag, index) => (
-                            <AppLink href="/" key={index}>
+                        {makeUniqueKeys(product.tags, (tag, i) => (typeof tag === "string" ? tag : String(tag)) || `tag-${i}`, { prefix: "tag", reportLabel: "ShopPageProduct.tags" }).map(({ item: tag, key }) => (
+                            <AppLink href="/" key={key}>
                                 {tag}
                             </AppLink>
                         ))}
@@ -511,24 +507,18 @@ function ShopPageProduct(props: Props) {
                 brand={product.brand?.name}
                 structuredData={combinedStructuredData}
             />
-            <BlockVehicleHero />
-
             <BlockHeader breadcrumb={breadcrumb} />
 
-            <div className={classNames("block-split", { "block-split--has-sidebar": layout === "sidebar" })}>
+            <div className={classNames("block-split", "block-split--product-page")}>
                 <div className="container">
                     <div className="block-split__row row no-gutters">
-                        {layout === "sidebar" && sidebarPosition === "start" && (
-                            <div className="block-split__item block-split__item-sidebar col-auto">
-                                <ProductSidebar />
-                            </div>
-                        )}
 
                         <div className="block-split__item block-split__item-content col-auto">
                             <div className={`product product--layout--${layout}`}>
                                 <div className="product__body">
                                     <div className="product__section">
                                         <ProductGallery
+                                            key={product.id}
                                             images={product.images || []}
                                             layout={galleryLayout}
                                             className="product__gallery"
@@ -577,31 +567,34 @@ function ShopPageProduct(props: Props) {
                                                         )}
                                                     </div>
                                                     <div className="product-card__vat-and-shipping-info">
-                                                        <FormattedMessage id="TEXT_INCL_VAT" />
-                                                        <span> | </span>
-                                                        <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                                                        <span className="product-card__vat-and-shipping-info__left">
+                                                            <FormattedMessage id="TEXT_INCL_VAT" />
+                                                        </span>
+                                                        <br />
+                                                        <span className="product-card__vat-and-shipping-info__right">
+                                                            <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                                                        </span>
                                                     </div>
 
                                                     <React.Fragment>
                                                         <React.Fragment>
-                                                            <div className="product-card__quantity-and-cart">
+                                                            <div className="product-card__quantity-and-cart" ref={topButtonRef}>
                                                                 <div className="product-card__quantity">
                                                                     <select
                                                                         className="product-card__quantity-select"
-                                                                        defaultValue="1"
+                                                                        value={mainQuantity}
+                                                                        onChange={(e) => setMainQuantity(Number(e.target.value))}
+                                                                        aria-label={intl.formatMessage({ id: "INPUT_QUANTITY", defaultMessage: "Quantity" })}
                                                                     >
-                                                                        {Array.from(
-                                                                            { length: 10 },
-                                                                            (_, i) => i + 1
-                                                                        ).map((number) => (
-                                                                            <option key={number} value={number}>
-                                                                                {number}
+                                                                        {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                                                                            <option key={n} value={n}>
+                                                                                {n}
                                                                             </option>
                                                                         ))}
                                                                     </select>
                                                                 </div>
                                                                 <AsyncAction
-                                                                    action={() => cartAddItem(product)}
+                                                                    action={() => cartAddItem(product, [], mainQuantity)}
                                                                     render={({ run, loading }) => (
                                                                         <button
                                                                             type="button"
@@ -618,50 +611,6 @@ function ShopPageProduct(props: Props) {
                                                                         </button>
                                                                     )}
                                                                 />
-                                                                <div>
-                                                                    <AsyncAction
-                                                                        action={() => addToWishlist()}
-                                                                        render={({ run, loading }) => (
-                                                                            <button
-                                                                                type="button"
-                                                                                className={classNames(
-                                                                                    "product-card__wishlist",
-                                                                                    {
-                                                                                        "product-card__wishlist--loading":
-                                                                                            loading,
-                                                                                    }
-                                                                                )}
-                                                                                onClick={run}
-                                                                            >
-                                                                                <Wishlist16Svg />
-                                                                                <span>
-                                                                                    <FormattedMessage id="BUTTON_ADD_TO_WISHLIST" />
-                                                                                </span>
-                                                                            </button>
-                                                                        )}
-                                                                    />
-                                                                    <AsyncAction
-                                                                        action={() => addToCompare()}
-                                                                        render={({ run, loading }) => (
-                                                                            <button
-                                                                                type="button"
-                                                                                className={classNames(
-                                                                                    "product-card__compare",
-                                                                                    {
-                                                                                        "product-card__compare--loading":
-                                                                                            loading,
-                                                                                    }
-                                                                                )}
-                                                                                onClick={run}
-                                                                            >
-                                                                                <Compare16Svg />
-                                                                                <span>
-                                                                                    <FormattedMessage id="BUTTON_ADD_TO_COMPARE" />
-                                                                                </span>
-                                                                            </button>
-                                                                        )}
-                                                                    />
-                                                                </div>
                                                             </div>
                                                         </React.Fragment>
                                                     </React.Fragment>
@@ -673,7 +622,10 @@ function ShopPageProduct(props: Props) {
                                                             <FaCheckCircle />
                                                         </div>
                                                         <div className="compatibility-text">
-                                                            <FormattedMessage id="VEHICLE_COMPATIBILITY_TEXT" />{" "}
+                                                            <FormattedMessage
+                                                                id="VEHICLE_COMPATIBILITY_TEXT"
+                                                                values={{ vehicleName: currentVehicleName ?? "" }}
+                                                            />{" "}
                                                             <button className="compatibility-link">
                                                                 <FormattedMessage id="WILL_IT_REALLY_FIT" />
                                                             </button>
@@ -681,17 +633,65 @@ function ShopPageProduct(props: Props) {
                                                     </div>
                                                 </div>
 
-                                                <div className="stock-info">
-                                                    <div className="stock-icon">
-                                                        <FaBoxes />
+                                                <div className="product-card__stock-row">
+                                                    <div className="stock-info">
+                                                        <div className="stock-icon">
+                                                            <FaBoxes />
+                                                        </div>
+                                                        <span className="stock-status">
+                                                            <FormattedMessage id="STOCK_IN_STOCK" />
+                                                        </span>
+                                                        <span className="stock-separator">.</span>
+                                                        <span className="price-valid">
+                                                            <FormattedMessage id="PRICE_VALID_UNTIL" />: 2025-10-30
+                                                        </span>
                                                     </div>
-                                                    <span className="stock-status">
-                                                        <FormattedMessage id="STOCK_IN_STOCK" />
-                                                    </span>
-                                                    <span className="stock-separator">.</span>
-                                                    <span className="price-valid">
-                                                        <FormattedMessage id="PRICE_VALID_UNTIL" />: 2025-10-30
-                                                    </span>
+                                                    <div className="product-card__actions-secondary">
+                                                        <AsyncAction
+                                                            action={() => addToWishlist()}
+                                                            render={({ run, loading }) => (
+                                                                <button
+                                                                    type="button"
+                                                                    className={classNames(
+                                                                        "product-card__wishlist",
+                                                                        {
+                                                                            "product-card__wishlist--loading":
+                                                                                loading,
+                                                                        }
+                                                                    )}
+                                                                    onClick={run}
+                                                                    aria-label={intl.formatMessage({ id: "BUTTON_ADD_TO_WISHLIST" })}
+                                                                >
+                                                                    <Wishlist16Svg />
+                                                                    <span className="product-card__action-label">
+                                                                        <FormattedMessage id="BUTTON_ADD_TO_WISHLIST" />
+                                                                    </span>
+                                                                </button>
+                                                            )}
+                                                        />
+                                                        <AsyncAction
+                                                            action={() => addToCompare()}
+                                                            render={({ run, loading }) => (
+                                                                <button
+                                                                    type="button"
+                                                                    className={classNames(
+                                                                        "product-card__compare",
+                                                                        {
+                                                                            "product-card__compare--loading":
+                                                                                loading,
+                                                                        }
+                                                                    )}
+                                                                    onClick={run}
+                                                                    aria-label={intl.formatMessage({ id: "BUTTON_ADD_TO_COMPARE" })}
+                                                                >
+                                                                    <Compare16Svg />
+                                                                    <span className="product-card__action-label">
+                                                                        <FormattedMessage id="BUTTON_ADD_TO_COMPARE" />
+                                                                    </span>
+                                                                </button>
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
 
                                                 <div className="product-card__shipping-info">
@@ -699,15 +699,15 @@ function ShopPageProduct(props: Props) {
                                                     <div className="product-card__shipping-details">
                                                         <div className="product-card__shipping-info__content">
                                                             <div className="product-card__shipping-info__icon">
-                                                                <FaCalendarCheck />
+                                                                <FaShippingFast />
                                                             </div>
                                                             <div className="product-card__shipping-info__text">
                                                                 <div className="shipping-title">
                                                                     <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
-                                                                    <span>:</span>
+                                                                    <FaInfoCircle className="shipping-info-icon" />
                                                                 </div>
                                                                 <div className="product-card__shipping-info__date">
-                                                                    Tomorrow, 2025-10-29
+                                                                    Måndag (2026-02-02) <span className="shipping-price">från 69 kr</span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -716,93 +716,128 @@ function ShopPageProduct(props: Props) {
                                                     {/* Right Side - Payment Icons */}
                                                     <div className="product-card__payment-methods">
                                                         <div className="payment-icons">
-                                                            {/* Replace these with your actual SVG components */}
-                                                            <div className="payment-icon" title="Visa">
-                                                                <BiLogoVisa />
-                                                            </div>
-                                                            <div className="payment-icon" title="Mastercard">
-                                                                <RiMastercardFill />
-                                                            </div>
-                                                            <div className="payment-icon" title="PayPal">
-                                                                <FaCcPaypal />
+                                                            <div className="payment-icon" title="Klarna">
+                                                                <img 
+                                                                    src="/Payment link images/Klarna-Logo.wine.svg" 
+                                                                    alt="Klarna" 
+                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
+                                                                />
                                                             </div>
                                                             <div className="payment-icon" title="Apple Pay">
-                                                                <FaApplePay />
+                                                                <img 
+                                                                    src="/Payment link images/Apple_Pay-Logo.wine.svg" 
+                                                                    alt="Apple Pay" 
+                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
+                                                                />
+                                                            </div>
+                                                            <div className="payment-icon" title="Mastercard">
+                                                                <img 
+                                                                    src="/Payment link images/Mastercard-Logo.wine.svg" 
+                                                                    alt="Mastercard" 
+                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
+                                                                />
+                                                            </div>
+                                                            <div className="payment-icon" title="Visa">
+                                                                <img 
+                                                                    src="/Payment link images/Visa_Inc.-Logo.wine.svg" 
+                                                                    alt="Visa" 
+                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
+                                                                />
+                                                            </div>
+                                                            <div className="payment-icon" title="PayPal">
+                                                                <img 
+                                                                    src="/Payment link images/PayPal-Logo.wine.svg" 
+                                                                    alt="PayPal" 
+                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
+                                                                />
+                                                            </div>
+                                                            <div className="payment-icon" title="Swish">
+                                                                <img 
+                                                                    src="/Payment link images/Swish_(payment)-Logo.wine.svg" 
+                                                                    alt="Swish" 
+                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
+                                                                />
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="product-card__features">
-                                                    <div
-                                                        className={`product-card__features-columns ${
-                                                            showAllFeatures ? "two-columns" : "one-column"
-                                                        }`}
-                                                    >
-                                                        <div className="product-card__features-column">
-                                                            {displayedFeatures
-                                                                .slice(
-                                                                    0,
-                                                                    showAllFeatures
-                                                                        ? Math.ceil(displayedFeatures.length / 2)
-                                                                        : 4
-                                                                )
-                                                                .map((attribute, index) => (
-                                                                    <div
-                                                                        key={index}
-                                                                        className="product-card__feature-item"
-                                                                    >
-                                                                        <FormattedMessage id={attribute.name} />
+                                                {/* Technical Features from TecDoc */}
+                                                {tecdocLoading ? (
+                                                    <div className="product-card__features">
+                                                        <div className="product-card__features-columns one-column">
+                                                            <div className="product-card__features-column">
+                                                                {Array.from({ length: 4 }).map((_, index) => (
+                                                                    <div key={index} className="product-card__feature-item">
+                                                                        <span style={{ display: 'inline-block', width: '60%', height: '1rem', backgroundColor: '#e0e0e0', borderRadius: '4px' }} />
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ) : features.length > 0 ? (
+                                                    <div className="product-card__features">
+                                                        <div
+                                                            className={`product-card__features-columns ${
+                                                                showAllFeatures ? "two-columns" : "one-column"
+                                                            }`}
+                                                        >
+                                                            <div className="product-card__features-column">
+                                                                {makeUniqueKeys(
+                                                                    displayedFeatures.slice(
+                                                                        0,
+                                                                        showAllFeatures
+                                                                            ? Math.ceil(displayedFeatures.length / 2)
+                                                                            : 4
+                                                                    ),
+                                                                    (spec, i) => `${spec.name}|${spec.value}` || `spec-${i}`,
+                                                                    { prefix: "spec", reportLabel: "ShopPageProduct.features" }
+                                                                ).map(({ item: spec, key: specKey }) => (
+                                                                    <div key={specKey} className="product-card__feature-item">
+                                                                        {spec.name}
                                                                         {": "}
                                                                         <span className="product-card__feature-value">
-                                                                            {attribute.values
-                                                                                .map((x) => x.name)
-                                                                                .join(", ")}
+                                                                            {spec.value}
                                                                         </span>
                                                                     </div>
                                                                 ))}
-                                                        </div>
+                                                            </div>
 
-                                                        {showAllFeatures && (
-                                                            <div className="product-card__features-column">
-                                                                {displayedFeatures
-                                                                    .slice(Math.ceil(displayedFeatures.length / 2))
-                                                                    .map((attribute, index) => (
-                                                                        <div
-                                                                            key={
-                                                                                index +
-                                                                                Math.ceil(displayedFeatures.length / 2)
-                                                                            }
-                                                                            className="product-card__feature-item"
-                                                                        >
-                                                                            <FormattedMessage id={attribute.name} />
+                                                            {showAllFeatures && (
+                                                                <div className="product-card__features-column">
+                                                                    {makeUniqueKeys(
+                                                                        displayedFeatures.slice(Math.ceil(displayedFeatures.length / 2)),
+                                                                        (spec, i) => `${spec.name}|${spec.value}` || `spec-${i}`,
+                                                                        { prefix: "spec2", reportLabel: "ShopPageProduct.featuresCol2" }
+                                                                    ).map(({ item: spec, key: specKey }) => (
+                                                                        <div key={specKey} className="product-card__feature-item">
+                                                                            {spec.name}
                                                                             {": "}
                                                                             <span className="product-card__feature-value">
-                                                                                {attribute.values
-                                                                                    .map((x) => x.name)
-                                                                                    .join(", ")}
+                                                                                {spec.value}
                                                                             </span>
                                                                         </div>
                                                                     ))}
-                                                            </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {hasMoreFeatures && (
+                                                            <button
+                                                                className="product-card__show-more-btn"
+                                                                onClick={() => setShowAllFeatures(!showAllFeatures)}
+                                                            >
+                                                                <FormattedMessage
+                                                                    id={
+                                                                        showAllFeatures
+                                                                            ? "BUTTON_HIDE_ALL_FEATURES"
+                                                                            : "BUTTON_SHOW_ALL_FEATURES"
+                                                                    }
+                                                                />
+                                                            </button>
                                                         )}
                                                     </div>
-
-                                                    {hasMoreFeatures && (
-                                                        <button
-                                                            className="product-card__show-more-btn"
-                                                            onClick={() => setShowAllFeatures(!showAllFeatures)}
-                                                        >
-                                                            <FormattedMessage
-                                                                id={
-                                                                    showAllFeatures
-                                                                        ? "BUTTON_HIDE_ALL_FEATURES"
-                                                                        : "BUTTON_SHOW_ALL_FEATURES"
-                                                                }
-                                                            />
-                                                        </button>
-                                                    )}
-                                                </div>
+                                                ) : null}
 
                                                 <div className="safety-info-link">
                                                     <div className="safety-info-text">
@@ -835,7 +870,7 @@ function ShopPageProduct(props: Props) {
                                             </div>
 
                                             {/* Right Column - Navigation Menu */}
-                                            <div className="product-info-navigation">
+                                            <div className="product-info-navigation" style={{ position: 'sticky', top: '10px', alignSelf: 'start', zIndex: 100 }}>
                                                 <nav className="navigation-menu">
                                                     <ul className="menu-list">
                                                         {menuItems.map((item) => (
@@ -857,15 +892,19 @@ function ShopPageProduct(props: Props) {
 
                                         {/* Full Width Related Products Section */}
                                         {relatedProducts.length > 0 && (
-                                            <React.Fragment>
+                                            <section
+                                                id="related-products"
+                                                className={`product-info-section full-width-section ${
+                                                    activeSection === "related-products" ? "active" : ""
+                                                }`}
+                                            >
                                                 <BlockSpace layout="divider-nl" />
-
                                                 <BlockProductsCarousel
                                                     blockTitle={intl.formatMessage({ id: "HEADER_RELATED_PRODUCTS" })}
                                                     products={relatedProducts}
                                                     layout={layout === "sidebar" ? "grid-4-sidebar" : "grid-5"}
                                                 />
-                                            </React.Fragment>
+                                            </section>
                                         )}
 
                                         {/* Full Width Questions Section */}
@@ -876,7 +915,7 @@ function ShopPageProduct(props: Props) {
                                             }`}
                                         >
                                             <div className="section-content">
-                                                <ProductQuestion productName="Brake caliper KAMOKA JBC0206" />
+                                                <ProductQuestion productName={product.name} />
                                             </div>
                                         </section>
                                     </div>{" "}
@@ -884,15 +923,83 @@ function ShopPageProduct(props: Props) {
                                 </div>
                             </div>
                         </div>
-
-                        {layout === "sidebar" && sidebarPosition === "end" && (
-                            <div className="block-split__item block-split__item-sidebar col-auto">
-                                <ProductSidebar />
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
+
+            {/* Mobile-only sticky buy bar – portaled to body so it’s fixed to viewport */}
+            {isMounted &&
+                typeof document !== "undefined" &&
+                createPortal(
+                    <div
+                        className={classNames("product-sticky-bar", {
+                            "product-sticky-bar--visible": stickyBarVisible,
+                        })}
+                        aria-hidden={!stickyBarVisible}
+                        style={{
+                            minHeight: 140,
+                            padding: "20px 28px",
+                            paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+                            background: "#fff",
+                            boxSizing: "border-box",
+                        }}
+                    >
+                        <div className="product-sticky-bar__inner">
+                                <div className="product-sticky-bar__price-row">
+                                    <div className="product-sticky-bar__price">
+                                        <CurrencyFormat value={product.price} />
+                                    </div>
+                                    <div className="product-sticky-bar__meta">
+                                        <span className="product-sticky-bar__meta-left">
+                                            <FormattedMessage id="TEXT_INCL_VAT" />
+                                        </span>
+                                        <span className="product-sticky-bar__meta-right">
+                                            exkl. fraktkostnader
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="product-sticky-bar__actions">
+                                    {product.stock !== "out-of-stock" ? (
+                                        <>
+                                            <div className="product-sticky-bar__quantity">
+                                                <select
+                                                    className="product-sticky-bar__quantity-select"
+                                                    value={stickyQuantity}
+                                                    onChange={(e) => setStickyQuantity(Number(e.target.value))}
+                                                    aria-label={intl.formatMessage({ id: "INPUT_QUANTITY", defaultMessage: "Quantity" })}
+                                                >
+                                                    {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                                                        <option key={n} value={n}>
+                                                            {n}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <AsyncAction
+                                                action={() => cartAddItem(product, [], stickyQuantity)}
+                                                render={({ run, loading }) => (
+                                                    <button
+                                                        type="button"
+                                                        className={classNames("product-sticky-bar__btn", {
+                                                            "product-sticky-bar__btn--loading": loading,
+                                                        })}
+                                                        onClick={run}
+                                                    >
+                                                        <FormattedMessage id="BUTTON_ADD_TO_CART" />
+                                                    </button>
+                                                )}
+                                            />
+                                        </>
+                                    ) : (
+                                        <span className="product-sticky-bar__out-of-stock">
+                                            <FormattedMessage id="TEXT_OUT_OF_STOCK" defaultMessage="Out of stock" />
+                                        </span>
+                                    )}
+                                </div>
+                        </div>
+                    </div>,
+                    document.body
+                )}
 
             <BlockSpace layout="before-footer" />
         </React.Fragment>

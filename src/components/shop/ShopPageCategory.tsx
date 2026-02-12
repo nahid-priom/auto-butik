@@ -8,48 +8,36 @@ import AppImage from '~/components/shared/AppImage';
 import AppLink from '~/components/shared/AppLink';
 import BlockBrands from '~/components/blocks/BlockBrands';
 import BlockHeader from '~/components/blocks/BlockHeader';
-import BlockProductsCarousel from '~/components/blocks/BlockProductsCarousel';
 import BlockSpace from '~/components/blocks/BlockSpace';
 import PageTitle from '~/components/shared/PageTitle';
 import url from '~/services/url';
-import WidgetCategoriesList from '~/components/widgets/WidgetCategoriesList';
-import WidgetProducts from '~/components/widgets/WidgetProducts';
+import WidgetVehicleCategories from '~/components/widgets/WidgetVehicleCategories';
 import { getCategoryPath } from '~/services/utils';
 import { IBrand } from '~/interfaces/brand';
 import { IShopCategoryPageLayout, IShopCategoryPageSidebarPosition } from '~/interfaces/pages';
-import { IProduct } from '~/interfaces/product';
 import { IShopCategory } from '~/interfaces/category';
 import { shopApi } from '~/api';
-import { useDeferredData } from '~/services/hooks';
 
 interface Props {
     layout: IShopCategoryPageLayout;
     sidebarPosition?: IShopCategoryPageSidebarPosition;
     category?: IShopCategory | null;
     subcategories?: IShopCategory[];
+    hideHeader?: boolean; // If true, don't render BlockHeader (parent handles it)
 }
 
 function ShopPageCategory(props: Props) {
     const intl = useIntl();
-    const { layout, sidebarPosition = 'start', category } = props;
+    const { layout, sidebarPosition = 'start', category, hideHeader = false } = props;
     let { subcategories } = props;
     const hasSidebar = layout.endsWith('-sidebar');
     const [brands, setBrands] = useState<IBrand[]>([]);
-    const [latestProducts, setLatestProducts] = useState<IProduct[]>([]);
 
     if (category && subcategories === undefined) {
         subcategories = category.children || [];
     }
 
     subcategories = subcategories || [];
-
-    const bestsellers = useDeferredData(() => (
-        shopApi.getPopularProducts(null, 8)
-    ), []);
-
-    const featured = useDeferredData(() => (
-        shopApi.getFeaturedProducts(null, 8)
-    ), []);
 
     useEffect(() => {
         let canceled = false;
@@ -61,18 +49,6 @@ function ShopPageCategory(props: Props) {
 
             setBrands(result);
         });
-
-        if (hasSidebar) {
-            shopApi.getLatestProducts(5).then((result) => {
-                if (canceled) {
-                    return;
-                }
-
-                setLatestProducts(result);
-            });
-        } else {
-            setLatestProducts([]);
-        }
 
         return () => {
             canceled = true;
@@ -94,62 +70,105 @@ function ShopPageCategory(props: Props) {
     if (hasSidebar) {
         sidebar = (
             <div className="block-split__item block-split__item-sidebar col-auto">
-                {subcategories.length > 0 && (
-                    <WidgetCategoriesList
-                        categories={subcategories}
-                    />
-                )}
-
-                <WidgetProducts
-                    widgetTitle={intl.formatMessage({ id: 'HEADER_LATEST_PRODUCTS' })}
-                    products={latestProducts}
-                />
+                <WidgetVehicleCategories offcanvasSidebar="none" />
             </div>
         );
     }
 
+    // Always show categories as cards for consistent design
+    const showAsCards = subcategories.length > 0 && layout.includes('columns');
+    
     const subcategoriesTemplate = subcategories.length === 0 ? null : (
         <React.Fragment>
             <div className="block">
-                <div className={`categories-list categories-list--layout--${layout}`}>
-                    <ul className="categories-list__body">
-                        {subcategories.map((subcategory) => (
-                            <React.Fragment key={subcategory.id}>
-                                <li
-                                    className={classNames('categories-list__item', {
-                                        'categories-list__item--has-image': subcategory.image,
-                                    })}
-                                >
-                                    <AppLink href={url.category(subcategory)}>
-                                        {subcategory.image && (
-                                            <div className="image image--type--category">
-                                                <div className="image__body">
+                {showAsCards ? (
+                    // Display as category cards grid (consistent for both root and subcategories)
+                    <div className={`block-categories block-categories--layout--${layout}`}>
+                        <div className="container">
+                            <div className="block-categories__list">
+                                {subcategories.map((subcategory) => (
+                                    <div
+                                        key={subcategory.id}
+                                        className="block-categories__item category-card category-card--layout--classic"
+                                    >
+                                        <AppLink 
+                                            href={
+                                                (subcategory as any).hasChildren 
+                                                    ? `/catalog/${subcategory.id}`
+                                                    : `/catalog/${subcategory.id}/products`
+                                            }
+                                            className="category-card__body"
+                                        >
+                                            <div className="category-card__image">
+                                                {subcategory.image ? (
                                                     <AppImage
-                                                        className="image__tag"
+                                                        className="category-card__image-tag"
                                                         src={subcategory.image}
                                                         alt={subcategory.name}
                                                     />
+                                                ) : (
+                                                    <div className="category-card__image-placeholder">
+                                                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M4 16L8.586 11.414C9.367 10.633 10.633 10.633 11.414 11.414L16 16M14 14L15.586 12.414C16.367 11.633 17.633 11.633 18.414 12.414L20 14M14 8H14.01M6 20H18C19.105 20 20 19.105 20 18V6C20 4.895 19.105 4 18 4H6C4.895 4 4 4.895 4 6V18C4 19.105 4.895 20 6 20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                        </svg>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="category-card__name">
+                                                {subcategory.name}
+                                            </div>
+                                        </AppLink>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    // Fallback to list if layout doesn't support columns
+                    <div className={`categories-list categories-list--layout--${layout}`}>
+                        <ul className="categories-list__body">
+                            {subcategories.map((subcategory) => (
+                                <React.Fragment key={subcategory.id}>
+                                    <li
+                                        className={classNames('categories-list__item', {
+                                            'categories-list__item--has-image': subcategory.image,
+                                        })}
+                                    >
+                                        <AppLink href={
+                                            (subcategory as any).hasChildren 
+                                                ? `/catalog/${subcategory.id}`
+                                                : `/catalog/${subcategory.id}/products`
+                                        }>
+                                            {subcategory.image && (
+                                                <div className="image image--type--category">
+                                                    <div className="image__body">
+                                                        <AppImage
+                                                            className="image__tag"
+                                                            src={subcategory.image}
+                                                            alt={subcategory.name}
+                                                        />
+                                                    </div>
                                                 </div>
+                                            )}
+                                            <div className="categories-list__item-name">
+                                                {subcategory.name}
+                                            </div>
+                                        </AppLink>
+                                        {typeof subcategory.items === 'number' && (
+                                            <div className="categories-list__item-products">
+                                                <FormattedMessage
+                                                    id="TEXT_PRODUCTS_COUNT"
+                                                    values={{ count: subcategory.items }}
+                                                />
                                             </div>
                                         )}
-                                        <div className="categories-list__item-name">
-                                            {subcategory.name}
-                                        </div>
-                                    </AppLink>
-                                    {typeof subcategory.items === 'number' && (
-                                        <div className="categories-list__item-products">
-                                            <FormattedMessage
-                                                id="TEXT_PRODUCTS_COUNT"
-                                                values={{ count: subcategory.items }}
-                                            />
-                                        </div>
-                                    )}
-                                </li>
-                                <li className="categories-list__divider" />
-                            </React.Fragment>
-                        ))}
-                    </ul>
-                </div>
+                                    </li>
+                                    <li className="categories-list__divider" />
+                                </React.Fragment>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
 
             <BlockSpace layout="divider-nl" />
@@ -158,12 +177,15 @@ function ShopPageCategory(props: Props) {
 
     return (
         <React.Fragment>
-            <PageTitle>{pageTitle}</PageTitle>
-
-            <BlockHeader
-                pageTitle={pageTitle}
-                breadcrumb={breadcrumb}
-            />
+            {!hideHeader && (
+                <React.Fragment>
+                    <PageTitle>{pageTitle}</PageTitle>
+                    <BlockHeader
+                        pageTitle={pageTitle}
+                        breadcrumb={breadcrumb}
+                    />
+                </React.Fragment>
+            )}
 
             <div
                 className={classNames('block', 'block-split', {
@@ -176,25 +198,6 @@ function ShopPageCategory(props: Props) {
 
                         <div className="block-split__item block-split__item-content col-auto flex-grow-1">
                             {subcategoriesTemplate}
-
-                            <BlockProductsCarousel
-                                blockTitle={intl.formatMessage({ id: 'HEADER_BESTSELLERS' })}
-                                layout={hasSidebar ? 'grid-4-sidebar' : 'grid-5'}
-                                products={bestsellers.data}
-                                loading={bestsellers.isLoading}
-                            />
-
-                            <BlockSpace layout="divider-nl" />
-
-                            <BlockProductsCarousel
-                                blockTitle={intl.formatMessage({ id: 'HEADER_FEATURED_PRODUCTS' })}
-                                layout={hasSidebar ? 'horizontal-sidebar' : 'horizontal'}
-                                products={featured.data}
-                                loading={featured.isLoading}
-                                rows={2}
-                            />
-
-                            <BlockSpace layout="divider-nl" />
 
                             <BlockBrands
                                 layout={hasSidebar ? 'columns-7-sidebar' : 'columns-8-full'}

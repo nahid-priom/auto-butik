@@ -11,20 +11,21 @@ import {
 import rootReducer from '~/store/root/rootReducer';
 import version from '~/store/version';
 import { IRootState } from '~/store/root/rootTypes';
+import { logger } from '~/utils/logger';
 
 const STORAGE_KEY = 'autobutik';
 
 export const save = (state: any) => {
+    if (typeof window === 'undefined') return;
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
+        logger.error('Failed to save Redux state to localStorage', error);
     }
 };
 
 export const load = () => {
-    if (!process.browser) {
+    if (typeof window === 'undefined') {
         return undefined;
     }
 
@@ -52,8 +53,7 @@ export const load = () => {
             }
         }
     } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
+        logger.error('Failed to load Redux state from localStorage', error);
     }
 
     return state || undefined;

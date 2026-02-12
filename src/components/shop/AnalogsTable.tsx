@@ -22,13 +22,19 @@ function AnalogsTable(props: Props) {
     useEffect(() => {
         let canceled = false;
 
-        shopApi.getProductAnalogs(productId).then((result) => {
-            if (canceled) {
-                return;
-            }
-
-            setAnalogs(result);
-        });
+        shopApi.getProductAnalogs(productId)
+            .then((result) => {
+                if (canceled) {
+                    return;
+                }
+                setAnalogs(result);
+            })
+            .catch(() => {
+                if (canceled) {
+                    return;
+                }
+                setAnalogs([]);
+            });
 
         return () => {
             canceled = true;

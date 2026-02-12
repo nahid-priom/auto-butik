@@ -1,5 +1,5 @@
 /*
-// .block-zone
+// .block-zone — Lower product carousel (background image + product cards + pagination)
 */
 @import '../variables';
 @import '../constants';
@@ -9,6 +9,9 @@
 @import '../mixins/product-card';
 @import '../mixins/arrow';
 
+// Zone section: max-width, vertical padding, no horizontal overflow
+$block-zone-dot-size: 8px;
+$block-zone-dot-active-scale: 1.25;
 
 @mixin local-layout($card-width, $gutter) {
     .block-zone__card {
@@ -24,9 +27,45 @@
 }
 
 
-.block-zone {}
+.block-zone {
+    overflow-x: hidden;
+    padding-top: 36px;
+    padding-bottom: 36px;
+
+    @include media-breakpoint-up(md) {
+        padding-top: 48px;
+        padding-bottom: 48px;
+    }
+    @include media-breakpoint-up(lg) {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    @include media-breakpoint-up(xl) {
+        padding-top: 72px;
+        padding-bottom: 72px;
+    }
+}
+.block-zone .container {
+    max-width: 1320px;
+}
 .block-zone__body {
     display: flex;
+}
+
+// Background overlay on category card: subtle dark gradient for readability
+.block-zone .category-card__body {
+    .category-card__content {
+        position: relative;
+        z-index: 1;
+    }
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.55));
+        z-index: 0;
+        pointer-events: none;
+    }
 }
 .block-zone__card {
     display: flex;
@@ -96,6 +135,28 @@
         #{$margin-inline-start}: (23px * $TAN-20) * -1 + 3px;
     }
 }
+
+// Arrows: small circular, semi-transparent, vertically centered
+.block-zone__arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s ease-out, box-shadow 0.2s ease-out;
+
+    &:hover {
+        background: rgba(255, 255, 255, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+    &:focus {
+        outline: none;
+    }
+}
 .block-zone__carousel {
     position: relative;
     width: 100%;
@@ -118,6 +179,7 @@
     .slick-list {
         margin: (-$local-carousel-expand) calc(var(--block-products-carousel-gutter) / 2 * -1);
         padding: $local-carousel-expand 0;
+        overflow: hidden;
     }
     .slick-slide {
         padding: 0 calc(var(--block-products-carousel-gutter) / 2);
@@ -137,6 +199,42 @@
             outline: none;
         }
     }
+
+    // Pagination dots: small, subtle, centered, active = brand red, smooth transition
+    .slick-dots {
+        position: static;
+        padding: 0;
+        margin-top: 24px;
+        margin-bottom: 0;
+        font-size: 0;
+        list-style: none;
+        text-align: center;
+
+        li {
+            display: inline-block;
+            padding: 6px;
+        }
+        button {
+            width: $block-zone-dot-size;
+            height: $block-zone-dot-size;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.15);
+            transition: background 0.2s ease-out, transform 0.2s ease-out;
+
+            &:focus {
+                outline: none;
+            }
+            &:hover {
+                background: rgba(0, 0, 0, 0.25);
+            }
+        }
+        .slick-active button {
+            background: map_get($theme-scheme, main);
+            transform: scale($block-zone-dot-active-scale);
+        }
+    }
 }
 .block-zone__carousel-item {
     display: flex;
@@ -146,6 +244,40 @@
         @include product-card-grid-base;
 
         width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        transition: box-shadow 0.25s ease-out, border-color 0.2s ease-out;
+
+        .product-card__name {
+            font-weight: $font-weight-medium;
+            letter-spacing: -0.01em;
+        }
+        .product-card__meta,
+        .product-card__shipping-info__text {
+            font-size: 11px;
+            color: map_get($card-scheme, muted);
+        }
+        .product-card__prices {
+            font-size: 17px;
+            font-weight: $font-weight-bold;
+        }
+        .product-card__vat-and-shipping-info {
+            font-size: 10px;
+            color: map_get($card-scheme, muted);
+        }
+        .product-card__footer {
+            padding: 10px 14px 14px;
+            gap: 6px;
+        }
+    }
+
+    @media (hover: hover) {
+        .product-card:hover {
+            border-color: rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
     }
 }
 .block-zone__carousel-loader {
@@ -225,4 +357,46 @@
             #{$margin-inline-start}: 8px;
         }
     }
+}
+
+// Mobile peek: 1 full card + 40–50% of next (variableWidth from 459px down)
+@media (max-width: 459px) {
+    .block-zone__carousel-slick {
+        --block-products-carousel-gutter: 14px;
+
+        .slick-list {
+            @include direction {
+                #{$padding-inline-start}: 16px;
+                #{$padding-inline-end}: 16px;
+            }
+        }
+        .slick-slide {
+            width: 72% !important; // ~1.39 slides visible (1 + peek)
+            padding: 0 7px;
+        }
+    }
+}
+@media (max-width: 359px) {
+    .block-zone__carousel-slick .slick-slide {
+        width: 68% !important; // ~1.47 slides visible on very small
+    }
+}
+
+// Prevent horizontal page scroll and clip overflow
+.block-zone__carousel {
+    overflow: hidden;
+}
+.block-zone__carousel-item {
+    min-width: 0;
+}
+.block-zone__carousel-item .product-card {
+    min-width: 0;
+}
+
+// Fixed aspect ratio for product image to avoid CLS
+.block-zone__carousel-item .product-card .product-card__image .image--type--product .image__body {
+    padding-bottom: 72%;
+}
+.block-zone__carousel-item .product-card .product-card__image .image--type--product .image__tag {
+    object-fit: contain;
 }

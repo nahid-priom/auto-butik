@@ -25,7 +25,12 @@ export function useGlobalMousedown(callback: (event: MouseEvent) => void, deps?:
 }
 
 export type IDeferredDataSource<T> = () => Promise<T>;
-export type IDeferredDataState<T> = { isLoading: boolean, data: T };
+export type IDeferredDataState<T> = {
+    isLoading: boolean;
+    data: T;
+    error?: string | null;
+    retry: () => void;
+};
 
 export function useDeferredData<T>(
     source: IDeferredDataSource<T>,
@@ -33,44 +38,62 @@ export function useDeferredData<T>(
     initialData?: T,
     deps: any[] = [],
 ): IDeferredDataState<T> {
-    const [state, setState] = useState(() => ({
+    const [state, setState] = useState<{
+        isLoading: boolean;
+        data: T;
+        error: string | null;
+    }>(() => ({
         isLoading: initialData === undefined,
-        data: initialData || defaultData,
+        data: initialData ?? defaultData,
+        error: null,
     }));
     const memoizedSource = useCallback(source, deps);
     const skipNextRef = useRef(initialData !== undefined);
 
-    useEffect(() => {
-        if (skipNextRef.current) {
-            skipNextRef.current = false;
-
-            return () => {};
-        }
-
+    const run = useCallback(() => {
         let canceled = false;
-
-        setState((curState) => {
-            if (!curState.isLoading) {
-                return { ...curState, isLoading: true };
-            }
-
-            return curState;
-        });
-
-        memoizedSource().then((data) => {
-            if (canceled) {
-                return;
-            }
-
-            setState(() => ({ isLoading: false, data }));
-        });
-
+        setState((cur) => ({ ...cur, isLoading: true, error: null }));
+        memoizedSource()
+            .then((data) => {
+                if (!canceled) {
+                    setState(() => ({ isLoading: false, data, error: null }));
+                }
+            })
+            .catch((err) => {
+                if (!canceled) {
+                    setState((cur) => ({
+                        ...cur,
+                        isLoading: false,
+                        error: err?.message || String(err) || 'Error',
+                    }));
+                }
+            });
         return () => {
             canceled = true;
         };
     }, [memoizedSource]);
 
-    return state;
+    useEffect(() => {
+        if (skipNextRef.current) {
+            skipNextRef.current = false;
+            return () => {};
+        }
+        const cancel = run();
+        return cancel;
+    }, [run]);
+
+    const retry = useCallback(() => {
+        skipNextRef.current = false;
+        run();
+    }, [run]);
+
+    return useMemo(
+        () => ({
+            ...state,
+            retry,
+        }),
+        [state.isLoading, state.data, state.error, retry],
+    );
 }
 
 export type IProductTab = { id: number; name: string };
@@ -113,17 +136,39 @@ export type IProductColumn = {
     source: IDeferredDataSource<IProduct[]>;
 };
 
-export function useProductColumns(columns: IProductColumn[]) {
-    const products = useDeferredData(() => (
-        Promise.all(columns.map((column) => column.source()))
-    ), [], undefined, [columns]);
+export type IProductColumnsResult = {
+    columns: Array<IProductColumn & { products: IProduct[] }>;
+    isLoading: boolean;
+    error: string | null;
+    retry: () => void;
+};
 
-    return useMemo(() => (
-        columns.map((column, index) => ({
-            ...column,
-            products: products.data[index] || [],
-        }))
-    ), [columns, products]);
+export function useProductColumns(columns: IProductColumn[]): IProductColumnsResult {
+    const products = useDeferredData(
+        () => Promise.all(columns.map((column) => column.source())),
+        [] as IProduct[][],
+        undefined,
+        [columns],
+    );
+
+    const columnsWithProducts = useMemo(
+        () =>
+            columns.map((column, index) => ({
+                ...column,
+                products: products.data[index] || [],
+            })),
+        [columns, products.data],
+    );
+
+    return useMemo(
+        () => ({
+            columns: columnsWithProducts,
+            isLoading: products.isLoading,
+            error: products.error || null,
+            retry: products.retry,
+        }),
+        [columnsWithProducts, products.isLoading, products.error, products.retry],
+    );
 }
 
 export function useDetachableForm<T extends Record<string, any>>(

@@ -18,6 +18,9 @@
     .dropcart {
         display: block;
         width: 420px;
+        max-height: min(70vh, 600px);
+        overflow-x: hidden;
+        overflow-y: auto;
         background-color: map_get($menu-scheme, main);
         box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08);
         border-radius: 16px;

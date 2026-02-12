@@ -37,19 +37,34 @@
     }
 }
 .block-space--layout--divider-xl {
-    height: 72px;
+    height: 60px;
+    @include media-breakpoint-down(sm) {
+        height: 32px;
+    }
 }
 .block-space--layout--divider-lg {
-    height: 60px;
+    height: 52px;
+    @include media-breakpoint-down(sm) {
+        height: 28px;
+    }
 }
 .block-space--layout--divider-nl {
-    height: 52px;
+    height: 48px;
+    @include media-breakpoint-down(sm) {
+        height: 24px;
+    }
 }
 .block-space--layout--divider-sm {
-    height: 40px;
+    height: 36px;
+    @include media-breakpoint-down(sm) {
+        height: 20px;
+    }
 }
 .block-space--layout--divider-xs {
-    height: 36px;
+    height: 32px;
+    @include media-breakpoint-down(sm) {
+        height: 16px;
+    }
 }
 .block-space--layout--spaceship-ledge-height {
     height: $spaceship-ledge-height;

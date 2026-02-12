@@ -108,6 +108,9 @@
         &:focus {
             outline: none;
         }
+        &:focus-visible {
+            box-shadow: 0 0 0 2px map_get($theme-scheme, main), 0 0 0 4px rgba(map_get($theme-scheme, main), 0.2);
+        }
     }
     .departments__button-icon {
         top: 10px;
@@ -144,7 +147,7 @@
     }
     .departments__menu {
         position: absolute;
-        z-index: 1;
+        z-index: $z-dropdown;
         visibility: hidden;
         opacity: 0;
         top: 100%;
@@ -155,12 +158,18 @@
             visibility 0s .2s;
     }
     .departments__body {
-        border-radius: 1.5px;
+        border-radius: 12px;
         pointer-events: auto;
         display: flex;
         background-color: map_get($departments-menu-scheme, main);
-        box-shadow: map_get($departments-menu-scheme, shadow);
+        box-shadow: map_get($departments-menu-scheme, shadow), 0 4px 24px rgba(0, 0, 0, 0.08);
         color: map_get($departments-menu-scheme, opposite);
+        border: 1px solid map_get($departments-menu-scheme, divider);
+        max-width: 1200px;
+        max-height: min(70vh, 600px);
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding: 12px 0;
 
         @include direction {
             float: $inline-start;
@@ -171,15 +180,39 @@
         list-style: none;
         margin: 0;
         padding: 0;
-        font-size: 15px;
-        line-height: 20px;
+        font-size: 14px;
+        line-height: 1.35;
+        max-height: min(70vh, 600px);
+        overflow-y: auto;
+        overflow-x: hidden;
 
         @include scheme-font-weight($departments-menu-scheme, opposite, $font-weight-medium);
     }
     .departments__item-link {
         color: inherit;
-        display: block;
+        display: flex;
+        align-items: center;
         position: relative;
+        min-height: 42px;
+        line-height: 1.35;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        transition: background-color 0.15s ease;
+
+        @include direction {
+            #{$border-inline-start}: 3px solid transparent;
+        }
+
+        &:hover {
+            background: map_get($departments-menu-scheme, hover);
+            color: inherit;
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 2px map_get($theme-scheme, main), 0 0 0 4px rgba(map_get($theme-scheme, main), 0.2);
+        }
     }
     .departments__item-arrow {
         fill: map_get($departments-menu-scheme, arrow-color);
@@ -197,11 +230,18 @@
         .departments__item-link {
             background: map_get($departments-menu-scheme, hover);
             color: inherit;
+
+            @include direction {
+                #{$border-inline-start}-color: map_get($theme-scheme, main);
+            }
         }
     }
     .departments__megamenu {
         min-height: 100%;
         display: none;
+        overflow-x: hidden;
+        overflow-y: auto;
+        max-height: min(70vh, 600px);
 
         @include direction {
             box-shadow: #{1px * $transform-direction} 0 map_get($departments-menu-scheme, divider) inset;
@@ -308,22 +348,22 @@
 
     @include media-breakpoint-up(xxl) {
         @include local-departments-layout((
-            container-width: map_get($container-max-widths, xxl),
-            list-width: 230px,
-            list-padding-y: 14px,
-            megamenu-gutter: 30px,
-            item-padding-x: 14px,
-            item-padding-y: 7px,
+            container-width: 1200px,
+            list-width: 240px,
+            list-padding-y: 8px,
+            megamenu-gutter: 16px,
+            item-padding-x: 12px,
+            item-padding-y: 9px,
         ));
     }
     @include media-breakpoint-only(xl) {
         @include local-departments-layout((
-            container-width: map_get($container-max-widths, xl),
-            list-width: 210px,
-            list-padding-y: 10px,
-            megamenu-gutter: 20px,
-            item-padding-x: 11px,
-            item-padding-y: 6px,
+            container-width: 1100px,
+            list-width: 220px,
+            list-padding-y: 6px,
+            megamenu-gutter: 12px,
+            item-padding-x: 10px,
+            item-padding-y: 8px,
         ));
     }
 

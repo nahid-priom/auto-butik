@@ -37,7 +37,7 @@ function MegamenuLinks(props: Props) {
                             onClick={() => onItemClick && onItemClick(link)}
                             {...link.customFields?.anchorProps}
                         >
-                            {typeof link.title === "string" ? <FormattedMessage id={link.title} /> : link.title}
+                            {typeof link.title === "string" ? <FormattedMessage id={link.title} defaultMessage={link.title} /> : link.title}
                         </AppLink>
 
                         {hasSubLinks && <MegamenuLinks links={subLinks} level={level + 1} onItemClick={onItemClick} />}

@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import classNames from "classnames";
 import { FormattedMessage, useIntl } from "react-intl";
 // application
-import AppImage from "~/components/shared/AppImage";
+import ProductImage from "~/components/shared/ProductImage";
 import AppLink from "~/components/shared/AppLink";
 import AsyncAction from "~/components/shared/AsyncAction";
 import CompatibilityStatusBadge from "~/components/shared/CompatibilityStatusBadge";
 import CurrencyFormat from "~/components/shared/CurrencyFormat";
-import { FaCalendarCheck } from "react-icons/fa";
+import { FaShippingFast } from "react-icons/fa";
 import Rating from "~/components/shared/Rating";
 import url from "~/services/url";
 import { IProduct } from "~/interfaces/product";
@@ -17,7 +17,7 @@ import { useCartAddItem } from "~/store/cart/cartHooks";
 import { useCompareAddItem } from "~/store/compare/compareHooks";
 import { useQuickviewOpen } from "~/store/quickview/quickviewHooks";
 import { useWishlistAddItem } from "~/store/wishlist/wishlistHooks";
-import { Cart20Svg, Compare16Svg, Quickview16Svg, Wishlist16Svg } from "~/svg";
+import { Cart20Svg, Compare16Svg, Wishlist16Svg } from "~/svg";
 
 export type IProductCardElement =
     | "actions"
@@ -40,78 +40,95 @@ interface Props extends React.HTMLAttributes<HTMLElement> {
 function ProductCard(props: Props) {
     const { product, layout, exclude = [], className, ...rootProps } = props;
     const intl = useIntl();
-    const featuredAttributes = [
-        {
-            name: "LOCATION",
-            values: [{ name: "Rear axle" }],
+
+    type FeatureSpec = { name: string; value: string; unit?: string; fromSpecial?: boolean };
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowDateStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}`;
+
+    // Build feature list from backend: technicalSpecs (non-empty) + specialFitment + EAN if present
+    const rawSpecs = (product.customFields?.technicalSpecs as FeatureSpec[] | undefined) ?? [];
+    const specsWithValue: FeatureSpec[] = rawSpecs.filter(
+        (s) => s.value != null && String(s.value).trim() !== ""
+    );
+
+    // Special fitments: show below Placering, skip those whose name is "Position"
+    const rawSpecialFitments =
+        (product.customFields?.specialFitment as Array<{ name: string; value: string }> | undefined) ??
+        [];
+    const specialFitments: FeatureSpec[] = rawSpecialFitments
+        .filter(
+            (sf) =>
+                sf.value != null &&
+                String(sf.value).trim() !== "" &&
+                sf.name !== "Position"
+        )
+        .map((sf) => ({
+            name: sf.name,
+            value: sf.value,
+            unit: undefined,
+            fromSpecial: true,
+        }));
+
+    const ean = product.customFields?.ean as string | null | undefined;
+    const hasEanInSpecs = specsWithValue.some(
+        (s) => s.name === "EAN" || s.name.toLowerCase() === "ean"
+    );
+
+    // Start from technical specs, optionally appending EAN (never before Placering / special fitments)
+    const specsWithEan: FeatureSpec[] =
+        ean && !hasEanInSpecs
+            ? [
+                  ...specsWithValue,
+                  {
+                      name: "EAN",
+                      value: ean,
+                      unit: undefined,
+                      fromSpecial: false,
+                  },
+              ]
+            : specsWithValue;
+
+    // Order: (1) Position/Placering, (2) special fitments, (3) everything else (including EAN)
+    const positionSpecs = specsWithEan.filter((s) => s.name === "Position");
+    const otherSpecs = specsWithEan.filter((s) => s.name !== "Position");
+    const orderedSpecs: FeatureSpec[] =
+        positionSpecs.length > 0
+            ? [...positionSpecs, ...specialFitments, ...otherSpecs]
+            : [...specialFitments, ...otherSpecs];
+
+    // Group specs with the same name (e.g. multiple "Position") into one line with comma-separated values
+    const groupedByName = orderedSpecs.reduce(
+        (acc, spec) => {
+            const key = spec.name;
+            if (!acc[key]) {
+                acc[key] = {
+                    name: spec.name,
+                    values: [] as string[],
+                    unit: spec.unit,
+                    fromSpecial: spec.fromSpecial ?? false,
+                };
+            }
+            acc[key].values.push(spec.value.trim());
+            if (spec.fromSpecial) {
+                acc[key].fromSpecial = true;
+            }
+            return acc;
         },
-        {
-            name: "EAN",
-            values: [{ name: "4047024749801" }],
-        },
-        {
-            name: "OUTER_DIAMETER_MM",
-            values: [{ name: "272" }],
-        },
-        {
-            name: "BRAKE_DISC_THICKNESS_MM",
-            values: [{ name: "10" }],
-        },
-        {
-            name: "MINIMUM_THICKNESS_MM",
-            values: [{ name: "8" }],
-        },
-        {
-            name: "HEIGHT_MM",
-            values: [{ name: "48.3" }],
-        },
-        {
-            name: "HOLE_CIRCLE_DIAMETER_MM",
-            values: [{ name: "112" }],
-        },
-        {
-            name: "BRAKE_DISC_TYPE",
-            values: [{ name: "full" }],
-        },
-        {
-            name: "CENTERING_DIAMETER_MM",
-            values: [{ name: "65" }],
-        },
-        {
-            name: "NUMBER_OF_HOLES",
-            values: [{ name: "9" }],
-        },
-        {
-            name: "SURFACE",
-            values: [{ name: "oiled" }],
-        },
-        {
-            name: "MEETS_ECE_STANDARD",
-            values: [{ name: "ECE-R90" }],
-        },
-        {
-            name: "DRILLING_DIAMETER_TO_MM",
-            values: [{ name: "15.3" }],
-        },
-        {
-            name: "PRODUCT_LINE",
-            values: [{ name: "BD1515, E1 90 R - 02C0355/0231" }],
-        },
-        {
-            name: "BRAND_QUALITY",
-            values: [{ name: "Premium" }],
-        },
-        {
-            name: "MANUFACTURER",
-            values: [{ name: "BOSCH" }],
-        },
-        {
-            name: "ITEM_NO",
-            values: [{ name: "0 986 479 677" }],
-        },
-    ];
+        {} as Record<string, { name: string; values: string[]; unit?: string; fromSpecial?: boolean }>
+    );
+    const featuredAttributes: FeatureSpec[] = Object.values(groupedByName).map(
+        ({ name, values, unit, fromSpecial }) => ({
+            name,
+            value: values.join(", "),
+            unit,
+            fromSpecial: !!fromSpecial,
+        })
+    );
 
     const [showAllFeatures, setShowAllFeatures] = useState(false);
+    const [quantity, setQuantity] = useState(1);
 
     // Show only first 4 features initially, or all if showAllFeatures is true
     const displayedFeatures = showAllFeatures ? featuredAttributes : featuredAttributes.slice(0, 4);
@@ -143,9 +160,7 @@ function ProductCard(props: Props) {
                             })}
                             aria-label={intl.formatMessage({ id: "BUTTON_QUICKVIEW" })}
                             onClick={run}
-                        >
-                            <Quickview16Svg />
-                        </button>
+                        />
                     )}
                 />
 
@@ -188,7 +203,11 @@ function ProductCard(props: Props) {
             <div className="product-card__image">
                 <div className="image image--type--product">
                     <AppLink href={url.product(product)} className="image__body">
-                        {product.images && <AppImage className="image__tag" src={product.images[0]} />}
+                        <ProductImage
+                            className="image__tag"
+                            src={product.images?.[0]}
+                            loading="lazy"
+                        />
                     </AppLink>
                 </div>
 
@@ -218,7 +237,7 @@ function ProductCard(props: Props) {
                             ))}
                         </div>
                     )}
-                    <AppLink href={url.product(product)}>{<FormattedMessage id="PRODUCT_NAME" />}</AppLink>
+                    <AppLink href={url.product(product)}>{product.name}</AppLink>
                 </div>
 
                 {!exclude.includes("meta") && (
@@ -272,12 +291,21 @@ function ProductCard(props: Props) {
                 {!exclude.includes("features") && displayedFeatures.length > 0 && (
                     <div className="product-card__features">
                         <ul>
-                            {displayedFeatures.map((attribute, index) => (
+                            {displayedFeatures.map((spec, index) => (
                                 <li key={index}>
-                                    <FormattedMessage id={attribute.name} />
+                                    <span className="product-card__feature-name">
+                                        {spec.name === "Position" ? (
+                                            "Placering"
+                                        ) : spec.fromSpecial ? (
+                                            <strong>{spec.name}</strong>
+                                        ) : (
+                                            spec.name
+                                        )}
+                                    </span>
                                     {": "}
                                     <span className="product-card__feature-value">
-                                        {attribute.values.map((x) => x.name).join(", ")}
+                                        {spec.value}
+                                        {spec.unit ? ` ${spec.unit}` : ""}
                                     </span>
                                 </li>
                             ))}
@@ -301,12 +329,12 @@ function ProductCard(props: Props) {
                 {!exclude.includes("shipping") && (
                     <div className="product-card__shipping-info">
                         <div className="product-card__shipping-info__icon">
-                            <FaCalendarCheck />
+                            <FaShippingFast />
                         </div>
                         <div className="product-card__shipping-info__text">
                             <FormattedMessage id="SHIPPED_FROM_STOCKHOLM" />
                             {": "}
-                            <span className="product-card__shipping-info__date">Tomorrow, 2025-10-29</span>
+                            <span className="product-card__shipping-info__date">i morgon, {tomorrowDateStr}</span>
                         </div>
                     </div>
                 )}
@@ -330,9 +358,12 @@ function ProductCard(props: Props) {
                     </div>
                     {!exclude.includes("vat") && (
                         <div className="product-card__vat-and-shipping-info">
-                            <FormattedMessage id="TEXT_INCL_VAT" />
-                            <span> | </span>
-                            <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                            <span className="product-card__vat-and-shipping-info__left">
+                                <FormattedMessage id="TEXT_INCL_VAT" />
+                            </span>
+                            <span className="product-card__vat-and-shipping-info__right">
+                                <FormattedMessage id="TEXT_FREE_SHIPPING" />
+                            </span>
                         </div>
                     )}
                     {!exclude.includes("buttons") && (
@@ -341,16 +372,21 @@ function ProductCard(props: Props) {
                                 <React.Fragment>
                                     <div className="product-card__quantity-and-cart">
                                         <div className="product-card__quantity">
-                                            <select className="product-card__quantity-select" defaultValue="1">
-                                                {Array.from({ length: 10 }, (_, i) => i + 1).map((number) => (
-                                                    <option key={number} value={number}>
-                                                        {number}
+                                            <select
+                                                className="product-card__quantity-select"
+                                                value={quantity}
+                                                onChange={(e) => setQuantity(Number(e.target.value))}
+                                                aria-label={intl.formatMessage({ id: "INPUT_QUANTITY", defaultMessage: "Quantity" })}
+                                            >
+                                                {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                                                    <option key={n} value={n}>
+                                                        {n}
                                                     </option>
                                                 ))}
                                             </select>
                                         </div>
                                         <AsyncAction
-                                            action={() => cartAddItem(product)}
+                                            action={() => cartAddItem(product, [], quantity)}
                                             render={({ run, loading }) => (
                                                 <button
                                                     type="button"

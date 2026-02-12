@@ -1,10 +1,228 @@
 /*
-// .block-brands
+// .block-brands — Populära Tillverkare: premium marquee (columns-8-full) + grid (columns-7-sidebar)
 */
 @import '../variables';
 @import '../mixins/breakpoints';
 
+$local-transition-duration: 0.2s;
 
+// Marquee animation: right-to-left, seamless loop (duplicated content = -50% translate)
+@keyframes block-brands-marquee {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(-50%, 0, 0);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Section container & header (shared)
+// ---------------------------------------------------------------------------
+.block-brands {
+    overflow: hidden; // prevent horizontal page scroll
+    padding-top: 52px;
+    padding-bottom: 28px;
+
+    @include media-breakpoint-down(md) {
+        padding-top: 36px;
+        padding-bottom: 20px;
+    }
+
+    .block-header {
+        text-align: center;
+        margin-bottom: 16px;
+    }
+
+    .block-header__title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+        letter-spacing: 0.02em;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 20px;
+
+        &::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            width: 40px;
+            height: 2px;
+            background: rgba(220, 53, 69, 0.6);
+            transform: translateX(-50%);
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Marquee layout (columns-8-full) — infinite horizontal scroll
+// ---------------------------------------------------------------------------
+.block-brands__marquee {
+    position: relative;
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    overflow: hidden;
+}
+
+// Two-row marquee: track = flex row of groups; each group = 2 stacked rows
+.block-brands__marquee-group {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    gap: 20px;
+
+    @include media-breakpoint-down(sm) {
+        gap: 12px;
+    }
+}
+
+.block-brands__marquee-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.block-brands__marquee-track {
+    display: flex;
+    flex-wrap: nowrap;
+    width: max-content;
+    animation: block-brands-marquee 64s linear infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+
+    .block-brands__marquee:hover & {
+        animation-play-state: paused;
+    }
+
+    @include media-breakpoint-down(sm) {
+        animation-duration: 48s;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        animation-duration: 100s;
+    }
+}
+
+// Fade edges (optional premium feel)
+.block-brands__marquee-fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    pointer-events: none;
+
+    @include media-breakpoint-down(sm) {
+        width: 40px;
+    }
+}
+
+.block-brands__marquee-fade--left {
+    left: 0;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.95), transparent);
+}
+
+.block-brands__marquee-fade--right {
+    right: 0;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.95), transparent);
+}
+
+// Marquee list: horizontal row, no wrap
+.block-brands__list--marquee {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: none;
+    gap: 0;
+    flex-shrink: 0;
+}
+
+.block-brands--layout--columns-8-full .block-brands__list--marquee .block-brands__item {
+    flex-shrink: 0;
+    width: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+
+    @include media-breakpoint-up(md) {
+        padding-left: 36px;
+        padding-right: 36px;
+    }
+
+    @include media-breakpoint-up(xl) {
+        padding-left: 48px;
+        padding-right: 48px;
+    }
+}
+
+.block-brands--layout--columns-8-full .block-brands__list--marquee .block-brands__item-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+    min-width: 0;
+    background: transparent;
+}
+
+.block-brands__item-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    width: 100px;
+
+    @include media-breakpoint-up(md) {
+        height: 52px;
+        width: 120px;
+    }
+
+    img {
+        width: auto;
+        max-width: 100%;
+        height: 100%;
+        object-fit: contain;
+        filter: grayscale(0);
+        opacity: 0.92;
+        transition:
+            transform $local-transition-duration,
+            opacity $local-transition-duration,
+            filter $local-transition-duration;
+    }
+}
+
+.block-brands__list--marquee .block-brands__item-name {
+    margin-top: 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #94a3b8;
+}
+
+.block-brands__list--marquee .block-brands__item-link:hover {
+    img {
+        transform: scale(1.05);
+        opacity: 1;
+        filter: brightness(1.05);
+    }
+
+    .block-brands__item-name {
+        color: #64748b;
+    }
+}
+
+.block-brands__list--marquee .block-brands__item-link::before {
+    display: none;
+}
+
+// ---------------------------------------------------------------------------
+// Grid layout (columns-7-sidebar) — arrows + pagination
+// ---------------------------------------------------------------------------
 @mixin local-layout($columns) {
     .block-brands__item {
         width: calc((100% - #{$columns * 1px}) / #{$columns});
@@ -22,30 +240,14 @@
     }
 }
 
-
-$local-transition-duration: .15s;
-
-
-.block-brands {
-    .block-header {
-        text-align: center;
-        margin-bottom: 40px;
-    }
-    
-    .block-header__title {
-        font-size: 32px;
-        font-weight: $font-weight-bold;
-        color: #1e293b;
-        margin: 0;
-    }
-}
 .block-brands__wrapper {
     position: relative;
     display: flex;
     align-items: center;
     gap: 20px;
 }
-.block-brands__list {
+
+.block-brands__list:not(.block-brands__list--marquee) {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -54,6 +256,7 @@ $local-transition-duration: .15s;
     border: 1px solid $block-brands-divider;
     flex: 1;
 }
+
 .block-brands__arrow {
     background: #fff;
     border: 2px solid $block-brands-divider;
@@ -66,38 +269,42 @@ $local-transition-duration: .15s;
     cursor: pointer;
     transition: all 0.3s;
     flex-shrink: 0;
-    
+
     svg {
         fill: #333;
         transition: fill 0.3s;
     }
-    
+
     &:hover:not(:disabled) {
         background: $link-color;
         border-color: $link-color;
-        
+
         svg {
             fill: #fff;
         }
     }
-    
+
     &:disabled {
         opacity: 0.3;
         cursor: not-allowed;
     }
 }
+
 .block-brands__arrow--prev {
     order: -1;
 }
+
 .block-brands__arrow--next {
     order: 1;
 }
+
 .block-brands__pagination {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-top: 20px;
 }
+
 .block-brands__pagination-dot {
     width: 12px;
     height: 12px;
@@ -107,17 +314,18 @@ $local-transition-duration: .15s;
     cursor: pointer;
     transition: all 0.3s;
     padding: 0;
-    
+
     &:hover {
         background: #ff6b6b;
     }
-    
+
     &.active {
         background: #dc3545;
         width: 32px;
         border-radius: 6px;
     }
 }
+
 .block-brands__item {
     text-align: center;
     flex-shrink: 0;
@@ -125,6 +333,7 @@ $local-transition-duration: .15s;
     align-items: center;
     justify-content: center;
 }
+
 .block-brands__item-link {
     position: relative;
     display: block;
@@ -154,17 +363,19 @@ $local-transition-duration: .15s;
             transform $local-transition-duration;
     }
 }
+
 .block-brands__item-name {
     display: block;
     font-size: 11px;
     font-weight: $font-weight-medium;
     text-transform: uppercase;
-    letter-spacing: .04em;
+    letter-spacing: 0.04em;
     color: $block-brands-item-normal-font-color;
     margin-top: 4px;
     margin-bottom: -2px;
     transition: color $local-transition-duration;
 }
+
 .block-brands__item-link:hover {
     &:before {
         opacity: 1;
@@ -176,23 +387,15 @@ $local-transition-duration: .15s;
         color: $block-brands-item-hover-font-color;
     }
 }
+
 .block-brands__divider {
     background: $block-brands-divider;
 }
 
-
+// Grid layout column counts
 .block-brands--layout--columns-8-full {
-    @include media-breakpoint-up(xxl) {
-        @include local-layout(8);
-    }
-    @include media-breakpoint-only(xl) {
-        @include local-layout(7);
-    }
-    @include media-breakpoint-only(lg) {
-        @include local-layout(6);
-    }
+    // Marquee only; no grid layout mixin
 }
-
 
 .block-brands--layout--columns-7-sidebar {
     @include media-breakpoint-up(xxl) {
@@ -206,22 +409,30 @@ $local-transition-duration: .15s;
     }
 }
 
-
-// for all layouts
 @include media-breakpoint-only(md) {
-    @include local-layout(5);
-}
-@include media-breakpoint-only(sm) {
-    @include local-layout(4);
-}
-@media (min-width: 420px) and (max-width: 575px) {
-    @include local-layout(3);
-}
-@media (max-width: 419px) {
-    @include local-layout(2);
+    .block-brands--layout--columns-7-sidebar {
+        @include local-layout(5);
+    }
 }
 
-// Responsive adjustments for navigation arrows
+@include media-breakpoint-only(sm) {
+    .block-brands--layout--columns-7-sidebar {
+        @include local-layout(4);
+    }
+}
+
+@media (min-width: 420px) and (max-width: 575px) {
+    .block-brands--layout--columns-7-sidebar {
+        @include local-layout(3);
+    }
+}
+
+@media (max-width: 419px) {
+    .block-brands--layout--columns-7-sidebar {
+        @include local-layout(2);
+    }
+}
+
 @include media-breakpoint-down(md) {
     .block-brands__arrow {
         width: 40px;
@@ -236,7 +447,7 @@ $local-transition-duration: .15s;
     .block-brands__arrow {
         width: 36px;
         height: 36px;
-        
+
         svg {
             width: 10px;
             height: 14px;
@@ -248,7 +459,7 @@ $local-transition-duration: .15s;
     .block-brands__pagination-dot {
         width: 10px;
         height: 10px;
-        
+
         &.active {
             width: 24px;
         }

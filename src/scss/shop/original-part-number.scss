@@ -65,6 +65,8 @@
     background: #fff;
     white-space: normal;
     word-break: break-word;
+    flex-wrap: wrap;
+    gap: 0.5em;
 }
 
 .table-row:nth-child(even) .number-cell {

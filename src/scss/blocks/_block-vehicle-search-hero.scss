@@ -16,7 +16,11 @@
     padding: 60px 0;
     overflow: hidden;
 
-    // Dark overlay for better text readability
+    @include media-breakpoint-down(sm) {
+        padding: 24px 0;
+    }
+
+    // Stronger overlay for text legibility (premium readability on mobile)
     &:before {
         content: '';
         position: absolute;
@@ -26,6 +30,10 @@
         bottom: 0;
         background: rgba(0, 0, 0, 0.7);
         pointer-events: none;
+
+        @include media-breakpoint-down(sm) {
+            background: rgba(0, 0, 0, 0.62);
+        }
     }
 
     &__inner {
@@ -47,6 +55,11 @@
             0 4px 16px rgba(0, 0, 0, 0.3);
         letter-spacing: -0.5px;
 
+        @include media-breakpoint-down(sm) {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
         @include media-breakpoint-up(md) {
             font-size: 42px;
             margin-bottom: 16px;
@@ -66,9 +79,82 @@
             0 2px 8px rgba(0, 0, 0, 0.5),
             0 4px 16px rgba(0, 0, 0, 0.3);
 
+        @include media-breakpoint-down(sm) {
+            font-size: 15px;
+            margin-bottom: 18px;
+        }
+
         @include media-breakpoint-up(md) {
             font-size: 20px;
             margin-bottom: 40px;
+        }
+    }
+
+    // Selected vehicle pill (green tick + label + chevron) — tappable, opens details sheet
+    &__selected-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        max-width: 360px;
+        margin: 0 auto 16px;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+        text-align: left;
+        min-height: 48px;
+
+        &:hover {
+            background: #fff;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
+        }
+        &:active {
+            transform: translateY(0);
+        }
+        &:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+    }
+    &__selected-pill-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+        color: #16a34a;
+
+        svg {
+            width: 22px;
+            height: 22px;
+        }
+    }
+    &__selected-pill-label {
+        flex: 1;
+        min-width: 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: #1e293b;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    &__selected-pill-chevron {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #64748b;
+
+        svg {
+            width: 20px;
+            height: 20px;
         }
     }
 
@@ -80,7 +166,7 @@
         backdrop-filter: blur(20px) saturate(180%);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
         border: 2px solid rgba(255, 255, 255, 0.25);
-        border-radius: 24px;
+        border-radius: 10px;
         padding: 40px;
         box-shadow: 
             0 20px 60px rgba(0, 0, 0, 0.3),
@@ -99,13 +185,20 @@
         }
         
         @include media-breakpoint-down(md) {
-            padding: 28px;
-            border-radius: 20px;
+            padding: 20px;
+            border-radius: 12px;
         }
 
         @include media-breakpoint-down(sm) {
-            padding: 24px;
-            border-radius: 16px;
+            padding: 14px 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            &:hover {
+                background: rgba(255, 255, 255, 0.18);
+                border-color: rgba(255, 255, 255, 0.26);
+            }
         }
 
         // Enhanced vehicle form styling for hero - HORIZONTAL LAYOUT
@@ -120,6 +213,43 @@
                     flex-wrap: wrap;
                     flex-direction: column;
                     align-items: stretch;
+                }
+
+                // Mobile: 2x2 grid for 4 selectors (license row, ELLER, then 2 rows × 2 cols)
+                @include media-breakpoint-down(sm) {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 10px 12px;
+                    align-items: stretch;
+
+                    .vehicle-form__item {
+                        flex: none;
+                        min-width: 0;
+                        max-width: none;
+                        margin: 0;
+                    }
+                    .vehicle-form__item:first-child {
+                        grid-column: 1 / -1;
+                        width: 100%;
+                    }
+                    .vehicle-form__divider {
+                        grid-column: 1 / -1;
+                        width: 100%;
+                        margin: 2px 0;
+                        padding: 6px 0;
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: rgba(255, 255, 255, 0.7);
+                        letter-spacing: 0.5px;
+                        &:before, &:after {
+                            height: 1px;
+                            background: rgba(255, 255, 255, 0.22);
+                        }
+                    }
+                    .vehicle-form__item--select {
+                        min-width: 0;
+                        width: 100%;
+                    }
                 }
             }
 
@@ -163,9 +293,16 @@
                     select.form-control {
                         height: 56px;
                         border: 2px solid rgba(255, 255, 255, 0.35);
-                        border-radius: 14px;
+                        border-radius: 10px;
                         font-size: 14px;
                         padding: 0 35px 0 16px;
+
+                        @include media-breakpoint-down(sm) {
+                            height: 44px;
+                            border-radius: 8px;
+                            font-size: 14px;
+                            padding: 0 32px 0 12px;
+                        }
                         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                         background: linear-gradient(145deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3));
                         backdrop-filter: blur(12px);
@@ -203,12 +340,17 @@
                         }
 
                         &:disabled {
-                            background: linear-gradient(145deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.15));
+                            background: rgba(255, 255, 255, 0.08);
                             cursor: not-allowed;
-                            opacity: 0.5;
+                            opacity: 0.7;
                             transform: none;
-                            border-color: rgba(255, 255, 255, 0.2);
+                            border-color: rgba(255, 255, 255, 0.18);
                             color: rgba(255, 255, 255, 0.5);
+
+                            @include media-breakpoint-down(sm) {
+                                background: rgba(0, 0, 0, 0.12);
+                                border-color: rgba(255, 255, 255, 0.15);
+                            }
                         }
 
                         option {
@@ -238,14 +380,14 @@
                             }
                             
                             &:first-child {
-                                border-top-left-radius: 8px;
-                                border-top-right-radius: 8px;
+                                border-top-left-radius: 10px;
+                                border-top-right-radius: 10px;
                                 padding-top: 18px;
                             }
                             
                             &:last-child {
-                                border-bottom-left-radius: 8px;
-                                border-bottom-right-radius: 8px;
+                                border-bottom-left-radius: 10px;
+                                border-bottom-right-radius: 10px;
                                 border-bottom: none;
                                 padding-bottom: 18px;
                             }
@@ -266,7 +408,7 @@
                         bottom: 0;
                         width: 60px;
                         background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
-                        border-radius: 14px 0 0 14px;
+                        border-radius: 10px 0 0 10px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -278,14 +420,27 @@
                         box-shadow: inset -2px 0 8px rgba(0, 0, 0, 0.15);
                         letter-spacing: 0;
                         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+                        @include media-breakpoint-down(sm) {
+                            width: 44px;
+                            font-size: 20px;
+                            border-radius: 8px 0 0 8px;
+                        }
                     }
 
                     input.form-control {
                         height: 56px;
                         border: 2px solid rgba(255, 255, 255, 0.3);
-                        border-radius: 14px;
+                        border-radius: 10px;
                         font-size: 16px;
                         padding: 0 20px 0 72px;
+
+                        @include media-breakpoint-down(sm) {
+                            height: 44px;
+                            padding: 0 12px 0 52px;
+                            border-radius: 8px;
+                            font-size: 15px;
+                        }
                         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                         background: rgba(255, 255, 255, 0.95);
                         backdrop-filter: blur(10px);
@@ -416,7 +571,7 @@
         .alert {
             margin-top: 16px;
             margin-bottom: 0;
-            border-radius: 8px;
+            border-radius: 10px;
             border: none;
             font-size: 14px;
             padding: 12px 16px;

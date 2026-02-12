@@ -13,8 +13,8 @@ interface CarDropdownProps {
     onCloseMenu: () => void;
 }
 
-function CarDropdown({ onCloseMenu }: CarDropdownProps) {
-    const { setCurrentActiveCar } = useCurrentActiveCar();
+export function CarDropdown({ onCloseMenu }: CarDropdownProps) {
+    const { setCurrentActiveCar, clearCurrentActiveCar } = useCurrentActiveCar();
     const { vehicles, currentCarId, removeVehicle, setCurrentCar } = useGarage();
 
     const handleSelectVehicle = (vehicle: any) => {
@@ -166,9 +166,10 @@ function CarDropdown({ onCloseMenu }: CarDropdownProps) {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setCurrentCar(null);
+                                                    clearCurrentActiveCar();
                                                 }}
-                                                aria-label="Remove from current"
-                                                title="Remove from current"
+                                                aria-label="Deselect current car (keep in garage)"
+                                                title="Deselect current car (keep in garage)"
                                             >
                                                 ×
                                             </button>
@@ -277,17 +278,11 @@ export default function CarIndicator() {
     const carIndicatorCtrl = useRef<IIndicatorController | null>(null);
 
     const getLatestVehicleName = () => {
-        if (vehicles.length === 0) return null;
-        
-        // Prioritize current car if it exists, otherwise show latest vehicle
-        let selectedVehicle = null;
-        if (currentCarId) {
-            selectedVehicle = vehicles.find(v => v.id === currentCarId);
-        }
-        if (!selectedVehicle) {
-            selectedVehicle = vehicles[0]; // Get the most recently added vehicle
-        }
-        
+        // Only show a car name when one is explicitly selected as current
+        if (!currentCarId || vehicles.length === 0) return null;
+        const selectedVehicle = vehicles.find(v => v.id === currentCarId);
+        if (!selectedVehicle) return null;
+
         const data = selectedVehicle.data as any;
         
         const brand = data.C_merke || '';

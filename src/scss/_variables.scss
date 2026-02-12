@@ -124,6 +124,14 @@
    $border-end-end-radius:     border-bottom- + $inline-end + -radius   !default;
 
 // ----------------------------------------
+// -- z-index scale (header and overlays)
+// ----------------------------------------
+   $z-header:   2000 !default;
+   $z-dropdown: 3000 !default;
+   $z-modal:    4000 !default;
+   $z-toast:    5000 !default;
+
+// ----------------------------------------
 // -- font-weight
 // ----------------------------------------
    $font-weight-thin:        100 !default;
@@ -276,10 +284,14 @@
    // ----------------------------------------
    // -- .topbar--classic
    // ----------------------------------------
+      $topbar-classic-row-height:     28px !default;
       $topbar-classic-scheme-based-on: light !default;
       $topbar-classic-scheme-variants: () !default;
       $topbar-classic-scheme: map-get-default-map($topbar-classic-scheme-variants, $header-variant-name) !default;
-      $topbar-classic-scheme: map-merge-all(get-scheme($topbar-classic-scheme-based-on), $topbar-classic-scheme);
+      $topbar-classic-scheme: map-merge-all(get-scheme($topbar-classic-scheme-based-on), (
+         opposite: #6b7280,
+         muted: #9ca3af,
+      ), $topbar-classic-scheme);
 
    // ----------------------------------------
    // -- .header__navbar
@@ -1289,6 +1301,20 @@
    // ----------------------------------------
       $widget-newsletter-scheme: () !default;
       $widget-newsletter-scheme: map_merge($dark-scheme, $widget-newsletter-scheme);
+
+// ----------------------------------------
+// -- design tokens (Navbar & Hero modernization)
+// ----------------------------------------
+   $dt-border-color:           #e5e7eb !default;
+   $dt-border-color-subtle:    #f0f1f3 !default;
+   $dt-shadow-soft:            0 1px 3px rgba(#000, .06) !default;
+   $dt-shadow-elevation:       0 4px 12px rgba(#000, .08) !default;
+   $dt-radius-card:            12px !default;
+   $dt-radius-input:           10px !default;
+   $dt-radius-button:          8px !default;
+   $dt-radius-pill:             999px !default;
+   $dt-focus-ring:             0 0 0 2px map_get($theme-scheme, main), 0 0 0 4px rgba(map_get($theme-scheme, main), .2) !default;
+   $dt-spacing-unit:            8px !default;
 
 // ----------------------------------------
 // -- utils

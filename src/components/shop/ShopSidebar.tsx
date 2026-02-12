@@ -12,10 +12,10 @@ import classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 // application
 import WidgetFilters from '~/components/widgets/WidgetFilters';
-import WidgetProducts from '~/components/widgets/WidgetProducts';
+import WidgetBrandFilter from '~/components/widgets/WidgetBrandFilter';
+import WidgetPositionFilter from '~/components/widgets/WidgetPositionFilter';
+import WidgetVehicleCategories from '~/components/widgets/WidgetVehicleCategories';
 import { Cross12Svg } from '~/svg';
-import { IProduct } from '~/interfaces/product';
-import { shopApi } from '~/api';
 import { SidebarContext } from '~/services/sidebar';
 import { useMedia } from '~/store/hooks';
 import { IShopPageOffCanvasSidebar } from '~/interfaces/pages';
@@ -27,7 +27,6 @@ interface Props {
 function ShopSidebar(props: Props) {
     const { offcanvas } = props;
     const [isOpen, setIsOpen] = useContext(SidebarContext);
-    const [latestProducts, setLatestProducts] = useState<IProduct[]>([]);
     const isMobile = useMedia('(max-width: 991px)');
 
     const rootClasses = classNames('sidebar', `sidebar--offcanvas--${offcanvas}`, {
@@ -56,26 +55,6 @@ function ShopSidebar(props: Props) {
         }
     }, [offcanvas, isOpen, setIsOpen, isMobile]);
 
-    useEffect(() => {
-        let canceled = false;
-
-        if (offcanvas === 'mobile') {
-            shopApi.getLatestProducts(5).then((products) => {
-                if (canceled) {
-                    return;
-                }
-
-                setLatestProducts(products);
-            });
-        }
-
-        return () => {
-            canceled = true;
-        };
-    }, [offcanvas, setLatestProducts]);
-
-    const latestProductsTitle = useMemo(() => <FormattedMessage id="HEADER_LATEST_PRODUCTS" />, []);
-
     return (
         <div className={rootClasses}>
             <div className="sidebar__backdrop" onClick={close} />
@@ -90,14 +69,9 @@ function ShopSidebar(props: Props) {
                 </div>
                 <div className="sidebar__content">
                     <WidgetFilters offcanvasSidebar={offcanvas} />
-
-                    {offcanvas !== 'always' && (
-                        <WidgetProducts
-                            className="d-none d-lg-block"
-                            widgetTitle={latestProductsTitle}
-                            products={latestProducts}
-                        />
-                    )}
+                    <WidgetBrandFilter offcanvasSidebar={offcanvas} />
+                    <WidgetPositionFilter offcanvasSidebar={offcanvas} />
+                    <WidgetVehicleCategories offcanvasSidebar={offcanvas} onCategoryClick={close} />
                 </div>
             </div>
         </div>

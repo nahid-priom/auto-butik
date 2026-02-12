@@ -92,6 +92,74 @@
     margin-top: 8px;
 }
 
+// Catalog: top filter bar — 40–44px controls, 10–12px radius, one row with prev/next
+.block-split--catalog .view-options {
+    border-radius: 12px;
+    border: 1px solid map_get($card-scheme, divider);
+    overflow: hidden;
+
+    .view-options__body {
+        padding: 8px 16px;
+        min-height: 44px;
+        align-items: center;
+        margin-top: 0;
+
+        @include direction {
+            #{$margin-inline-end}: 0;
+        }
+    }
+    .view-options__body + .view-options__body {
+        border-top: 1px solid map_get($card-scheme, divider);
+    }
+    .view-options__filters-button,
+    .view-options__layout,
+    .view-options__legend,
+    .view-options__select {
+        margin-top: 0;
+    }
+    .view-options__select .form-control,
+    .view-options__select select {
+        height: 40px;
+        min-height: 40px;
+        padding: 0 12px;
+        border-radius: 10px;
+        border: 1px solid map_get($card-scheme, divider);
+        font-size: 0.9375rem;
+    }
+    .layout-switcher__button {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: 1px solid map_get($card-scheme, divider);
+    }
+    .view-options__pagination {
+        display: flex;
+        align-items: center;
+
+        @include direction {
+            #{$margin-inline-start}: 16px;
+        }
+    }
+    .view-options__pagination .pagination {
+        margin: 0;
+        flex-wrap: nowrap;
+    }
+    .view-options__pagination .page-link {
+        min-width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+    }
+    .filters-button {
+        height: 40px;
+        padding: 0 14px;
+        border-radius: 10px;
+        border: 1px solid map_get($card-scheme, divider);
+    }
+}
+
 .view-options--offcanvas--mobile {
     @include media-breakpoint-up(lg) {
         .view-options__filters-button {

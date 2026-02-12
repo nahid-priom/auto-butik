@@ -58,7 +58,7 @@ function SectionHeader<T extends ISectionHeaderGroup>(props: Props<T>) {
                 {groups.length > 0 && (
                     <ul className="section-header__groups">
                         {groups.map((group, index) => (
-                            <li key={index} className="section-header__groups-item">
+                            <li key={(group as { id?: string }).id ?? index} className="section-header__groups-item">
                                 <button
                                     type="button"
                                     className={classNames('section-header__groups-button', {

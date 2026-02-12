@@ -1,69 +1,40 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useMemo } from "react";
 import { FormattedMessage } from "react-intl";
+import { VehicleGroup, Vehicle } from "~/interfaces/tecdoc";
+import ProductSectionEmpty from "~/components/shop/ProductSectionEmpty";
+import { makeUniqueKeys } from "~/utils/reactKeys";
 
-const CompatibleVehicles = () => {
+interface CompatibleVehiclesProps {
+    compatibleVehicles?: VehicleGroup[];
+    isLoading?: boolean;
+}
+
+const CompatibleVehicles: React.FC<CompatibleVehiclesProps> = ({
+    compatibleVehicles = [],
+    isLoading = false,
+}) => {
     const [expandedMakes, setExpandedMakes] = useState<string[]>([]);
     const [selectedMake, setSelectedMake] = useState<string>("");
     const [selectedModel, setSelectedModel] = useState<string>("");
 
-    const vehiclesData = [
-        {
-            make: "AUDI",
-            models: ["A1", "A3", "A4", "A5", "A6", "A7", "A8", "Q2", "Q3", "Q5", "Q7", "Q8", "TT", "R8"],
-        },
-        {
-            make: "FORD",
-            models: [
-                "FIESTA",
-                "FOCUS",
-                "MONDEO",
-                "KUGA",
-                "PUMA",
-                "S-MAX",
-                "GALAXY",
-                "TRANSIT",
-                "TRANSIT CUSTOM",
-                "RANGER",
-            ],
-        },
-        {
-            make: "SKODA",
-            models: ["FABIA", "OCTAVIA", "SUPERB", "KAROQ", "KODIAQ", "SCALA", "KAMIQ", "ENYAQ"],
-        },
-        {
-            make: "VOLKSWAGEN",
-            models: [
-                "GOLF",
-                "POLO",
-                "PASSAT",
-                "TIGUAN",
-                "TOURAN",
-                "T-ROC",
-                "T-CROSS",
-                "ARTEON",
-                "CADDY",
-                "TRANSPORTER",
-            ],
-        },
-        {
-            make: "SEAT",
-            models: ["IBIZA", "LEON", "ATECA", "ARONA", "TARRACO", "ALHAMBRA", "TOLEDO"],
-        },
-        {
-            make: "BMW",
-            models: ["1 SERIES", "2 SERIES", "3 SERIES", "4 SERIES", "5 SERIES", "7 SERIES", "X1", "X3", "X5", "X7"],
-        },
-        {
-            make: "MERCEDES-BENZ",
-            models: ["A-CLASS", "C-CLASS", "E-CLASS", "S-CLASS", "GLA", "GLC", "GLE", "GLS", "V-CLASS"],
-        },
-    ];
+    // Get all unique manufacturers for the select dropdown
+    const allMakes = useMemo(() => {
+        return compatibleVehicles.map((group) => group.manufacturer);
+    }, [compatibleVehicles]);
 
-    // Get all unique makes for the select dropdown
-    const allMakes = vehiclesData.map((vehicle) => vehicle.make);
+    // Get unique models for selected make
+    const modelsForSelectedMake = useMemo(() => {
+        const group = compatibleVehicles.find((g) => g.manufacturer === selectedMake);
+        if (!group) return [];
+        // Get unique models
+        const uniqueModels = [...new Set(group.vehicles.map((v) => v.model))];
+        return uniqueModels;
+    }, [compatibleVehicles, selectedMake]);
 
-    // Get models for selected make
-    const modelsForSelectedMake = vehiclesData.find((vehicle) => vehicle.make === selectedMake)?.models || [];
+    // Get total vehicle count
+    const totalVehicleCount = useMemo(() => {
+        return compatibleVehicles.reduce((sum, group) => sum + group.vehicles.length, 0);
+    }, [compatibleVehicles]);
 
     const toggleMake = (make: string) => {
         setExpandedMakes((prev) => (prev.includes(make) ? prev.filter((item) => item !== make) : [...prev, make]));
@@ -95,14 +66,49 @@ const CompatibleVehicles = () => {
         setSelectedModel(e.target.value);
     };
 
-    const handleModelClick = (model: string) => {
-        setSelectedModel(model);
+    // Filter vehicles based on selected model
+    const getFilteredVehicles = (vehicles: Vehicle[]): Vehicle[] => {
+        if (!selectedModel) return vehicles;
+        return vehicles.filter((v) => v.model === selectedModel);
     };
+
+    // Loading skeleton
+    if (isLoading) {
+        return (
+            <div className="compatible-vehicles">
+                <h2 className="vehicles-title">
+                    <FormattedMessage id="COMPATIBLE_VEHICLES_TITLE" />
+                </h2>
+                <div className="vehicles-list">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                        <div key={index} className="vehicle-item">
+                            <div className="vehicle-make accordion-header">
+                                <span className="skeleton-text" style={{ width: "150px", height: "1.2rem", backgroundColor: "#e0e0e0", borderRadius: "4px", display: "inline-block" }} />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
+    // Empty state - show friendly "no info" message
+    if (!compatibleVehicles || compatibleVehicles.length === 0) {
+        return (
+            <div className="compatible-vehicles">
+                <h2 className="vehicles-title">
+                    <FormattedMessage id="COMPATIBLE_VEHICLES_TITLE" />
+                </h2>
+                <ProductSectionEmpty message="Ingen kompatibilitetsinformation tillgänglig för denna produkt." />
+            </div>
+        );
+    }
 
     return (
         <div className="compatible-vehicles">
             <h2 className="vehicles-title">
                 <FormattedMessage id="COMPATIBLE_VEHICLES_TITLE" />
+                <span className="vehicles-count"> ({totalVehicleCount} varianter)</span>
             </h2>
 
             {/* Select Fields Row */}
@@ -112,8 +118,8 @@ const CompatibleVehicles = () => {
                         <option value="">
                             <FormattedMessage id="SELECT_MAKE_PLACEHOLDER" />
                         </option>
-                        {allMakes.map((make, index) => (
-                            <option key={index} value={make}>
+                        {makeUniqueKeys(allMakes, (make, i) => make || `make-${i}`, { prefix: "make", reportLabel: "CompatibleVehicles.makes" }).map(({ item: make, key }) => (
+                            <option key={key} value={make}>
                                 {make}
                             </option>
                         ))}
@@ -130,8 +136,8 @@ const CompatibleVehicles = () => {
                         <option value="">
                             <FormattedMessage id="SELECT_MODEL_PLACEHOLDER" />
                         </option>
-                        {modelsForSelectedMake.map((model, index) => (
-                            <option key={index} value={model}>
+                        {makeUniqueKeys(modelsForSelectedMake, (model, i) => model || `model-${i}`, { prefix: "model", reportLabel: "CompatibleVehicles.models" }).map(({ item: model, key }) => (
+                            <option key={key} value={model}>
                                 {model}
                             </option>
                         ))}
@@ -146,68 +152,64 @@ const CompatibleVehicles = () => {
             </div>
 
             <div className="vehicles-list">
-                {vehiclesData.map((vehicle, index) => (
-                    <div key={index} className="vehicle-item">
-                        <div className="vehicle-make accordion-header" onClick={() => toggleMake(vehicle.make)}>
-                            <span className="accordion-icon">
-                                <svg
-                                    className={`accordion-arrow ${isMakeExpanded(vehicle.make) ? "expanded" : ""}`}
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 16 16"
-                                    fill="none"
-                                >
-                                    <path
-                                        d="M4 6L8 10L12 6"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                            </span>
-                            <span className="make-text">{vehicle.make}</span>
-                        </div>
+                {makeUniqueKeys(
+                    compatibleVehicles.filter((group) => !selectedMake || group.manufacturer === selectedMake),
+                    (group) => [group.manufacturerCode, group.manufacturer].filter(Boolean).join("|") || "group",
+                    { prefix: "vg", reportLabel: "CompatibleVehicles.groups" }
+                ).map(({ item: group, key: groupKey }) => {
+                    const filteredVehicles = getFilteredVehicles(group.vehicles);
+                    if (filteredVehicles.length === 0) return null;
 
-                        <div className="vehicle-models-container">
-                            <div className={`vehicle-models ${isMakeExpanded(vehicle.make) ? "expanded" : ""}`}>
-                                {vehicle.models.map((model, modelIndex) => (
-                                    <div
-                                        key={modelIndex}
-                                        className={`vehicle-model ${selectedModel === model ? "selected" : ""}`}
-                                        onClick={() => handleModelClick(model)}
+                    const vehicleKeys = makeUniqueKeys(
+                        filteredVehicles,
+                        (v) => [v.ktypno, v.model, v.years, v.engine].filter(Boolean).join("|") || "v",
+                        { prefix: "v", reportLabel: "CompatibleVehicles.vehicles" }
+                    );
+
+                    return (
+                        <div key={groupKey} className="vehicle-item">
+                            <div className="vehicle-make accordion-header" onClick={() => toggleMake(group.manufacturer)}>
+                                <span className="accordion-icon">
+                                    <svg
+                                        className={`accordion-arrow ${isMakeExpanded(group.manufacturer) ? "expanded" : ""}`}
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 16 16"
+                                        fill="none"
                                     >
-                                        <span className="model-text">{model}</span>
-                                        <span className="model-arrow">
-                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                                                <path
-                                                    d="M6 4L10 8L6 12"
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                />
-                                            </svg>
-                                        </span>
+                                        <path
+                                            d="M4 6L8 10L12 6"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </span>
+                                <span className="make-text">{group.manufacturer}</span>
+                                <span className="make-count">({filteredVehicles.length} fordon)</span>
+                            </div>
+
+                            <div className="vehicle-models-container">
+                                <div className={`vehicle-models ${isMakeExpanded(group.manufacturer) ? "expanded" : ""}`}>
+                                    <div className="vehicle-models-table-header">
+                                        <span className="vehicle-col-model">Modell</span>
+                                        <span className="vehicle-col-years">År</span>
+                                        <span className="vehicle-col-engine">Motor / Drivlina</span>
                                     </div>
-                                ))}
+                                    {vehicleKeys.map(({ item: vehicle, key: vehicleKey }) => (
+                                        <div key={vehicleKey} className="vehicle-model vehicle-detail">
+                                            <span className="vehicle-col-model model-text">{vehicle.model}</span>
+                                            <span className="vehicle-col-years vehicle-years">{vehicle.years}</span>
+                                            <span className="vehicle-col-engine vehicle-engine">{vehicle.engine}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
-
-            {/* Selected Vehicle Display */}
-            {(selectedMake || selectedModel) && (
-                <div className="selected-vehicle">
-                    <h3>
-                        <FormattedMessage id="SELECTED_VEHICLE" />
-                    </h3>
-                    <p>
-                        {selectedMake} {selectedModel && `- ${selectedModel}`}
-                    </p>
-                </div>
-            )}
         </div>
     );
 };

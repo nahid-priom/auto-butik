@@ -44,7 +44,7 @@ function AppSlickInner(props: Props) {
 
         let result = slidesToShow || 1;
 
-        if (process.browser && responsive) {
+        if (typeof window !== 'undefined' && responsive) {
             responsive.forEach((options) => {
                 if (options.settings === 'unslick') {
                     return;

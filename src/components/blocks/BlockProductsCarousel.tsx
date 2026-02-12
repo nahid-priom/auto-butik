@@ -1,5 +1,5 @@
 // react
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 // third-party
 import classNames from 'classnames';
 import Slick from 'react-slick';
@@ -9,6 +9,7 @@ import ProductCard, { IProductCardElement, IProductCardLayout } from '~/componen
 import SectionHeader, { ISectionHeaderGroup } from '~/components/shared/SectionHeader';
 import { ILink } from '~/interfaces/link';
 import { IProduct } from '~/interfaces/product';
+import { makeUniqueKeys } from '~/utils/reactKeys';
 
 export type IBlockProductsCarouselLayout =
     'grid-4' |
@@ -57,7 +58,7 @@ const slickSettings: Record<IBlockProductsCarouselLayout, ISlickProps> = {
         responsive: [
             { breakpoint: 991, settings: { slidesToShow: 3, slidesToScroll: 3 } },
             { breakpoint: 767, settings: { slidesToShow: 2, slidesToScroll: 2 } },
-            { breakpoint: 459, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+            { breakpoint: 360, settings: { slidesToShow: 1, slidesToScroll: 1 } },
         ],
     },
     'grid-4-sidebar': {
@@ -69,8 +70,7 @@ const slickSettings: Record<IBlockProductsCarouselLayout, ISlickProps> = {
         slidesToScroll: 4,
         responsive: [
             { breakpoint: 1399, settings: { slidesToShow: 3, slidesToScroll: 3 } },
-            { breakpoint: 767, settings: { slidesToShow: 2, slidesToScroll: 2 } },
-            { breakpoint: 459, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+            { breakpoint: 767, settings: { slidesToShow: 1, slidesToScroll: 1 } },
         ],
     },
     'grid-5': {
@@ -84,7 +84,7 @@ const slickSettings: Record<IBlockProductsCarouselLayout, ISlickProps> = {
             { breakpoint: 1399, settings: { slidesToShow: 4, slidesToScroll: 4 } },
             { breakpoint: 991, settings: { slidesToShow: 3, slidesToScroll: 3 } },
             { breakpoint: 767, settings: { slidesToShow: 2, slidesToScroll: 2 } },
-            { breakpoint: 459, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+            { breakpoint: 360, settings: { slidesToShow: 1, slidesToScroll: 1 } },
         ],
     },
     'grid-6': {
@@ -98,7 +98,7 @@ const slickSettings: Record<IBlockProductsCarouselLayout, ISlickProps> = {
             { breakpoint: 1399, settings: { slidesToShow: 4, slidesToScroll: 4 } },
             { breakpoint: 991, settings: { slidesToShow: 3, slidesToScroll: 3 } },
             { breakpoint: 767, settings: { slidesToShow: 2, slidesToScroll: 2 } },
-            { breakpoint: 459, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+            { breakpoint: 360, settings: { slidesToShow: 1, slidesToScroll: 1 } },
         ],
     },
     horizontal: {
@@ -142,6 +142,20 @@ function BlockProductsCarousel<T extends ISectionHeaderGroup>(props: Props<T>) {
     } = props;
     const slickRef = useRef<Slick>(null);
 
+    // Force Slick to recalc responsive breakpoints on mount and after paint (fixes initial empty/wrong slides when carousel mounts)
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const fireResize = () => window.dispatchEvent(new Event('resize'));
+        const t1 = setTimeout(fireResize, 0);
+        const t2 = setTimeout(fireResize, 150);
+        const t3 = setTimeout(fireResize, 450);
+        return () => {
+            clearTimeout(t1);
+            clearTimeout(t2);
+            clearTimeout(t3);
+        };
+    }, []);
+
     const handleNextClick = () => {
         if (slickRef.current) {
             slickRef.current.slickNext();
@@ -168,6 +182,17 @@ function BlockProductsCarousel<T extends ISectionHeaderGroup>(props: Props<T>) {
         return result;
     }, [rows, products]);
 
+    const productKeyMap = useMemo(() => {
+        const withKeys = makeUniqueKeys(
+            products,
+            (p, i) => String(p.id ?? p.slug ?? "") || `p-${i}`,
+            { prefix: "related", reportLabel: "BlockProductsCarousel.products" }
+        );
+        const map = new Map<IProduct, string>();
+        withKeys.forEach(({ item, key }) => map.set(item, key));
+        return map;
+    }, [products]);
+
     const carousel = useMemo(() => {
         const productCardLayout = productCardLayoutMap[layout];
         const productCardExclude = productCardExcludeMap[productCardLayout];
@@ -178,7 +203,7 @@ function BlockProductsCarousel<T extends ISectionHeaderGroup>(props: Props<T>) {
                     <div key={columnIdx} className="block-products-carousel__column">
                         {column.map((product, productIdx) => (
                             <ProductCard
-                                key={productIdx}
+                                key={productKeyMap.get(product) ?? `col-${columnIdx}-${productIdx}`}
                                 className="block-products-carousel__cell"
                                 product={product}
                                 layout={productCardLayout}
@@ -189,7 +214,7 @@ function BlockProductsCarousel<T extends ISectionHeaderGroup>(props: Props<T>) {
                 ))}
             </AppSlick>
         );
-    }, [columns, layout]);
+    }, [columns, layout, productKeyMap]);
 
     return (
         <div className="block block-products-carousel" data-layout={layout}>

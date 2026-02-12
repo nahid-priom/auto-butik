@@ -14,7 +14,7 @@
 
         .main-menu__submenu {
             position: absolute;
-            z-index: 1000;
+            z-index: $z-dropdown;
             opacity: 0;
             visibility: hidden;
             transform-origin: top;
@@ -40,11 +40,11 @@
         background-color: map_get($menu-scheme, main);
         box-shadow: map_get($menu-scheme, shadow);
         border-radius: 8px;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
         width: 90vw;
         max-width: 1200px;
-        max-height: 70vh;
-        overflow-y: auto;
+        max-height: min(70vh, 600px);
         margin-top: 5px;
     }
 
@@ -110,11 +110,14 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                background-color: #fff; // White background for images
+                border-radius: 4px;
 
                 img {
                     width: 100%;
                     height: 100%;
                     object-fit: contain;
+                    background-color: #fff; // White background for image element
                 }
             }
 
@@ -200,11 +203,13 @@
             padding: 15px;
             border-radius: 8px;
             transition: all 0.2s ease;
+            background-color: #ffffff;
 
             &:hover {
-                background-color: #f9f9f9;
+                background-color: #ffffff;
                 transform: translateY(-2px);
                 color: #333;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             }
         }
     }
@@ -218,13 +223,14 @@
         &--single {
             padding: 8px;
             margin-bottom: 10px;
-            background: transparent;
-            border-radius: 0;
+            background: #fff; // White background for images
+            border-radius: 8px;
 
             img {
                 width: 90px; // Increased size for single column
                 height: 90px; // Increased size for single column
                 object-fit: contain;
+                background-color: #fff; // White background for image element
             }
         }
 
@@ -232,7 +238,7 @@
             width: 90px; // Increased to 90px
             height: 90px; // Increased to 90px
             margin-bottom: 12px;
-            background-color: #f5f5f5;
+            background-color: #fff; // White background for images
             border-radius: 8px;
             padding: 10px; // Slightly increased padding
 
@@ -240,6 +246,7 @@
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
+                background-color: #fff; // White background for image element
             }
         }
     }
@@ -271,6 +278,147 @@
     // Ensure the parent menu item can contain the megamenu
     .main-menu__item--submenu--megamenu {
         position: static;
+    }
+
+    // Compact megamenu when inside header "Handla efter kategori" dropdown
+    .departments .departments__megamenu {
+        padding: 12px 16px;
+        max-height: 70vh;
+        overflow-y: auto;
+
+        .main-menu__megamenu-inner {
+            min-height: 0;
+            max-height: calc(70vh - 24px);
+        }
+
+        .main-menu__megamenu-left {
+            width: 240px;
+            min-width: 220px;
+            max-height: calc(70vh - 24px);
+            overflow-y: auto;
+            padding: 8px 0;
+            border-right: 1px solid map_get($departments-menu-scheme, divider);
+
+            .mm-cat {
+                padding: 10px 12px;
+                min-height: 40px;
+
+                @include direction {
+                    #{$border-inline-start}: 3px solid transparent;
+                }
+
+                &:hover {
+                    background-color: map_get($departments-menu-scheme, hover);
+                }
+
+                &.active {
+                    background-color: map_get($departments-menu-scheme, hover);
+
+                    @include direction {
+                        #{$border-inline-start}-color: map_get($theme-scheme, main);
+                    }
+                }
+
+                .mm-cat__icon {
+                    width: 20px;
+                    height: 20px;
+                }
+
+                .mm-cat__title {
+                    font-size: 13px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+        }
+
+        .main-menu__megamenu-right {
+            padding: 12px 16px;
+            min-height: 0;
+            max-height: calc(70vh - 24px);
+            overflow-y: auto;
+        }
+
+        .mm-blocks-grid {
+            gap: 10px;
+
+            &--single,
+            &--double {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 10px;
+            }
+        }
+
+        .mm-item {
+            &--single,
+            &--double {
+                padding: 8px;
+                border-radius: 10px;
+                border: 1px solid map_get($departments-menu-scheme, divider);
+
+                &:hover {
+                    border-color: map_get($theme-scheme, main);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                }
+            }
+
+            &--double:hover {
+                transform: translateY(-1px);
+            }
+        }
+
+        .mm-item__thumb {
+            &--single,
+            &--double {
+                width: 72px;
+                height: 72px;
+                margin-bottom: 8px;
+                border-radius: 8px;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                }
+            }
+        }
+
+        .mm-item__label {
+            &--single,
+            &--double {
+                font-size: 12px;
+                line-height: 1.3;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+        }
+
+        .mm-blocks-empty {
+            height: 120px;
+            font-size: 13px;
+        }
+
+        @include media-breakpoint-down(md) {
+            .main-menu__megamenu-inner {
+                flex-direction: column;
+            }
+
+            .main-menu__megamenu-left {
+                width: 100%;
+                min-width: auto;
+                max-height: 180px;
+                border-right: none;
+                border-bottom: 1px solid map_get($departments-menu-scheme, divider);
+            }
+
+            .mm-blocks-grid--single,
+            .mm-blocks-grid--double {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
     }
 
     // Responsive adjustments

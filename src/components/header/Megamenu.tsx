@@ -1,5 +1,5 @@
 // react
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 // third-party
 import classNames from "classnames";
 // application
@@ -15,10 +15,19 @@ interface Props extends React.HTMLAttributes<HTMLElement> {
 }
 
 /**
- * Static fallback image (the uploaded file path you provided)
- * The environment/build will map this path to a real URL in production as needed.
+ * Static fallback image for items without custom image
  */
 const STATIC_ICON = "/images/avatars/product.jpg";
+
+/**
+ * Get image path from customFields or use fallback
+ */
+const getItemImage = (item: ILink): string => {
+    if (item.customFields?.image) {
+        return item.customFields.image;
+    }
+    return STATIC_ICON;
+};
 
 function Megamenu(props: Props) {
     const { menu, onItemClick, className, ...rootProps } = props;
@@ -63,20 +72,13 @@ function Megamenu(props: Props) {
         return leftCategories;
     }, [leftCategories, hasNestedMenus, columns]);
 
-    // Handle left category click
-    const handleLeftCategoryClick = (category: any, index: number) => {
-        setActiveCategory(category);
-        onItemClick && onItemClick(category);
-    };
-
-    console.log("Megamenu Debug:", {
-        hasNestedMenus,
-        leftCategories,
-        allItems,
-        columns,
-        activeCategory,
-        rightItems,
-    });
+    const handleLeftCategoryClick = useCallback(
+        (category: ILink & { links?: ILink[] }) => {
+            setActiveCategory(category);
+            onItemClick?.(category);
+        },
+        [onItemClick]
+    );
 
     // Single column layout - all items shown in grid (when no nested menus)
     if (!hasNestedMenus) {
@@ -87,6 +89,7 @@ function Megamenu(props: Props) {
                         <div className="mm-blocks">
                             <div className="mm-blocks-grid mm-blocks-grid--single">
                                 {allItems.map((item, index) => {
+                                    const titleStr = typeof item.title === "string" ? item.title : "";
                                     const title =
                                         typeof item.title === "string" ? (
                                             <FormattedMessage id={item.title} />
@@ -99,14 +102,16 @@ function Megamenu(props: Props) {
                                             key={index}
                                             href={item.url || "#"}
                                             className="mm-item mm-item--single"
-                                            onClick={() => onItemClick && onItemClick(item)}
+                                            title={titleStr || undefined}
+                                            onClick={() => onItemClick?.(item)}
                                         >
-                                            {/* Icon on top */}
                                             <span className="mm-item__thumb mm-item__thumb--single">
-                                                <AppImage src={STATIC_ICON} alt={"title"} />
+                                                <AppImage
+                                                    src={getItemImage(item)}
+                                                    alt={titleStr || "item"}
+                                                    loading="lazy"
+                                                />
                                             </span>
-
-                                            {/* Text below */}
                                             <span className="mm-item__label mm-item__label--single">{title}</span>
                                         </AppLink>
                                     );
@@ -126,28 +131,42 @@ function Megamenu(props: Props) {
     return (
         <div className={rootClasses} {...rootProps}>
             <div className="main-menu__megamenu-inner">
-                {/* LEFT COLUMN: Direct links with icons and right arrow */}
+                {/* LEFT COLUMN: Categories are hover-only (not clickable links); only subcategories in right column navigate */}
                 <div className="main-menu__megamenu-left">
                     {leftCategories.map((category, index) => {
                         const title =
                             typeof category.title === "string" ? (
-                                <FormattedMessage id={category.title} />
+                                <FormattedMessage id={category.title} defaultMessage={category.title} />
                             ) : (
                                 category.title
                             );
                         const isActive = category === activeCategory;
 
                         return (
-                            <AppLink
+                            <div
                                 key={index}
-                                href={category.url || "#"}
+                                role="button"
+                                tabIndex={0}
                                 className={classNames("mm-cat", { active: isActive })}
-                                onClick={() => handleLeftCategoryClick(category, index)}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleLeftCategoryClick(category);
+                                }}
                                 onMouseEnter={() => !isActive && setActiveCategory(category)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault();
+                                        handleLeftCategoryClick(category);
+                                    }
+                                }}
                             >
                                 {/* Icon on the left */}
                                 <span className="mm-cat__icon">
-                                    <AppImage src={STATIC_ICON} alt={"icon"} />
+                                    <AppImage
+                                        src={getItemImage(category)}
+                                        alt={typeof category.title === "string" ? category.title : "category"}
+                                        loading="lazy"
+                                    />
                                 </span>
 
                                 {/* Category title */}
@@ -159,7 +178,7 @@ function Megamenu(props: Props) {
                                         <path d="M5.5 13l-1-1 4-4-4-4 1-1 5 5z" />
                                     </svg>
                                 </span>
-                            </AppLink>
+                            </div>
                         );
                     })}
                 </div>
@@ -170,9 +189,10 @@ function Megamenu(props: Props) {
                         <div className="mm-blocks">
                             <div className="mm-blocks-grid mm-blocks-grid--double">
                                 {rightItems.map((item, index) => {
+                                    const titleStr = typeof item.title === "string" ? item.title : "";
                                     const title =
                                         typeof item.title === "string" ? (
-                                            <FormattedMessage id={item.title} />
+                                            <FormattedMessage id={item.title} defaultMessage={item.title} />
                                         ) : (
                                             item.title
                                         );
@@ -182,14 +202,16 @@ function Megamenu(props: Props) {
                                             key={index}
                                             href={item.url || "#"}
                                             className="mm-item mm-item--double"
-                                            onClick={() => onItemClick && onItemClick(item)}
+                                            title={titleStr || undefined}
+                                            onClick={() => onItemClick?.(item)}
                                         >
-                                            {/* Icon on top */}
                                             <span className="mm-item__thumb mm-item__thumb--double">
-                                                <AppImage src={STATIC_ICON} alt={"title"} />
+                                                <AppImage
+                                                    src={getItemImage(item)}
+                                                    alt={titleStr || "item"}
+                                                    loading="lazy"
+                                                />
                                             </span>
-
-                                            {/* Text below */}
                                             <span className="mm-item__label mm-item__label--double">{title}</span>
                                         </AppLink>
                                     );

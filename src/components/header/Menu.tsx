@@ -35,7 +35,7 @@ function Menu(props: Props) {
                                 {...item.customFields?.anchorProps}
                             >
                                 {typeof item.title === 'string' ? (
-                                    <FormattedMessage id={item.title} />
+                                    <FormattedMessage id={item.title} defaultMessage={item.title} />
                                 ) : (
                                     item.title
                                 )}

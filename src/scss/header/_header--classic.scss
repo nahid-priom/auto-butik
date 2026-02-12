@@ -13,7 +13,7 @@
 
             display: grid;
             grid-template-columns: $local-grid-padding-xxl min-content auto max-content $local-grid-padding-xxl;
-            grid-template-rows: 34px auto auto;
+            grid-template-rows: $topbar-classic-row-height auto auto;
 
             @include media-breakpoint-only(xl) {
                 grid-template-columns: $local-grid-padding-xl min-content auto max-content $local-grid-padding-xl;
@@ -51,7 +51,7 @@
         // styles
         .header {
             position: relative;
-            z-index: 10;
+            z-index: $z-header;
 
             @include media-breakpoint-down(lg) {
                 display: none;
@@ -78,10 +78,10 @@
             }
         }
         .header__navbar {
-            padding: 7px calc((100% - #{map_get($container-max-widths, xxl) - $grid-gutter-width}) / 2);
+            padding: 10px calc((100% - #{map_get($container-max-widths, xxl) - $grid-gutter-width}) / 2);
 
             @include media-breakpoint-only(xl) {
-                padding: 7px calc((100% - #{map_get($container-max-widths, xl) - $grid-gutter-width}) / 2);
+                padding: 10px calc((100% - #{map_get($container-max-widths, xl) - $grid-gutter-width}) / 2);
             }
         }
         .header__navbar-menu {
@@ -131,7 +131,7 @@
         }
         .header__indicators .indicator + .indicator {
             @include direction {
-                #{$margin-inline-start}: 4px;
+                #{$margin-inline-start}: 12px;
             }
         }
 
@@ -148,7 +148,7 @@
 
         @if(map_get($header-scheme, main) == map_get($topbar-classic-scheme, main)) {
             .header {
-                grid-template-rows: 36px auto auto;
+                grid-template-rows: ($topbar-classic-row-height + 2px) auto auto;
             }
             .header__topbar-classic-bg {
                 border-bottom: 1px solid map_get($header-scheme, divider);
@@ -159,9 +159,10 @@
         }
 
         .header__navbar {
-            height: 52px;
+            height: 48px;
             background: map_get($navbar-scheme, main);
             color: map_get($navbar-scheme, opposite);
+            border-bottom: 1px solid $dt-border-color-subtle;
         }
 
         @if(map_get($header-scheme, main) == map_get($navbar-scheme, main)) {
@@ -169,11 +170,11 @@
                 border-top: 1px solid map_get($header-scheme, divider);
 
                 @if ($navbar-stretch) {
-                    height: 47px;
+                    height: 46px;
                     padding-top: 0;
                     padding-bottom: 0;
                 } @else {
-                    height: 53px;
+                    height: 48px;
                 }
             }
         } @else if($navbar-stretch) {

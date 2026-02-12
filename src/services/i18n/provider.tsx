@@ -27,7 +27,7 @@ const cache: Record<string, Promise<Record<string, string>>> = {};
 export async function getLanguageInitialProps(language: ILanguage | null): Promise<ILanguageProviderProps> {
     const locale = language ? language.locale : getDefaultLocale();
 
-    if (process.browser) {
+    if (typeof window !== 'undefined') {
         if (!cache[locale]) {
             cache[locale] = loadMessages(locale);
         }
@@ -68,10 +68,20 @@ function LanguageProvider(props: PropsWithChildren<ILanguageProviderProps>) {
         document.documentElement.dir = language.direction;
     }, [language]);
 
+    // Suppress MISSING_TRANSLATION in production; in dev do not throw so UI keeps working (see doc/i18n/README.md)
+    const handleIntlError = useCallback((err: { code?: string }) => {
+        if (err?.code === 'MISSING_TRANSLATION') {
+            return;
+        }
+        if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+            throw err;
+        }
+    }, []);
+
     return (
         <LanguageLocaleContext.Provider value={locale}>
             <LanguageSetLocaleContext.Provider value={setLocale}>
-                <IntlProvider locale={locale} messages={messages}>
+                <IntlProvider locale={locale} messages={messages} onError={handleIntlError}>
                     <GlobalIntlProvider>
                         {children}
                     </GlobalIntlProvider>

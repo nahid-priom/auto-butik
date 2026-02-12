@@ -101,6 +101,36 @@ $local-transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 
+// Catalog: desktop sidebar — 12px radius, 1px border, sticky, compact padding
+.block-split--catalog .sidebar {
+    @include media-breakpoint-up(lg) {
+        .sidebar__body {
+            background: map_get($card-scheme, main);
+            border: 1px solid map_get($card-scheme, divider);
+            border-radius: 12px;
+            padding: 16px;
+            position: sticky;
+            top: 24px;
+            max-height: calc(100vh - 48px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+        .sidebar__content {
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
+            min-height: 0;
+            margin: 0 -16px;
+            padding: 0 16px;
+        }
+        .sidebar__header {
+            display: none;
+        }
+    }
+}
+
 .sidebar--offcanvas--mobile {
     @include media-breakpoint-down(md) {
         @include local-offcanvas;

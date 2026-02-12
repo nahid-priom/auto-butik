@@ -35,13 +35,25 @@ $local-bottom-decor-height: 24px;
     justify-content: center;
 }
 .block-categories__title {
-    font-size: 24px;
-    font-weight: $font-weight-bold;
+    font-size: 22px;
+    font-weight: 600;
     text-align: center;
     position: relative;
     z-index: 1;
     margin-bottom: -$local-top-decor-height;
-    padding: 0 64px 28px;
+    padding: 0 64px 24px;
+    color: #1e293b;
+
+    &::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 12px;
+        width: 32px;
+        height: 2px;
+        background: rgba(map_get($theme-scheme, main), 0.6);
+        transform: translateX(-50%);
+    }
 }
 .block-categories__title-decor {
     position: absolute;
@@ -71,20 +83,105 @@ $local-bottom-decor-height: 24px;
 
 
 @include media-breakpoint-up(xxl) {
-    @include local-layout(3, 24px);
+    @include local-layout(5, 16px);
 }
 @include media-breakpoint-only(xl) {
-    @include local-layout(3, 16px);
+    @include local-layout(4, 14px);
 }
 @include media-breakpoint-only(lg) {
-    @include local-layout(2, 16px);
+    @include local-layout(4, 14px);
 }
 @include media-breakpoint-only(md) {
-    @include local-layout(3, 16px);
+    @include local-layout(3, 12px);
 }
 @include media-breakpoint-down(sm) {
-    @include local-layout(2, 16px);
+    @include local-layout(2, 12px);
 }
 @media (max-width: 474px) {
-    @include local-layout(1, 16px);
+    @include local-layout(1, 12px);
+}
+
+// Layout with sidebar: 4–5 cols desktop, 3 tablet, 2 mobile
+.block-categories--layout--columns-4-sidebar {
+    margin-top: 0;
+    background: #f7f8fa;
+    padding: 20px 0 24px;
+    border-radius: 12px;
+
+    .block-categories__list {
+        margin: -6px;
+        @include media-breakpoint-up(md) {
+            margin: -7px;
+        }
+        @include media-breakpoint-up(xl) {
+            margin: -8px;
+        }
+    }
+
+    .block-categories__item {
+        margin: 6px;
+        @include media-breakpoint-up(md) {
+            margin: 7px;
+        }
+        @include media-breakpoint-up(xl) {
+            margin: 8px;
+        }
+    }
+
+    @include media-breakpoint-up(xxl) {
+        .block-categories__item {
+            width: calc((100% - 80px) / 5);
+        }
+    }
+    @include media-breakpoint-only(xl) {
+        .block-categories__item {
+            width: calc((100% - 64px) / 4);
+        }
+    }
+    @include media-breakpoint-only(lg) {
+        .block-categories__item {
+            width: calc((100% - 64px) / 4);
+        }
+    }
+    @include media-breakpoint-only(md) {
+        .block-categories__item {
+            width: calc((100% - 42px) / 3);
+        }
+    }
+    @include media-breakpoint-down(sm) {
+        .block-categories__item {
+            width: calc((100% - 24px) / 3);
+        }
+    }
+    @media (max-width: 474px) {
+        .block-categories__list {
+            margin: -4px;
+        }
+        .block-categories__item {
+            margin: 4px;
+            width: calc((100% - 24px) / 3);
+        }
+    }
+
+    // Card uses shared classic styles; ensure min-height for alignment
+    .block-categories__item {
+        min-height: 0;
+    }
+
+    // Compact card on mobile so three items fit cleanly in one row
+    @include media-breakpoint-down(sm) {
+        .category-card__body {
+            padding: 10px 6px;
+        }
+        .category-card__image {
+            height: 64px;
+            min-height: 64px;
+            max-height: 64px;
+            margin-bottom: 6px;
+        }
+        .category-card__name {
+            font-size: 12px;
+            line-height: 1.3;
+        }
+    }
 }

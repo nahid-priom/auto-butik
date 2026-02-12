@@ -239,17 +239,20 @@ $local-arrow-angel: 30deg;
         @include product-card-grid-base;
 
         flex-grow: 1;
-        border-radius: 2px;
+        // Match featured products / category cards: border, shadow, thickness
+        border: 1px solid #dfe3e8;
+        box-shadow: 0 1px 3px rgba(#000, 0.09);
+        border-radius: 10px;
 
         .product-card__image img {
             @include direction {
-                #{$border-start-start-radius}: 2.5px;
-                #{$border-start-end-radius}: 2.5px;
+                #{$border-start-start-radius}: 10px;
+                #{$border-start-end-radius}: 10px;
             }
         }
         .product-card__action:first-child {
             @include direction {
-                #{$border-start-end-radius}: 2.5px;
+                #{$border-start-end-radius}: 10px;
             }
         }
     }

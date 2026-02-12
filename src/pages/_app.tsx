@@ -10,6 +10,8 @@ import { ApolloProvider } from '@apollo/client';
 import { AuthProvider } from '~/contexts/AuthContext';
 import { CarProvider } from '~/contexts/CarContext';
 import { GarageProvider } from '~/contexts/GarageContext';
+import { VehicleCatalogProvider } from '~/contexts/VehicleCatalogContext';
+import { CategoryTreeProvider } from '~/contexts/CategoryTreeContext';
 import { graphqlClient } from '~/api/graphql/account.api';
 // application
 import config from '~/config';
@@ -20,6 +22,7 @@ import { AppDispatch } from '~/store/types';
 import { CurrentVehicleGarageProvider } from '~/services/current-vehicle';
 import { getLanguageByLocale } from '~/services/i18n/utils';
 import { load, save, wrapper } from '~/store/store';
+import { setStoreRef } from '~/store/storeRef';
 import { optionsSetAll } from '~/store/options/optionsActions';
 import { useApplyClientState } from '~/store/client';
 import { useLoadUserVehicles } from '~/store/garage/garageHooks';
@@ -52,13 +55,19 @@ function App(props: Props) {
     const applyClientState = useApplyClientState();
     const loadUserVehicles = useLoadUserVehicles();
 
+    // Expose store to API layer for loading tracker (TopLoader) and GET cache
+    useEffect(() => {
+        setStoreRef(store);
+        return () => setStoreRef(null);
+    }, [store]);
+
     // Loading and saving state on the client side (cart, wishlist, etc.).
     useEffect(() => {
         const state = load();
 
         applyClientState(state || {});
 
-        if (process.browser) {
+        if (typeof window !== 'undefined') {
             store.subscribe(() => {
                 save(store.getState());
             });
@@ -82,7 +91,7 @@ function App(props: Props) {
             }
         };
 
-        if (process.browser) {
+        if (typeof window !== 'undefined') {
             initializeAuth();
         }
     }, [store]);
@@ -124,7 +133,7 @@ function App(props: Props) {
         <React.Fragment>
             <Head>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <link rel="icon" href="/favicon.ico" />
+                <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
             </Head>
 
             <ApolloProvider client={graphqlClient}>
@@ -132,12 +141,16 @@ function App(props: Props) {
                     <AuthProvider>
                         <CarProvider>
                             <GarageProvider>
-                                <CurrentVehicleGarageProvider>
-                                    <Layout>
-                                        <PageTitle />
-                                        {page}
-                                    </Layout>
-                                </CurrentVehicleGarageProvider>
+                                <VehicleCatalogProvider>
+                                    <CategoryTreeProvider>
+                                        <CurrentVehicleGarageProvider>
+                                            <Layout>
+                                                <PageTitle />
+                                                {page}
+                                            </Layout>
+                                        </CurrentVehicleGarageProvider>
+                                    </CategoryTreeProvider>
+                                </VehicleCatalogProvider>
                             </GarageProvider>
                         </CarProvider>
                     </AuthProvider>

@@ -1,0 +1,217 @@
+/*
+// .widget-brand-filter - Tillverkare (brand) filter in catalog sidebar
+*/
+@import '../variables';
+@import '../mixins/card';
+
+.widget-brand-filter {
+    @include card;
+
+    display: block;
+    margin-bottom: 24px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 4px;
+}
+
+.widget-brand-filter__header {
+    margin-bottom: 0;
+}
+
+.widget-brand-filter__title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+
+    &:hover .widget-brand-filter__toggle {
+        color: $link-color;
+    }
+}
+
+.widget-brand-filter__title {
+    font-size: 18px;
+    font-weight: $font-weight-bold;
+    margin: 0;
+    color: inherit;
+}
+
+.widget-brand-filter__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.5);
+    transition: color 0.15s ease;
+    flex-shrink: 0;
+}
+
+.widget-brand-filter__body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.widget-brand-filter__search {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus-within {
+        border-color: $link-color;
+        box-shadow: 0 0 0 2px rgba($link-color, 0.1);
+    }
+}
+
+.widget-brand-filter__search-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    color: rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
+
+    svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.widget-brand-filter__search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 12px 10px 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: inherit;
+    outline: none;
+
+    &::placeholder {
+        color: rgba(0, 0, 0, 0.4);
+    }
+}
+
+.widget-brand-filter__list {
+    max-height: 280px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+    margin: 0;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+    &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.3);
+    }
+}
+
+.widget-brand-filter__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1.5;
+    color: inherit;
+    transition: color 0.15s ease;
+    user-select: none;
+
+    &:hover {
+        color: $link-color;
+    }
+}
+
+.widget-brand-filter__checkbox {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+
+    &:focus + .widget-brand-filter__checkmark {
+        box-shadow: 0 0 0 2px rgba($link-color, 0.3);
+    }
+    &:checked + .widget-brand-filter__checkmark {
+        background: $link-color;
+        border-color: $link-color;
+
+        &::after {
+            opacity: 1;
+        }
+    }
+}
+
+.widget-brand-filter__checkmark {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(0, 0, 0, 0.25);
+    border-radius: 3px;
+    background: #fff;
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        left: 5px;
+        top: 2px;
+        width: 5px;
+        height: 9px;
+        border: solid #fff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+        opacity: 0;
+        transition: opacity 0.15s ease;
+    }
+}
+
+.widget-brand-filter__label {
+    flex: 1;
+    min-width: 0;
+}
+
+.widget-brand-filter__no-results {
+    padding: 16px 0;
+    text-align: center;
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 14px;
+}
+
+.widget-brand-filter--offcanvas--mobile,
+.widget-brand-filter--offcanvas--always,
+.widget-brand-filter--offcanvas--none {
+    // Shared layout; offcanvas handled by parent .sidebar
+}

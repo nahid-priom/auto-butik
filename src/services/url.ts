@@ -51,7 +51,7 @@ const url = {
 
     // blog pages
     blog: () => '/blog',
-    post: (post: IPost) => '/demo/blog/post-full-width',
+    post: (post: IPost & { slug?: string }) => `/blog/${'slug' in post && post.slug ? post.slug : String(post.id)}`,
 
     // auth pages
     signIn: () => '/account/login',

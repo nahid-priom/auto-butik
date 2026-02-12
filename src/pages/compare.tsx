@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { FormattedMessage, useIntl } from 'react-intl';
 // application
-import AppImage from '~/components/shared/AppImage';
+import ProductImage from '~/components/shared/ProductImage';
 import AppLink from '~/components/shared/AppLink';
 import AsyncAction from '~/components/shared/AsyncAction';
 import BlockHeader from '~/components/blocks/BlockHeader';
@@ -119,7 +119,7 @@ function Page() {
                         <AppLink href={url.product(product)} className="compare-table__product">
                             <div className="compare-table__product-image image image--type--product">
                                 <div className="image__body">
-                                    <AppImage className="image__tag" src={product.images && product.images[0]} />
+                                    <ProductImage className="image__tag" src={product.images?.[0]} />
                                 </div>
                             </div>
                             <div className="compare-table__product-name">

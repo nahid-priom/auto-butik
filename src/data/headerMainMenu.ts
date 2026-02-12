@@ -3,11 +3,11 @@ import { IMainMenuLink } from '~/interfaces/main-menu-link';
 
 const dataHeaderMainMenu: IMainMenuLink[] = [
     {
-        title: 'Home',
+        title: 'Hem',
         url: '/',
     },
     {
-        title: 'Megamenu',
+        title: 'Reservdelar',
         url: '/catalog/products',
         submenu: {
             type: 'megamenu',
@@ -17,25 +17,27 @@ const dataHeaderMainMenu: IMainMenuLink[] = [
                     size: 6,
                     links: [
                         {
-                            title: 'Headlights & Lighting',
-                            url: '/catalog/products',
+                            title: 'Bromssystem',
+                            url: '/catalog/products?collectionId=116',
                             links: [
-                                { title: 'Headlights', url: '/catalog/products' },
-                                { title: 'Tail Lights', url: '/catalog/products' },
-                                { title: 'Fog Lights', url: '/catalog/products' },
-                                { title: 'Turn Signals', url: '/catalog/products' },
-                                { title: 'Switches & Relays', url: '/catalog/products' },
-                                { title: 'Corner Lights', url: '/catalog/products' },
+                                { title: 'Bromsdelar / Tillbehör', url: '/catalog/products?collectionId=144' }, // 10,720 products
+                                { title: 'Vakumpump', url: '/catalog/products?collectionId=159' }, // 1,792 products
+                                { title: 'Huvudbromscylinder', url: '/catalog/products?collectionId=138' }, // 448 products
+                                { title: 'Bromskraftsförstärkare', url: '/catalog/products?collectionId=117' }, // 248 products
+                                { title: 'Bromsok/ -hållare', url: '/catalog/products?collectionId=122' }, // 92 products
+                                { title: 'Bromskraftsregulator', url: '/catalog/products?collectionId=118' }, // 84 products
                             ],
                         },
                         {
-                            title: 'Brakes & Suspension',
-                            url: '/catalog/products',
+                            title: 'Motor & Transmission',
+                            url: '/catalog/products?collectionId=1032',
                             links: [
-                                { title: 'Brake Discs', url: '/catalog/products' },
-                                { title: 'Wheel Hubs', url: '/catalog/products' },
-                                { title: 'Air Suspension', url: '/catalog/products' },
-                                { title: 'Ball Joints', url: '/catalog/products' },
+                                { title: 'Motorelektriskt', url: '/catalog/products?collectionId=1032' }, // 10,418 products
+                                { title: 'Packning, insugsgrenrör', url: '/catalog/products?collectionId=1046' }, // 3,635 products
+                                { title: 'Kolv', url: '/catalog/products?collectionId=1328' }, // 2,968 products
+                                { title: 'Avgasgrenrörspackning', url: '/catalog/products?collectionId=1038' }, // 2,786 products
+                                { title: 'Kuggrem', url: '/catalog/products?collectionId=1257' }, // 2,735 products
+                                { title: 'Kopplingshydraulik', url: '/catalog/products?collectionId=989' }, // 1,195 products
                             ],
                         },
                     ],
@@ -44,25 +46,25 @@ const dataHeaderMainMenu: IMainMenuLink[] = [
                     size: 6,
                     links: [
                         {
-                            title: 'Interior Parts',
-                            url: '/catalog/products',
+                            title: 'El-system & Belysning',
+                            url: '/catalog/products?collectionId=168',
                             links: [
-                                { title: 'Floor Mats', url: '/catalog/products' },
-                                { title: 'Gauges', url: '/catalog/products' },
-                                { title: 'Consoles & Organizers', url: '/catalog/products' },
-                                { title: 'Mobile Electronics', url: '/catalog/products' },
+                                { title: 'Generator / Delar', url: '/catalog/products?collectionId=196' }, // 1,793 products
+                                { title: 'Startmotor', url: '/catalog/products?collectionId=265' }, // 100 products
+                                { title: 'Strålkastare / Delar', url: '/catalog/products?collectionId=269' }, // 10 products
+                                { title: 'Batteri', url: '/catalog/products?collectionId=169' }, // 2 products
                             ],
                         },
                         {
-                            title: 'Engine & Drivetrain',
-                            url: '/catalog/products',
+                            title: 'Karosseri & Interiör',
+                            url: '/catalog/products?collectionId=515',
                             links: [
-                                { title: 'Air Filters', url: '/catalog/products' },
-                                { title: 'Oxygen Sensors', url: '/catalog/products' },
-                                { title: 'Heating', url: '/catalog/products' },
-                                { title: 'Exhaust', url: '/catalog/products' },
-                                { title: 'Cranks & Pistons', url: '/catalog/products' },
-                                { title: 'Cargo Accessories', url: '/catalog/products' },
+                                { title: 'Grill/delar', url: '/catalog/products?collectionId=515' }, // 3,027 products
+                                { title: 'Gasfjädrar', url: '/catalog/products?collectionId=403' }, // 1,414 products
+                                { title: 'Motorkåpa', url: '/catalog/products?collectionId=490' }, // 974 products
+                                { title: 'Upphängning', url: '/catalog/products?collectionId=1573' }, // 820 products
+                                { title: 'Hållare/fästen/sargar', url: '/catalog/products?collectionId=516' }, // 617 products
+                                { title: 'Oljepackningar', url: '/catalog/products?collectionId=1056' }, // 643 products
                             ],
                         },
                     ],
@@ -74,151 +76,105 @@ const dataHeaderMainMenu: IMainMenuLink[] = [
         },
     },
     {
-        title: 'Shop',
-        url: '/demo/shop/shop-grid-4-sidebar',
+        title: 'Fler kategorier',
+        url: '/catalog/products',
         submenu: {
-            type: 'menu',
-            links: [
+            type: 'megamenu',
+            size: 'nl',
+            columns: [
                 {
-                    title: 'Category',
-                    url: '/demo/shop/category-columns-4-sidebar',
+                    size: 6,
                     links: [
-                        { title: '3 Columns Sidebar', url: '/demo/shop/category-columns-3-sidebar' },
-                        { title: '4 Columns Sidebar', url: '/demo/shop/category-columns-4-sidebar' },
-                        { title: '5 Columns Sidebar', url: '/demo/shop/category-columns-5-sidebar' },
-                        { title: '4 Columns Full', url: '/demo/shop/category-columns-4-full' },
-                        { title: '5 Columns Full', url: '/demo/shop/category-columns-5-full' },
-                        { title: '6 Columns Full', url: '/demo/shop/category-columns-6-full' },
-                        { title: '7 Columns Full', url: '/demo/shop/category-columns-7-full' },
-                        { title: 'Right Sidebar', url: '/demo/shop/category-right-sidebar' },
+                        {
+                            title: 'Bränslesystem',
+                            url: '/catalog/products?collectionId=57',
+                            links: [
+                                { title: 'Insprutningspump', url: '/catalog/products?collectionId=38' }, // 541 products
+                                { title: 'Bränsleberedning', url: '/catalog/products?collectionId=57' }, // 191 products
+                                { title: 'Bränslepump', url: '/catalog/products?collectionId=851' }, // 34 products
+                                { title: 'Bränslefilter', url: '/catalog/products?collectionId=281' }, // 2 products
+                                { title: 'Bränsletrycksregulator', url: '/catalog/products?collectionId=857' }, // 2 products
+                            ],
+                        },
+                        {
+                            title: 'Kylsystem & Värme',
+                            url: '/catalog/products?collectionId=1521',
+                            links: [
+                                { title: 'Värme / Ventilation', url: '/catalog/products?collectionId=1521' }, // 76 products
+                                { title: 'Fläktmotor / -delar', url: '/catalog/products?collectionId=1523' }, // 70 products
+                                { title: 'Kylfläkt', url: '/catalog/products?collectionId=804' }, // 58 products
+                                { title: 'Frostskydd', url: '/catalog/products?collectionId=796' }, // 40 products
+                            ],
+                        },
                     ],
                 },
                 {
-                    title: 'Shop Grid',
-                    url: '/demo/shop/shop-grid-4-sidebar',
+                    size: 6,
                     links: [
-                        { title: '6 Columns Full', url: '/demo/shop/shop-grid-6-full' },
-                        { title: '5 Columns Full', url: '/demo/shop/shop-grid-5-full' },
-                        { title: '4 Columns Full', url: '/demo/shop/shop-grid-4-full' },
-                        { title: '4 Columns Sidebar', url: '/demo/shop/shop-grid-4-sidebar' },
-                        { title: '3 Columns Sidebar', url: '/demo/shop/shop-grid-3-sidebar' },
+                        {
+                            title: 'Motor & Vevaxel',
+                            url: '/catalog/products?collectionId=1344',
+                            links: [
+                                { title: 'Vevaxellager', url: '/catalog/products?collectionId=1344' }, // 452 products
+                                { title: 'Kedjespännare', url: '/catalog/products?collectionId=1210' }, // 242 products
+                            ],
+                        },
+                        {
+                            title: 'Koppling & Transmission',
+                            url: '/catalog/products?collectionId=754',
+                            links: [
+                                { title: 'Kraftöverföring', url: '/catalog/products?collectionId=754' }, // 2 products
+                                { title: 'Fördelningsväxel', url: '/catalog/products?collectionId=763' }, // 2 products
+                                { title: 'Urtrampningslager', url: '/catalog/products?collectionId=751' }, // 1 product
+                            ],
+                        },
                     ],
                 },
-                { title: 'Shop List', url: '/demo/shop/shop-list' },
-                { title: 'Shop Table', url: '/demo/shop/shop-table' },
-                { title: 'Shop Right Sidebar', url: '/demo/shop/shop-right-sidebar' },
-                {
-                    title: 'Shop Navigation',
-                    url: '/demo/shop/shop-cursor-navigation',
-                    links: [
-                        { title: 'Cursor-Based', url: '/demo/shop/shop-cursor-navigation' },
-                        { title: 'Page-Based', url: '/demo/shop/shop-page-navigation' },
-                    ],
-                },
-                {
-                    title: 'Product',
-                    url: '/demo/shop/product-full',
-                    links: [
-                        { title: 'Full Width', url: '/demo/shop/product-full' },
-                        { title: 'Left Sidebar', url: '/demo/shop/product-sidebar' },
-                    ],
-                },
-                { title: 'Cart', url: '/cart' },
-                { title: 'Checkout', url: '/cart/checkout' },
-                { title: 'Order Success', url: '/demo/shop/order-success' },
-                { title: 'Wishlist', url: '/wishlist' },
-                { title: 'Compare', url: '/compare' },
-                { title: 'Track Order', url: '/track-order' },
             ],
         },
     },
     {
-        title: 'Blog',
-        url: '/blog',
+        title: 'Butik',
+        url: '/catalog/products',
         submenu: {
             type: 'menu',
             links: [
-                {
-                    title: 'Blog Classic',
-                    url: '/demo/blog/classic-right-sidebar',
-                    links: [
-                        { title: 'Left Sidebar', url: '/demo/blog/classic-left-sidebar' },
-                        { title: 'Right Sidebar', url: '/demo/blog/classic-right-sidebar' },
-                    ],
-                },
-                {
-                    title: 'Blog List',
-                    url: '/demo/blog/list-right-sidebar',
-                    links: [
-                        { title: 'Left Sidebar', url: '/demo/blog/list-left-sidebar' },
-                        { title: 'Right Sidebar', url: '/demo/blog/list-right-sidebar' },
-                    ],
-                },
-                {
-                    title: 'Blog Grid',
-                    url: '/demo/blog/grid-right-sidebar',
-                    links: [
-                        { title: 'Left Sidebar', url: '/demo/blog/grid-left-sidebar' },
-                        { title: 'Right Sidebar', url: '/demo/blog/grid-right-sidebar' },
-                    ],
-                },
-                {
-                    title: 'Post Page',
-                    url: '/demo/blog/post-full-width',
-                    links: [
-                        { title: 'Full Width', url: '/demo/blog/post-full-width' },
-                        { title: 'Left Sidebar', url: '/demo/blog/post-left-sidebar' },
-                        { title: 'Right Sidebar', url: '/demo/blog/post-right-sidebar' },
-                    ],
-                },
-                { title: 'Post Without Image', url: '/demo/blog/post-without-image' },
+                { title: 'Alla produkter', url: '/catalog/products' },
+                { title: 'Bromssystem', url: '/catalog/products?collectionId=116' },
+                { title: 'Motor & Transmission', url: '/catalog/products?collectionId=1032' },
+                { title: 'El-system', url: '/catalog/products?collectionId=168' },
+                { title: 'Karosseri', url: '/catalog/products?collectionId=515' },
+                { title: 'Bränslesystem', url: '/catalog/products?collectionId=57' },
+                { title: 'Kylsystem', url: '/catalog/products?collectionId=1521' },
             ],
         },
     },
     {
-        title: 'Account',
+        title: 'Konto',
         url: '/account/dashboard',
         submenu: {
             type: 'menu',
             links: [
-                { title: 'Login & Register', url: '/account/login' },
-                { title: 'Dashboard', url: '/account/dashboard' },
+                { title: 'Logga in / Registrera', url: '/account/login' },
+                { title: 'Översikt', url: '/account/dashboard' },
                 { title: 'Garage', url: '/account/garage' },
-                { title: 'Edit Profile', url: '/account/profile' },
-                { title: 'Order History', url: '/account/orders' },
-                {
-                    title: 'Order Details',
-                    url: {
-                        href: '/account/orders/[id]?id=1',
-                        as: '/account/orders/1',
-                    },
-                },
-                { title: 'Address Book', url: '/account/addresses' },
-                {
-                    title: 'Edit Address',
-                    url: {
-                        href: '/account/addresses/[id]?id=new',
-                        as: '/account/addresses/new',
-                    },
-                },
-                { title: 'Change Password', url: '/account/password' },
+                { title: 'Redigera profil', url: '/account/profile' },
+                { title: 'Orderhistorik', url: '/account/orders' },
+                { title: 'Adressbok', url: '/account/addresses' },
+                { title: 'Ändra lösenord', url: '/account/password' },
             ],
         },
     },
     {
-        title: 'Pages',
+        title: 'Sidor',
         url: '/about-us',
         submenu: {
             type: 'menu',
             links: [
-                { title: 'About Us', url: '/about-us' },
-                { title: 'Contact Us v1', url: '/demo/site/contact-us-v1' },
-                { title: 'Contact Us v2', url: '/demo/site/contact-us-v2' },
-                { title: '404', url: '/demo/site/not-found' },
-                { title: 'Terms And Conditions', url: '/terms' },
-                { title: 'FAQ', url: '/faq' },
-                { title: 'Components', url: '/demo/site/components' },
-                { title: 'Typography', url: '/demo/site/typography' },
+                { title: 'Om oss', url: '/about-us' },
+                { title: 'Kontakta oss', url: '/contact' },
+                { title: 'Villkor', url: '/terms' },
+                { title: 'Vanliga frågor', url: '/faq' },
             ],
         },
     },

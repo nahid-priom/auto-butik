@@ -1,0 +1,202 @@
+/*
+// .widget-vehicle-categories
+*/
+@import '../variables';
+@import '../mixins/card';
+@import '../mixins/direction';
+
+.widget-vehicle-categories {
+    @include card;
+    
+    display: block;
+    margin-bottom: 24px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 4px;
+}
+
+.widget-vehicle-categories__header {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.widget-vehicle-categories__title {
+    font-size: 18px;
+    font-weight: $font-weight-bold;
+    margin: 0;
+    color: inherit;
+}
+
+.widget-vehicle-categories__title--with-back {
+    font-size: 16px;
+    font-weight: $font-weight-medium;
+}
+
+// Back link styling (Trodo-style)
+.widget-vehicle-categories__back-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s ease;
+    
+    &:hover {
+        color: $link-color;
+        
+        .widget-vehicle-categories__back-arrow {
+            color: $link-color;
+        }
+    }
+}
+
+.widget-vehicle-categories__back-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: map_get($card-scheme, opposite-alt);
+    transition: color 0.15s ease;
+    
+    svg {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+.widget-vehicle-categories__body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.widget-vehicle-categories__search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    
+    &:focus-within {
+        border-color: $link-color;
+        box-shadow: 0 0 0 2px rgba($link-color, 0.1);
+    }
+}
+
+.widget-vehicle-categories__search-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    color: map_get($card-scheme, opposite-alt);
+    flex-shrink: 0;
+    
+    svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.widget-vehicle-categories__search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 12px 10px 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: inherit;
+    outline: none;
+    
+    &::placeholder {
+        color: map_get($card-scheme, opposite-alt);
+        opacity: 0.7;
+    }
+}
+
+.widget-vehicle-categories__list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.widget-vehicle-categories__item {
+    position: relative;
+    margin-bottom: 2px;
+    
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.widget-vehicle-categories__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 0;
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s ease;
+    font-size: 15px;
+    line-height: 1.5;
+    min-width: 0;
+    
+    &:hover {
+        color: $link-color;
+    }
+}
+
+// Selected state (blue highlight like Trodo)
+.widget-vehicle-categories__item--selected {
+    .widget-vehicle-categories__link {
+        color: $link-color;
+        font-weight: $font-weight-medium;
+    }
+    
+    .widget-vehicle-categories__arrow {
+        color: $link-color;
+    }
+}
+
+.widget-vehicle-categories__name {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.widget-vehicle-categories__arrow {
+    color: map_get($card-scheme, opposite-alt);
+    font-size: 18px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+}
+
+.widget-vehicle-categories__link:hover .widget-vehicle-categories__arrow {
+    color: $link-color;
+}
+
+.widget-vehicle-categories__no-results {
+    padding: 16px 0;
+    text-align: center;
+    color: map_get($card-scheme, opposite-alt);
+    font-size: 14px;
+}
+
+.widget-vehicle-categories__loader,
+.widget-vehicle-categories__error {
+    padding: 16px 0;
+    text-align: center;
+    color: map_get($card-scheme, opposite-alt);
+    font-size: 14px;
+}

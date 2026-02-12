@@ -1,5 +1,5 @@
 // react
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 // third-party
 import classNames from 'classnames';
 // application
@@ -11,6 +11,8 @@ import { useGlobalMousedown } from '~/services/hooks';
 // data
 import dataHeaderDepartments from '~/data/headerDepartments';
 
+const DEPARTMENTS_MENU_ID = 'departments-menu';
+
 interface Props {
     label: React.ReactNode;
 }
@@ -21,32 +23,43 @@ function Departments(props: Props) {
     const [currentItem, setCurrentItem] = useState<IDepartmentsLink | null>(null);
     const rootRef = useRef<HTMLDivElement>(null);
 
-    const handleButtonClick = () => {
+    const handleButtonClick = useCallback(() => {
         setIsOpen((state) => !state);
-    };
+    }, []);
 
-    const handleBodyMouseLeave = () => {
+    const handleBodyMouseLeave = useCallback(() => {
         setCurrentItem(null);
-    };
+    }, []);
 
-    const handleListPaddingMouseEnter = () => {
+    const handleListPaddingMouseEnter = useCallback(() => {
         setCurrentItem(null);
-    };
+    }, []);
 
-    const handleItemMouseEnter = (item: IDepartmentsLink) => {
+    const handleItemMouseEnter = useCallback((item: IDepartmentsLink) => {
         setCurrentItem(item);
-    };
+    }, []);
 
     const handleItemClick = useCallback(() => {
         setIsOpen(false);
         setCurrentItem(null);
-    }, [setIsOpen, setCurrentItem]);
+    }, []);
 
     useGlobalMousedown((event) => {
         if (rootRef.current && !rootRef.current.contains(event.target as HTMLElement)) {
             setIsOpen(false);
         }
-    }, [setIsOpen, rootRef]);
+    }, [rootRef]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen]);
 
     const classes = classNames('departments', {
         'departments--open': isOpen,
@@ -54,7 +67,14 @@ function Departments(props: Props) {
 
     return (
         <div className={classes} ref={rootRef}>
-            <button className="departments__button" type="button" onClick={handleButtonClick}>
+            <button
+                className="departments__button"
+                type="button"
+                onClick={handleButtonClick}
+                aria-expanded={isOpen}
+                aria-haspopup="true"
+                aria-controls={DEPARTMENTS_MENU_ID}
+            >
                 <span className="departments__button-icon">
                     <Menu16x12Svg />
                 </span>
@@ -65,7 +85,12 @@ function Departments(props: Props) {
                     <ArrowRoundedDown9x6Svg />
                 </span>
             </button>
-            <div className="departments__menu">
+            <div
+                id={DEPARTMENTS_MENU_ID}
+                className="departments__menu"
+                role="menu"
+                aria-orientation="vertical"
+            >
                 <div className="departments__arrow" />
                 <div className="departments__body" onMouseLeave={handleBodyMouseLeave}>
                     <ul className="departments__list">
@@ -81,17 +106,21 @@ function Departments(props: Props) {
                                 'departments__item--submenu--megamenu': item.submenu?.type === 'megamenu',
                                 'departments__item--hover': item === currentItem,
                             });
+                            const titleText = typeof item.title === 'string' ? item.title : undefined;
 
                             return (
                                 <li
                                     className={itemClasses}
                                     key={index}
+                                    role="none"
                                     onMouseEnter={() => handleItemMouseEnter(item)}
                                 >
                                     <AppLink
                                         className="departments__item-link"
                                         href={item.url}
-                                        onClick={() => handleItemClick()}
+                                        onClick={handleItemClick}
+                                        title={titleText}
+                                        role="menuitem"
                                         {...item.customFields?.anchorProps}
                                     >
                                         {item.title}

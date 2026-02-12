@@ -21,6 +21,14 @@ const GarageContext = createContext<IGarageContextValue | undefined>(undefined);
 const STORAGE_KEY = 'garageVehicles';
 const CURRENT_CAR_KEY = 'currentCarId';
 
+/** Returns a stable key to detect duplicate vehicles (same car/wheel). */
+function getVehicleLogicalKey(data: ICarData | IWheelData): string {
+    const d = data as Record<string, unknown>;
+    if (d.RegNr && typeof d.RegNr === 'string') return `reg:${String(d.RegNr).toUpperCase().trim()}`;
+    if (d.WHEELID != null) return `wheel:${d.WHEELID}`;
+    return `fallback:${d.C_merke ?? ''}|${d.C_modell ?? ''}|${d.C_typ ?? ''}`;
+}
+
 export function GarageProvider({ children }: { children: React.ReactNode }) {
     const [vehicles, setVehicles] = useState<IGarageVehicle[]>([]);
     const [currentCarId, setCurrentCarId] = useState<string | null>(null);
@@ -71,9 +79,14 @@ export function GarageProvider({ children }: { children: React.ReactNode }) {
     }, [currentCarId]);
 
     const addVehicle = (data: ICarData | IWheelData) => {
+        const logicalKey = getVehicleLogicalKey(data);
+        const existing = vehicles.find((v) => getVehicleLogicalKey(v.data) === logicalKey);
+        if (existing) {
+            setCurrentCarId(existing.id);
+            return existing.id;
+        }
         const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
         setVehicles((prev) => [{ id, data, addedAt: Date.now() }, ...prev]);
-        // Always make the most recently added vehicle the current car
         setCurrentCarId(id);
         return id;
     };

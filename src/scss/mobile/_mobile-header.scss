@@ -8,32 +8,47 @@
 
 
 @include mobile-header-variant-selector {
+    /* Overflow guard: header must not cause horizontal scroll at 320px+ (regression test: check at 320px width) */
     .mobile-header {
         display: block;
         background: map_get($mobile-header-scheme, main);
         box-shadow: map_get($mobile-header-scheme, shadow);
-        position: relative;
-        z-index: 100;
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        max-width: 100vw;
+        overflow-x: hidden;
 
         @include media-breakpoint-up(xl) {
             display: none;
         }
     }
+    .mobile-header .container {
+        max-width: 100%;
+        min-width: 0;
+    }
     .mobile-header__body {
         height: 50px;
+        min-height: 44px;
         display: flex;
+        align-items: center;
+        gap: 0;
+        min-width: 0;
     }
     .mobile-header__menu-button {
-        width: 52px;
+        width: 44px;
+        min-width: 44px;
         height: 100%;
+        min-height: 44px;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0;
+        padding: 0 8px;
         margin: 0;
         border: none;
         background: map_get($mobile-header-scheme, main);
         fill: map_get($mobile-header-scheme, icon-color);
+        flex-shrink: 0;
 
         &:hover {
             background: map_get($mobile-header-scheme, hover);
@@ -52,40 +67,306 @@
     .mobile-header__logo {
         display: flex;
         align-items: center;
-        padding: 0 14px;
+        padding: 0 8px;
+        flex-shrink: 0;
+        min-width: 0;
+    }
+    .mobile-header__logo-img {
+        display: block;
+        max-height: 36px;
+        width: auto;
+        object-fit: contain;
     }
     .mobile-header__search {
         display: flex;
         align-items: center;
         height: 50px;
+        min-height: 44px;
         max-width: 440px;
         flex-grow: 1;
-        padding: 0 12px;
+        flex-shrink: 1;
+        min-width: 0;
+        padding: 0 8px;
         margin: 0 auto;
     }
     .mobile-header__indicators {
         display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        height: 50px;
+        min-width: 0;
+        gap: 0;
 
         @include direction {
             #{$margin-inline-start}: auto;
         }
+
+        // All row items: same height and vertical center
+        > .mobile-indicator,
+        > .mobile-header__garage {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 50px;
+            min-height: 44px;
+        }
+        .mobile-indicator__button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 50px;
+            min-height: 44px;
+            padding: 0 8px;
+        }
+        .mobile-indicator__icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            line-height: 0;
+
+            svg {
+                display: block;
+                width: 20px;
+                height: 20px;
+                vertical-align: middle;
+            }
+        }
+    }
+    // Hide search icon when inline search bar is visible (md and up, still mobile header)
+    .mobile-indicator--search {
+        @include media-breakpoint-up(md) {
+            display: none;
+        }
     }
 
+    // Garage button and dropdown (desktop-like on mobile)
+    .mobile-header__garage {
+        position: relative;
+    }
+    .mobile-header__garage {
+        min-width: 0;
+        max-width: 50%;
+    }
+    .mobile-header__garage-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 50px;
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0 8px;
+        margin: 0;
+        border: none;
+        background: transparent;
+        color: inherit;
+        fill: currentColor;
+        box-sizing: border-box;
+        max-width: 100%;
+
+        &:focus {
+            outline: none;
+        }
+        &:hover {
+            background: map_get($mobile-header-scheme, hover);
+        }
+    }
+    .mobile-header__garage-icon {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        line-height: 0;
+
+        img {
+            display: block;
+            width: 24px;
+            height: 24px;
+            margin: 0;
+            padding: 0;
+            object-fit: contain;
+            vertical-align: middle;
+        }
+    }
+    .mobile-header__garage-label {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        min-width: 0;
+        max-width: 90px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1;
+        padding: 0;
+        margin: 0;
+
+        @include media-breakpoint-down(sm) {
+            max-width: 56px;
+            font-size: 11px;
+        }
+    }
+    .mobile-header__garage-button--empty .mobile-header__garage-label {
+        font-weight: 400;
+        opacity: 0.85;
+    }
+    .mobile-header__garage-warn {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 14px;
+        height: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 700;
+        color: #fff;
+        background: #dc3545;
+        border-radius: 50%;
+        line-height: 1;
+    }
+    .mobile-header__garage-dropdown {
+        position: fixed;
+        top: 50px;
+        width: min(280px, calc(100vw - 24px));
+        max-width: calc(100vw - 24px);
+        bottom: auto;
+        max-height: calc(100vh - 60px);
+        overflow-y: auto;
+        z-index: 201;
+        background: map_get($card-scheme, main);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        padding: 12px;
+        border-radius: 8px;
+
+        @include direction {
+            #{$inset-inline-end}: 12px;
+            #{$inset-inline-start}: auto;
+        }
+
+        .dropcart {
+            width: 100%;
+            box-shadow: none;
+            padding: 0;
+            border: none !important;
+        }
+        // Align all text to the same left edge (blue line)
+        .dropcart__header {
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            border: none !important;
+            border-bottom: none !important;
+
+            @include direction {
+                #{$padding-inline-start}: 12px;
+                #{$padding-inline-end}: 0;
+            }
+        }
+        .dropcart__title {
+            font-size: 15px;
+            padding: 0;
+        }
+        .dropcart__body,
+        .dropcart__footer {
+            border: none !important;
+
+            @include direction {
+                #{$padding-inline-start}: 12px;
+                #{$padding-inline-end}: 12px;
+            }
+        }
+        .vehicles-list {
+            padding: 0;
+        }
+        .vehicles-list__item,
+        .vehicles-list__item--current {
+            border: none !important;
+            border-bottom: none !important;
+            border-top: none !important;
+        }
+        .vehicles-list__item-name {
+            font-size: 13px;
+        }
+        .vehicles-list__item-details {
+            font-size: 11px;
+        }
+        // Always show remove (×) and arrow buttons on mobile (no hover)
+        .vehicles-list__item-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .vehicles-list__item-remove {
+            opacity: 1 !important;
+            transform: scale(1) !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            min-height: 36px;
+            padding: 8px;
+            border: none;
+            background: rgba(220, 53, 69, 0.12);
+            border-radius: 8px;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            color: #dc3545;
+        }
+        .vehicles-list__item-arrow {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            min-height: 36px;
+            padding: 8px;
+            border: none;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border-radius: 8px;
+            fill: #fff;
+
+            svg {
+                display: block;
+                width: 7px;
+                height: 11px;
+            }
+        }
+        .dropcart__footer {
+            border-top: none !important;
+        }
+        .dropcart__footer .btn {
+            font-size: 14px;
+            padding: 10px 14px;
+        }
+    }
 
     @include media-breakpoint-down(sm) {
         .mobile-header {
-            position: relative;
+            position: sticky;
+            top: 0;
         }
         .mobile-header .container {
             padding: 0 8px;
         }
         .mobile-header__menu-button {
             width: 44px;
+            min-width: 44px;
+            padding: 0 8px;
         }
         .mobile-header__logo {
             @include direction {
-                #{$padding-inline-start}: 10px;
-                #{$padding-inline-end}: 10px;
+                #{$padding-inline-start}: 8px;
+                #{$padding-inline-end}: 8px;
             }
         }
         .mobile-header__search {

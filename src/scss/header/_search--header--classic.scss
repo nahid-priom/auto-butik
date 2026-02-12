@@ -30,10 +30,10 @@
 
 @include desktop-header-variant-selector {
     @if ($header-layout == classic) {
-        $local-height: 38px;
-        $local-border-radius: 2.5px;
+        $local-height: 46px;
+        $local-border-radius: $dt-radius-input;
         $local-input-border-width: 1px;
-        $local-gutter: 5px;
+        $local-gutter: 6px;
 
 
         .search__body {
@@ -88,10 +88,12 @@
             border-width: $local-input-border-width;
             border-style: solid;
             border-radius: $local-border-radius;
+            border-color: $dt-border-color;
             transition:
                 background-color .2s,
                 border-color .2s,
-                color .2s;
+                color .2s,
+                box-shadow .2s;
 
             @include direction {
                 #{$padding-inline-start}: 14px - $local-input-border-width;
@@ -100,9 +102,12 @@
 
             &:hover {
                 @include define-input-scheme($search-classic-input-scheme, hover);
+                border-color: darken($dt-border-color, 4%);
             }
             &:focus {
                 @include define-input-scheme($search-classic-input-scheme, focus);
+                border-color: map_get($theme-scheme, main);
+                box-shadow: $dt-focus-ring;
             }
         }
         .search__button--start {

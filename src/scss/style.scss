@@ -97,6 +97,7 @@
 //   - .widget-categories-list
 //   - .widget-comments
 //   - .widget-filters
+//   - .widget-vehicle-categories
 //   - .widget-newsletter
 //   - .widget-posts
 //   - .widget-products
@@ -187,6 +188,7 @@
 @import "components/rc-slider";
 @import "components/layout-switcher";
 @import "components/loading-bar";
+@import "components/block-skeleton";
 @import "components/modal";
 @import "components/ngx-toastr";
 @import "components/pagination";
@@ -208,6 +210,7 @@
 @import "components/vehicle-form";
 @import "components/vehicle-select";
 @import "components/vehicles-list";
+@import "components/selected-vehicle-sheet";
 @import "components/view-options";
 @import "components/widget";
 
@@ -234,6 +237,7 @@
 // Pages
 // ---------------------------------------- */
 @import "pages/about";
+@import "pages/catalog-loading";
 @import "pages/contacts";
 @import "pages/faq";
 @import "pages/not-found";
@@ -243,7 +247,10 @@
 // ---------------------------------------- */
 @import "blocks/block-banners";
 @import "blocks/block-brands";
+@import "blocks/block-catalog-hero";
 @import "blocks/block-categories";
+@import "blocks/block-category-navigation";
+@import "blocks/block-category-tabs";
 @import "blocks/block-empty";
 @import "blocks/block-features";
 @import "blocks/block-finder";
@@ -272,6 +279,9 @@
 @import "widgets/widget-categories";
 @import "widgets/widget-comments";
 @import "widgets/widget-filters";
+@import "widgets/widget-brand-filter";
+@import "widgets/widget-position-filter";
+@import "widgets/widget-vehicle-categories";
 @import "widgets/widget-newsletter";
 @import "widgets/widget-posts";
 @import "widgets/widget-products";

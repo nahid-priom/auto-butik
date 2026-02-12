@@ -35,7 +35,7 @@ export function getLanguageByLocale(locale: string): ILanguage | null {
 }
 
 async function loadTranslation(locale: string): Promise<Record<string, string>> {
-    if (process.browser) {
+    if (typeof window !== 'undefined') {
         return fetch(baseUrl(`/i18n/${locale}.json`)).then((response) => response.json());
     }
 

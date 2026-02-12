@@ -22,13 +22,19 @@ function Page() {
     useEffect(() => {
         let canceled = false;
 
-        accountApi.getOrderById(orderId).then((result) => {
-            if (canceled) {
-                return;
-            }
-
-            setOrder(result);
-        });
+        accountApi.getOrderById(orderId)
+            .then((result) => {
+                if (canceled) {
+                    return;
+                }
+                setOrder(result);
+            })
+            .catch(() => {
+                if (canceled) {
+                    return;
+                }
+                setOrder(null);
+            });
 
         return () => {
             canceled = true;

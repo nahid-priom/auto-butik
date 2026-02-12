@@ -5,6 +5,7 @@ import classNames from 'classnames';
 // application
 import AppLink from '~/components/shared/AppLink';
 import { ILink } from '~/interfaces/link';
+import { makeUniqueKeys, stableStringify } from '~/utils/reactKeys';
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
     items: ILink[];
@@ -23,11 +24,19 @@ function Breadcrumb(props: Props) {
     const rootClasses = classNames('breadcrumb', className);
 
     return (
-        <div className={rootClasses} aria-label="breadcrumb">
+        <nav className={rootClasses} aria-label="Brödsmulor">
             <ol className="breadcrumb__list">
                 {afterHeader && <li className="breadcrumb__spaceship-safe-area" role="presentation" />}
 
-                {items.map((item, index) => {
+                {makeUniqueKeys(
+                    items,
+                    (item, i) => {
+                        const t = typeof item.title === "string" ? item.title : "";
+                        const u = typeof item.url === "string" ? item.url : stableStringify(item.url ?? {});
+                        return (t && u) ? `${t}|${u}` : `bc-${i}`;
+                    },
+                    { prefix: "breadcrumb", reportLabel: "Breadcrumb.items" }
+                ).map(({ item, key: itemKey }, index) => {
                     const isFirst = index === 0;
                     const isLast = index === items.length - 1;
 
@@ -39,10 +48,10 @@ function Breadcrumb(props: Props) {
                     });
 
                     return (
-                        <li key={index} className={itemClasses} aria-current={isLast ? 'page' : undefined}>
-                            {isLast && <span className="breadcrumb__item-link">{item.title}</span>}
+                        <li key={itemKey} className={itemClasses} aria-current={isLast ? 'page' : undefined}>
+                            {isLast && <span className="breadcrumb__item-link breadcrumb__item-link--current">{item.title}</span>}
                             {!isLast && (
-                                <AppLink href={item.url} className="breadcrumb__item-link">
+                                <AppLink href={item.url} className="breadcrumb__item-link" title={item.title}>
                                     {item.title}
                                 </AppLink>
                             )}
@@ -52,7 +61,7 @@ function Breadcrumb(props: Props) {
 
                 {withPageTitle && <li className="breadcrumb__title-safe-area" role="presentation" />}
             </ol>
-        </div>
+        </nav>
     );
 }
 
