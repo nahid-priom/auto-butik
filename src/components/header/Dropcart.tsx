@@ -4,7 +4,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 // application
-import AppImage from '~/components/shared/AppImage';
+import ProductImage from '~/components/shared/ProductImage';
 import AppLink from '~/components/shared/AppLink';
 import AsyncAction from '~/components/shared/AsyncAction';
 import CurrencyFormat from '~/components/shared/CurrencyFormat';
@@ -40,9 +40,9 @@ function Dropcart(props: Props) {
                                             href={url.product(item.product)}
                                             onClick={onCloseMenu}
                                         >
-                                            <AppImage
+                                            <ProductImage
                                                 className="image__tag"
-                                                src={item.product.images && item.product.images[0]}
+                                                src={item.product.images?.[0]}
                                             />
                                         </AppLink>
                                     </div>

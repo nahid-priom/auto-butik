@@ -4,7 +4,7 @@ import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 // application
 import AddressCard from '~/components/shared/AddressCard';
-import AppImage from '~/components/shared/AppImage';
+import ProductImage from '~/components/shared/ProductImage';
 import AppLink from '~/components/shared/AppLink';
 import BlockSpace from '~/components/blocks/BlockSpace';
 import CurrencyFormat from '~/components/shared/CurrencyFormat';
@@ -126,9 +126,9 @@ function ShopPageOrderSuccess(props: Props) {
                                                             href={url.product(item.product)}
                                                             className="image__body"
                                                         >
-                                                            <AppImage
+                                                            <ProductImage
                                                                 className="image__tag"
-                                                                src={item.product.images && item.product.images[0]}
+                                                                src={item.product.images?.[0]}
                                                             />
                                                         </AppLink>
                                                     </div>

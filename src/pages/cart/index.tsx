@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { FormattedMessage, useIntl } from 'react-intl';
 // application
-import AppImage from '~/components/shared/AppImage';
+import ProductImage from '~/components/shared/ProductImage';
 import AppLink from '~/components/shared/AppLink';
 import AsyncAction from '~/components/shared/AsyncAction';
 import BlockHeader from '~/components/blocks/BlockHeader';
@@ -145,9 +145,9 @@ function Page() {
                         <td className="cart-table__column cart-table__column--image">
                             <div className="image image--type--product">
                                 <AppLink href={url.product(item.product)} className="image__body">
-                                    <AppImage
+                                    <ProductImage
                                         className="image__tag"
-                                        src={item.product.images && item.product.images[0]}
+                                        src={item.product.images?.[0]}
                                     />
                                 </AppLink>
                             </div>

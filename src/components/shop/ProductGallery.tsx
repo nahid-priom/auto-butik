@@ -11,7 +11,7 @@ import PhotoSwipe from 'photoswipe';
 import PhotoSwipeUIDefault from 'photoswipe/dist/photoswipe-ui-default';
 import Slick from 'react-slick';
 // application
-import AppImage from '~/components/shared/AppImage';
+import ProductImage from '~/components/shared/ProductImage';
 import AppLink from '~/components/shared/AppLink';
 import AppSlick, { ISlickProps } from '~/components/shared/AppSlick';
 import { baseUrl } from '~/services/utils';
@@ -22,7 +22,7 @@ import { ZoomIn24Svg } from '~/svg';
 const PLACEHOLDER_SRC = '__placeholder__';
 
 /** URLs that should be treated as "no image" and show our custom placeholder instead */
-const PLACEHOLDER_URL_PATTERNS = ['product-placeholder', 'placeholder.jpg', 'placeholder.png'];
+const PLACEHOLDER_URL_PATTERNS = ['product-placeholder', 'placeholder.jpg', 'placeholder.png', 'placeholder.avif'];
 
 function isPlaceholderOrEmptyUrl(url: string): boolean {
     if (!url || typeof url !== 'string' || url.trim() === '' || url === PLACEHOLDER_SRC) return true;
@@ -30,43 +30,9 @@ function isPlaceholderOrEmptyUrl(url: string): boolean {
     return PLACEHOLDER_URL_PATTERNS.some((p) => normalized.includes(p));
 }
 
-/** Placeholder shown when product has no image or image fails to load */
-function ProductGalleryPlaceholder({ className }: { className?: string }) {
-    return (
-        <div className={classNames('product-gallery__placeholder', className)} aria-hidden>
-            <svg
-                className="product-gallery__placeholder-icon"
-                viewBox="0 0 120 120"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden
-            >
-                <rect x="10" y="10" width="100" height="100" rx="8" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.2" />
-                <path
-                    d="M35 55 L50 42 L65 55 L85 38 L85 82 L35 82 Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    fill="none"
-                    opacity="0.4"
-                />
-                <circle cx="52" cy="48" r="8" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.4" />
-                <path
-                    d="M45 95 L55 85 L65 95 L75 88 L85 95"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    fill="none"
-                    opacity="0.3"
-                />
-            </svg>
-        </div>
-    );
-}
+const GALLERY_PLACEHOLDER_AVIF = '/placeholder.avif';
 
-/** Renders image or placeholder on load error */
+/** Renders image or /placeholder.avif on load error or when no image */
 function GalleryImageWithFallback({
     src,
     index,
@@ -76,6 +42,7 @@ function GalleryImageWithFallback({
     dataHeight,
     isPlaceholder,
     setRef = true,
+    priority = false,
 }: {
     src: string;
     index: number;
@@ -85,22 +52,19 @@ function GalleryImageWithFallback({
     dataHeight?: string;
     isPlaceholder: boolean;
     setRef?: boolean;
+    priority?: boolean;
 }) {
-    const [loadFailed, setLoadFailed] = useState(false);
-    const showPlaceholder = isPlaceholder || loadFailed || isPlaceholderOrEmptyUrl(src);
-
-    if (showPlaceholder) {
-        return <ProductGalleryPlaceholder className={className} />;
-    }
+    const showPlaceholderImg = isPlaceholder || isPlaceholderOrEmptyUrl(src);
+    const displaySrc = showPlaceholderImg ? GALLERY_PLACEHOLDER_AVIF : src;
 
     return (
-        <AppImage
+        <ProductImage
             className={className}
-            src={src}
-            ref={setRef ? (el) => { imagesRefs.current[index] = el; } : undefined}
-            data-width={dataWidth}
-            data-height={dataHeight}
-            onError={() => setLoadFailed(true)}
+            src={displaySrc}
+            ref={setRef ? (el) => { if (el) imagesRefs.current[index] = el; } : undefined}
+            priority={priority}
+            {...(dataWidth != null && { 'data-width': dataWidth })}
+            {...(dataHeight != null && { 'data-height': dataHeight })}
         />
     );
 }
@@ -431,6 +395,7 @@ function ProductGallery(props: Props) {
                                         dataHeight="700"
                                         isPlaceholder={false}
                                         setRef
+                                        priority={idx === 0}
                                     />
                                 </AppLink>
                             ) : (
@@ -444,6 +409,7 @@ function ProductGallery(props: Props) {
                                         dataHeight="700"
                                         isPlaceholder={true}
                                         setRef={false}
+                                        priority={idx === 0}
                                     />
                                 </div>
                             )}

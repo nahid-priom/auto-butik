@@ -7,7 +7,7 @@ import AppLink from '~/components/shared/AppLink';
 import CurrencyFormat from '~/components/shared/CurrencyFormat';
 import url from '~/services/url';
 import { IProduct } from '~/interfaces/product';
-import AppImage from '~/components/shared/AppImage';
+import ProductImage from '~/components/shared/ProductImage';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     widgetTitle: React.ReactNode;
@@ -37,7 +37,7 @@ function WidgetProducts(props: Props) {
                     <div key={product.id} className="widget-products__item">
                         <div className="widget-products__image">
                             <AppLink href={url.product(product)}>
-                                <AppImage src={product.images && product.images[0]} />
+                                <ProductImage src={product.images?.[0]} />
                             </AppLink>
                         </div>
                         <div className="widget-products__info">

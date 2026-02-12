@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import classNames from "classnames";
 import { FormattedMessage, useIntl } from "react-intl";
 // application
-import AppImage from "~/components/shared/AppImage";
+import ProductImage from "~/components/shared/ProductImage";
 import AppLink from "~/components/shared/AppLink";
 import AsyncAction from "~/components/shared/AsyncAction";
 import CompatibilityStatusBadge from "~/components/shared/CompatibilityStatusBadge";
@@ -203,14 +203,11 @@ function ProductCard(props: Props) {
             <div className="product-card__image">
                 <div className="image image--type--product">
                     <AppLink href={url.product(product)} className="image__body">
-                        {product.images && (
-                        <AppImage
+                        <ProductImage
                             className="image__tag"
-                            src={product.images[0]}
+                            src={product.images?.[0]}
                             loading="lazy"
-                            decoding="async"
                         />
-                    )}
                     </AppLink>
                 </div>
 
