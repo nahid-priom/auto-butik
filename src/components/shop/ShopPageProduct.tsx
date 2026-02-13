@@ -691,52 +691,11 @@ function ShopPageProduct(props: Props) {
                                                         </div>
                                                     </div>
 
-                                                    {/* Right Side - Payment Icons */}
+                                                    {/* Payment - Kustom Checkout */}
                                                     <div className="product-card__payment-methods">
-                                                        <div className="payment-icons">
-                                                            <div className="payment-icon" title="Klarna">
-                                                                <img 
-                                                                    src="/Payment link images/Klarna-Logo.wine.svg" 
-                                                                    alt="Klarna" 
-                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
-                                                                />
-                                                            </div>
-                                                            <div className="payment-icon" title="Apple Pay">
-                                                                <img 
-                                                                    src="/Payment link images/Apple_Pay-Logo.wine.svg" 
-                                                                    alt="Apple Pay" 
-                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
-                                                                />
-                                                            </div>
-                                                            <div className="payment-icon" title="Mastercard">
-                                                                <img 
-                                                                    src="/Payment link images/Mastercard-Logo.wine.svg" 
-                                                                    alt="Mastercard" 
-                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
-                                                                />
-                                                            </div>
-                                                            <div className="payment-icon" title="Visa">
-                                                                <img 
-                                                                    src="/Payment link images/Visa_Inc.-Logo.wine.svg" 
-                                                                    alt="Visa" 
-                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
-                                                                />
-                                                            </div>
-                                                            <div className="payment-icon" title="PayPal">
-                                                                <img 
-                                                                    src="/Payment link images/PayPal-Logo.wine.svg" 
-                                                                    alt="PayPal" 
-                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
-                                                                />
-                                                            </div>
-                                                            <div className="payment-icon" title="Swish">
-                                                                <img 
-                                                                    src="/Payment link images/Swish_(payment)-Logo.wine.svg" 
-                                                                    alt="Swish" 
-                                                                    style={{ maxWidth: '55px', maxHeight: '55px', width: 'auto', height: 'auto' }}
-                                                                />
-                                                            </div>
-                                                        </div>
+                                                        <span className="payment-powered-by text-muted">
+                                                            <FormattedMessage id="TEXT_SECURE_PAYMENTS_KUSTOM" defaultMessage="Secure payments powered by Kustom" />
+                                                        </span>
                                                     </div>
                                                 </div>
 

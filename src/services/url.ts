@@ -41,10 +41,13 @@ const url = {
     brand: (brand: IBrand) => '/',
     cart: () => '/cart',
     checkout: () => '/cart/checkout',
-    checkoutSuccess: (order: IOrder): IAppLinkHref => ({
-        href: `/cart/checkout/[token]?token=${order.token}`,
-        as: `/cart/checkout/${order.token}`,
-    }),
+    checkoutSuccess: (orderOrToken: IOrder | string): IAppLinkHref => {
+        const token = typeof orderOrToken === 'string' ? orderOrToken : orderOrToken.token;
+        return {
+            href: `/cart/checkout/[token]?token=${token}`,
+            as: `/cart/checkout/${token}`,
+        };
+    },
     wishlist: () => '/wishlist',
     compare: () => '/compare',
     trackOrder: () => '/track-order',

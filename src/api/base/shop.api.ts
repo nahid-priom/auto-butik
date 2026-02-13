@@ -50,7 +50,6 @@ export interface ICheckoutItemData {
 }
 
 export interface ICheckoutData {
-    payment: string;
     items: ICheckoutItemData[];
     billingAddress: IAddressData;
     shippingAddress: IAddressData;
@@ -90,6 +89,4 @@ export abstract class ShopApi {
         query: string,
         options?: IGetSearchSuggestionsOptions,
     ): Promise<IGetSearchSuggestionsResult>;
-
-    abstract checkout(data: ICheckoutData): Promise<IOrder>;
 }

@@ -1,7 +1,7 @@
 /* eslint-disable no-alert */
 
 // react
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 // third-party
 import classNames from 'classnames';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -14,14 +14,11 @@ import BlockSpace from '~/components/blocks/BlockSpace';
 import Checkbox from '~/components/shared/Checkbox';
 import CheckoutCart from '~/components/shop/CheckoutCart';
 import CheckoutForm from '~/components/shop/CheckoutForm';
-import CheckoutPayments from '~/components/shop/CheckoutPayments';
 import PageTitle from '~/components/shared/PageTitle';
 import url from '~/services/url';
 import { getAddressFormDefaultValue, IAddressForm } from '~/components/shared/AddressForm';
 import { getRegisterFormDefaultValue, IRegisterForm } from '~/components/shared/RegisterForm';
 import { hrefToRouterArgs } from '~/services/router';
-import { ICheckoutData } from '~/api/base';
-import { shopApi } from '~/api';
 import { useAsyncAction } from '~/store/hooks';
 import { useCart } from '~/store/cart/cartHooks';
 import { useUser, useUserSignUp } from '~/store/user/userHooks';
@@ -33,9 +30,10 @@ interface IForm {
     shipToDifferentAddress: boolean;
     shippingAddress: IAddressForm;
     comment: string;
-    payment: string;
     agree: boolean;
 }
+
+type CheckoutPhase = 'form' | 'payment';
 
 function Page() {
     const router = useRouter();
@@ -43,6 +41,11 @@ function Page() {
     const user = useUser();
     const userSignUp = useUserSignUp();
     const cart = useCart();
+    const [phase, setPhase] = useState<CheckoutPhase>('form');
+    const [orderId, setOrderId] = useState<string | null>(null);
+    const [htmlSnippet, setHtmlSnippet] = useState<string | null>(null);
+    const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
     const formMethods = useForm<IForm>({
         defaultValues: {
             billingAddress: getAddressFormDefaultValue(),
@@ -51,28 +54,14 @@ function Page() {
             shipToDifferentAddress: false,
             shippingAddress: getAddressFormDefaultValue(),
             comment: '',
-            payment: 'bank',
         },
     });
     const { handleSubmit, register, formState: { errors } } = formMethods;
-    const [checkout, checkoutInProgress] = useAsyncAction(async (data: IForm) => {
-        const { billingAddress } = data;
-        const shippingAddress = data.shipToDifferentAddress ? data.shippingAddress : data.billingAddress;
 
-        const checkoutData: ICheckoutData = {
-            payment: data.payment,
-            items: cart.items.map((item) => ({
-                productId: item.product.id,
-                options: item.options.map((option) => ({
-                    name: option.name,
-                    value: option.value,
-                })),
-                quantity: item.quantity,
-            })),
-            billingAddress,
-            shippingAddress,
-            comment: data.comment,
-        };
+    const [submitCheckout, checkoutInProgress] = useAsyncAction(async (data: IForm) => {
+        setCheckoutError(null);
+        const billingAddress = data.billingAddress;
+        const shippingAddress = data.shipToDifferentAddress ? data.shippingAddress : data.billingAddress;
 
         if (data.createAccount) {
             try {
@@ -87,15 +76,43 @@ function Page() {
                 if (error instanceof Error) {
                     alert(intl.formatMessage({ id: `ERROR_API_${error.message}` }));
                 }
-
                 return;
             }
         }
 
-        const order = await shopApi.checkout(checkoutData);
+        const body = {
+            items: cart.items.map((item) => ({
+                productId: item.product.id,
+                name: item.product.name,
+                quantity: item.quantity,
+                unit_price: item.price,
+                options: item.options.map((o) => ({ name: o.name, value: o.value })),
+            })),
+            billingAddress,
+            shippingAddress,
+            comment: data.comment || undefined,
+        };
 
-        await router.push(...hrefToRouterArgs(url.checkoutSuccess(order)));
-    }, [intl, cart, userSignUp, router]);
+        const res = await fetch('/api/kustom/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            setCheckoutError(json.error || res.statusText || 'Checkout failed');
+            return;
+        }
+
+        if (json.order_id && json.html_snippet) {
+            setOrderId(json.order_id);
+            setHtmlSnippet(json.html_snippet);
+            setPhase('payment');
+        } else {
+            setCheckoutError('Invalid response from checkout');
+        }
+    }, [intl, cart, userSignUp]);
 
     useEffect(() => {
         if (cart.stateFrom === 'client' && cart.items.length < 1) {
@@ -108,6 +125,39 @@ function Page() {
     }
 
     const { ref: agreeRef, ...agreeProps } = register('agree', { required: true });
+
+    if (phase === 'payment' && orderId && htmlSnippet) {
+        return (
+            <React.Fragment>
+                <PageTitle>{intl.formatMessage({ id: 'HEADER_CHECKOUT' })}</PageTitle>
+                <BlockHeader
+                    pageTitle={<FormattedMessage id="HEADER_CHECKOUT" />}
+                    breadcrumb={[
+                        { title: (<FormattedMessage id="LINK_HOME" />), url: url.home() },
+                        { title: (<FormattedMessage id="LINK_CART" />), url: url.cart() },
+                        { title: (<FormattedMessage id="LINK_CHECKOUT" />), url: url.checkout() },
+                    ]}
+                />
+                <BlockSpace layout="spaceship-ledge-height" />
+                <div className="block checkout-kustom">
+                    <div className="container container--max--xl">
+                        <div
+                            className="checkout-kustom__snippet"
+                            dangerouslySetInnerHTML={{ __html: htmlSnippet }}
+                        />
+                        <p className="mt-3 text-muted">
+                            <FormattedMessage id="TEXT_CHECKOUT_COMPLETE_REDIRECT" defaultMessage="After completing payment you will be redirected to the confirmation page." />
+                            {' '}
+                            <AppLink href={url.checkoutSuccess(orderId)}>
+                                <FormattedMessage id="LINK_VIEW_ORDER_CONFIRMATION" defaultMessage="View order confirmation" />
+                            </AppLink>
+                        </p>
+                    </div>
+                </div>
+                <BlockSpace layout="before-footer" />
+            </React.Fragment>
+        );
+    }
 
     return (
         <React.Fragment>
@@ -123,8 +173,13 @@ function Page() {
             />
 
             <FormProvider {...formMethods}>
-                <form className="checkout block" onSubmit={handleSubmit(checkout)}>
+                <form className="checkout block" onSubmit={handleSubmit(submitCheckout)}>
                     <div className="container container--max--xl">
+                        {checkoutError && (
+                            <div className="col-12 mb-3">
+                                <div className="alert alert-danger">{checkoutError}</div>
+                            </div>
+                        )}
                         <div className="row">
                             {!user && (
                                 <div className="col-12 mb-3">
@@ -159,8 +214,6 @@ function Page() {
                                         </h3>
 
                                         <CheckoutCart />
-
-                                        <CheckoutPayments />
 
                                         <div className="checkout__agree form-group">
                                             <div className="form-check">

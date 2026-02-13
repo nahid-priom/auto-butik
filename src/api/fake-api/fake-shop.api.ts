@@ -4,13 +4,11 @@
 import { getBrands } from '~/fake-server/endpoints/brands';
 import { IBrand } from '~/interfaces/brand';
 import { IFilterValues, IListOptions, IReviewsList } from '~/interfaces/list';
-import { IOrder } from '~/interfaces/order';
 import { IProductsList, IProduct } from '~/interfaces/product';
 import { IReview } from '~/interfaces/review';
 import { IShopCategory } from '~/interfaces/category';
 import {
     IAddProductReviewData,
-    ICheckoutData,
     IGetBrandsOptions,
     IGetCategoriesOptions,
     IGetCategoryBySlugOptions,
@@ -20,7 +18,6 @@ import {
 } from '~/api/base';
 import {
     addProductReview,
-    checkout,
     getCategories,
     getCategoryBySlug,
     getFeaturedProducts,
@@ -98,9 +95,5 @@ export class FakeShopApi implements ShopApi {
         options?: IGetSearchSuggestionsOptions,
     ): Promise<IGetSearchSuggestionsResult> {
         return getSearchSuggestions(query, options);
-    }
-
-    checkout(data: ICheckoutData): Promise<IOrder> {
-        return checkout(data);
     }
 }
