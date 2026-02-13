@@ -11,8 +11,11 @@ import { FormattedMessage } from 'react-intl';
 import url from '~/services/url';
 import { renderKcoSnippet } from '~/utils/renderKcoSnippet';
 
+const STATUS_CHECKOUT_COMPLETE = 'checkout_complete';
+
 /**
- * Kustom confirmation page: /cart/checkout/confirmation?order_id={checkout.order.id}
+ * Single confirmation page. Reads orderUrl from query or sessionStorage; falls back to order_id (Kustom redirect).
+ * Calls /api/kco/read; renders confirmation snippet only when status is checkout_complete.
  */
 function Page() {
     const router = useRouter();
@@ -20,29 +23,44 @@ function Page() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const confirmationContainerRef = useRef<HTMLDivElement>(null);
+
     const orderId = typeof router.query.order_id === 'string' ? router.query.order_id : undefined;
+    const orderUrlFromQuery = typeof router.query.orderUrl === 'string' ? router.query.orderUrl : undefined;
 
     useEffect(() => {
         let canceled = false;
+        const orderUrl = orderUrlFromQuery ?? (typeof window !== 'undefined' ? sessionStorage.getItem('kco_orderUrl') : null) ?? undefined;
 
-        if (!orderId) {
+        if (!orderId && !orderUrl) {
             setLoading(false);
+            setError('Missing order. Complete checkout from the cart.');
             return;
         }
 
-        fetch(`/api/kustom/read-order?order_id=${encodeURIComponent(orderId)}`)
+        const params = new URLSearchParams();
+        if (orderUrl) params.set('orderUrl', orderUrl);
+        if (orderId) params.set('order_id', orderId);
+        fetch(`/api/kco/read?${params.toString()}`)
             .then((res) => {
                 if (canceled) return;
                 if (!res.ok) {
-                    throw new Error(res.status === 404 ? 'Order not found' : 'Failed to load order');
+                    return res.json().then((j) => {
+                        throw new Error(j?.error ?? res.statusText ?? 'Failed to load order');
+                    });
                 }
                 return res.json();
             })
             .then((data) => {
                 if (canceled) return;
+                const status = data.status;
                 const html = data.html_snippet ?? null;
-                setSnippet(html);
-                setError(html ? null : 'No confirmation content');
+                if (status === STATUS_CHECKOUT_COMPLETE && html) {
+                    setSnippet(html);
+                    setError(null);
+                } else {
+                    setSnippet(null);
+                    setError(status ? 'Order is not yet complete. Complete payment or try again later.' : 'No confirmation content.');
+                }
             })
             .catch((err) => {
                 if (!canceled) {
@@ -56,7 +74,7 @@ function Page() {
         return () => {
             canceled = true;
         };
-    }, [orderId]);
+    }, [orderId, orderUrlFromQuery]);
 
     useEffect(() => {
         if (loading || error || !snippet || !confirmationContainerRef.current) return;
@@ -89,7 +107,10 @@ function Page() {
                         <div className="alert alert-danger">
                             {error}
                             <div className="mt-2">
-                                <AppLink href={url.home()} className="btn btn-sm btn-secondary">
+                                <AppLink href={url.checkout()} className="btn btn-sm btn-secondary me-2">
+                                    <FormattedMessage id="LINK_CHECKOUT" defaultMessage="Checkout" />
+                                </AppLink>
+                                <AppLink href={url.home()} className="btn btn-sm btn-outline-secondary">
                                     <FormattedMessage id="BUTTON_GO_TO_HOMEPAGE" />
                                 </AppLink>
                             </div>

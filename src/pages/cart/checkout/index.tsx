@@ -44,6 +44,7 @@ function Page() {
     const cart = useCart();
     const [phase, setPhase] = useState<CheckoutPhase>('form');
     const [orderId, setOrderId] = useState<string | null>(null);
+    const [orderUrl, setOrderUrl] = useState<string | null>(null);
     const [htmlSnippet, setHtmlSnippet] = useState<string | null>(null);
     const [checkoutError, setCheckoutError] = useState<string | null>(null);
     const kcoContainerRef = useRef<HTMLDivElement>(null);
@@ -96,7 +97,7 @@ function Page() {
             comment: data.comment || undefined,
         };
 
-        const res = await fetch('/api/kustom/create-order', {
+        const res = await fetch('/api/kco/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
@@ -108,10 +109,17 @@ function Page() {
             return;
         }
 
-        if (json.order_id && json.html_snippet) {
-            setOrderId(json.order_id);
-            setHtmlSnippet(json.html_snippet);
+        if (json.orderId && json.orderUrl && json.htmlSnippet) {
+            setOrderId(json.orderId);
+            setOrderUrl(json.orderUrl);
+            setHtmlSnippet(json.htmlSnippet);
             setPhase('payment');
+            try {
+                sessionStorage.setItem('kco_orderUrl', json.orderUrl);
+                sessionStorage.setItem('kco_orderId', json.orderId);
+            } catch {
+                // ignore
+            }
             const warnings = json.warnings as Array<{ code: string }> | undefined;
             if (Array.isArray(warnings) && warnings.some((w) => w.code === 'MERCHANT_URL_MISMATCH') && !mismatchToastShownRef.current) {
                 mismatchToastShownRef.current = true;
@@ -165,10 +173,28 @@ function Page() {
                         <p className="mt-3 text-muted">
                             <FormattedMessage id="TEXT_CHECKOUT_COMPLETE_REDIRECT" defaultMessage="After completing payment you will be redirected to the confirmation page." />
                             {' '}
-                            <AppLink href={url.checkoutSuccess(orderId)}>
+                            <AppLink href={url.checkoutConfirmation(orderId, orderUrl ?? undefined)}>
                                 <FormattedMessage id="LINK_VIEW_ORDER_CONFIRMATION" defaultMessage="View order confirmation" />
                             </AppLink>
                         </p>
+                        {orderUrl && (
+                            <p className="mt-2">
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline-secondary"
+                                    onClick={() => {
+                                        fetch('/api/kco/abort', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ orderUrl }),
+                                        }).catch(() => {});
+                                        router.push(url.cart());
+                                    }}
+                                >
+                                    <FormattedMessage id="BUTTON_BACK_TO_CART" defaultMessage="Back to cart" />
+                                </button>
+                            </p>
+                        )}
                     </div>
                 </div>
                 <BlockSpace layout="before-footer" />

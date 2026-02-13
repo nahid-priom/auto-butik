@@ -41,11 +41,18 @@ const url = {
     brand: (brand: IBrand) => '/',
     cart: () => '/cart',
     checkout: () => '/cart/checkout',
+    /** Single confirmation page. Prefer orderUrl when available (from create); otherwise order_id for redirect fallback. */
+    checkoutConfirmation: (orderId: string, orderUrl?: string | null): string => {
+        if (orderUrl) {
+            return `/cart/checkout/confirmation?order_id=${encodeURIComponent(orderId)}&orderUrl=${encodeURIComponent(orderUrl)}`;
+        }
+        return `/cart/checkout/confirmation?order_id=${encodeURIComponent(orderId)}`;
+    },
     checkoutSuccess: (orderOrToken: IOrder | string): IAppLinkHref => {
         const token = typeof orderOrToken === 'string' ? orderOrToken : orderOrToken.token;
         return {
-            href: `/cart/checkout/[token]?token=${token}`,
-            as: `/cart/checkout/${token}`,
+            href: `/cart/checkout/confirmation?order_id=${token}`,
+            as: `/cart/checkout/confirmation?order_id=${token}`,
         };
     },
     wishlist: () => '/wishlist',

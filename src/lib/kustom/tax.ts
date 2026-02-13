@@ -1,8 +1,8 @@
 /**
- * KCO tax helpers. Amounts in major units (SEK) unless stated; API expects minor units (öre).
+ * KCO tax helpers. API expects minor units (öre) integers everywhere.
  */
 
-/** Convert amount to minor units (e.g. SEK → öre). */
+/** Convert amount to minor units (e.g. SEK → öre). Returns integer. */
 export function toMinorUnits(amount: number): number {
     const n = Math.round(Number(amount) * 100);
     if (Number.isNaN(n)) {
@@ -11,25 +11,28 @@ export function toMinorUnits(amount: number): number {
     return n;
 }
 
-/** VAT rate in basis points (bps). Default 2500 = 25% (Sweden). */
-export function getVatRateBps(_lineOrProduct?: unknown): number {
-    return 2500;
+/** VAT rate in basis points (bps). From env KCO_TAX_RATE_BPS (e.g. 2000 = 20%), default 2500. */
+export function getTaxRateBps(): number {
+    const bps = Number(process.env.KCO_TAX_RATE_BPS ?? 2500);
+    if (Number.isNaN(bps)) {
+        throw new Error('Kustom tax: KCO_TAX_RATE_BPS must be a number');
+    }
+    return bps;
 }
 
 /**
- * Tax amount from tax-inclusive total.
- * total_tax_amount = total_amount - round(total_amount * 10000 / (10000 + tax_rate))
+ * Kustom gross-price formula: tax from tax-inclusive total, in minor units (integer-safe).
+ * total_tax_amount = total_amount - Math.round((total_amount * 10000) / (10000 + tax_rate))
  */
-export function calcTotalTaxAmount(totalAmount: number, taxRateBps: number): number {
-    const total = Number(totalAmount);
+export function calcTotalTaxAmountMinor(totalAmountMinor: number, taxRateBps: number): number {
+    const total = Number(totalAmountMinor);
     const rate = Number(taxRateBps);
     if (Number.isNaN(total) || Number.isNaN(rate)) {
-        throw new Error('Kustom tax: calcTotalTaxAmount got NaN');
+        throw new Error('Kustom tax: calcTotalTaxAmountMinor got NaN');
     }
-    const exclusive = Math.round((total * 10000) / (10000 + rate));
-    const tax = total - exclusive;
-    if (Number.isNaN(tax)) {
-        throw new Error('Kustom tax: calcTotalTaxAmount result NaN');
+    const totalTaxAmount = total - Math.round((total * 10000) / (10000 + rate));
+    if (Number.isNaN(totalTaxAmount)) {
+        throw new Error('Kustom tax: calcTotalTaxAmountMinor result NaN');
     }
-    return tax;
+    return totalTaxAmount;
 }
