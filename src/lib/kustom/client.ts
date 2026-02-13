@@ -47,6 +47,8 @@ export interface IKustomOrderLine {
     quantity: number;
     unit_price: number;
     total_amount: number;
+    tax_rate: number;
+    total_tax_amount: number;
     product_id?: string;
 }
 
@@ -59,6 +61,8 @@ export interface IMerchantUrls {
 
 export interface ICreateAuthorizationPayload {
     order_lines: IKustomOrderLine[];
+    order_amount: number;
+    order_tax_amount: number;
     billing_address: IKustomAddress;
     shipping_address?: IKustomAddress;
     purchase_country?: string;
@@ -98,6 +102,8 @@ export async function createAuthorization(
         purchase_country: payload.purchase_country ?? 'SE',
         purchase_currency: payload.purchase_currency ?? 'SEK',
         locale: payload.locale ?? 'sv-se',
+        order_amount: payload.order_amount,
+        order_tax_amount: payload.order_tax_amount,
         order_lines: payload.order_lines,
         billing_address: payload.billing_address,
         ...(payload.shipping_address && { shipping_address: payload.shipping_address }),

@@ -5,6 +5,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createAuthorization } from '~/lib/kustom/client';
+import { toMinorUnits, getVatRateBps, calcTotalTaxAmount } from '~/lib/kustom/tax';
 import type { IAddressData } from '~/interfaces/address';
 
 interface ICheckoutItemRequest {
@@ -61,16 +62,43 @@ export default async function handler(
             return;
         }
 
-        const order_lines = body.items.map((item) => {
-            const total_amount = item.unit_price * item.quantity;
-            return {
+        const VAT_BPS = getVatRateBps();
+        const order_lines: import('~/lib/kustom/client').IKustomOrderLine[] = [];
+        let order_amount_minor = 0;
+        let order_tax_amount_minor = 0;
+
+        for (const item of body.items) {
+            const unit_price = Number(item.unit_price);
+            const quantity = Number(item.quantity);
+            const total_amount_major = unit_price * quantity;
+            if (Number.isNaN(unit_price) || Number.isNaN(quantity) || Number.isNaN(total_amount_major)) {
+                res.status(400).json({
+                    error: 'Kustom create order: invalid unit_price or quantity (NaN).',
+                });
+                return;
+            }
+            const total_tax_major = calcTotalTaxAmount(total_amount_major, VAT_BPS);
+            const unit_price_minor = toMinorUnits(unit_price);
+            const total_amount_minor = toMinorUnits(total_amount_major);
+            const total_tax_amount_minor = toMinorUnits(total_tax_major);
+            if (Number.isNaN(unit_price_minor) || Number.isNaN(total_amount_minor) || Number.isNaN(total_tax_amount_minor)) {
+                res.status(400).json({
+                    error: 'Kustom create order: tax computation produced NaN.',
+                });
+                return;
+            }
+            order_lines.push({
                 name: item.name,
-                quantity: item.quantity,
-                unit_price: item.unit_price,
-                total_amount,
+                quantity,
+                unit_price: unit_price_minor,
+                total_amount: total_amount_minor,
+                tax_rate: VAT_BPS,
+                total_tax_amount: total_tax_amount_minor,
                 product_id: String(item.productId),
-            };
-        });
+            });
+            order_amount_minor += total_amount_minor;
+            order_tax_amount_minor += total_tax_amount_minor;
+        }
 
         const APP_URL = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/$/, '');
         if (!APP_URL) {
@@ -89,6 +117,8 @@ export default async function handler(
 
         const payload = {
             order_lines,
+            order_amount: order_amount_minor,
+            order_tax_amount: order_tax_amount_minor,
             billing_address: mapAddress(body.billingAddress),
             shipping_address: body.shippingAddress
                 ? mapAddress(body.shippingAddress)

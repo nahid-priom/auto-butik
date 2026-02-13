@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
+import { toast } from 'react-toastify';
 // application
 import AppLink from '~/components/shared/AppLink';
 import BlockHeader from '~/components/blocks/BlockHeader';
@@ -22,6 +23,7 @@ import { useAsyncAction } from '~/store/hooks';
 import { useCart } from '~/store/cart/cartHooks';
 import { useUser, useUserSignUp } from '~/store/user/userHooks';
 import { renderKcoSnippet } from '~/utils/renderKcoSnippet';
+import { isVercelDomain } from '~/lib/kustom/domain';
 
 interface IForm {
     billingAddress: IAddressForm;
@@ -46,6 +48,7 @@ function Page() {
     const [htmlSnippet, setHtmlSnippet] = useState<string | null>(null);
     const [checkoutError, setCheckoutError] = useState<string | null>(null);
     const kcoContainerRef = useRef<HTMLDivElement>(null);
+    const domainToastShownRef = useRef(false);
 
     const formMethods = useForm<IForm>({
         defaultValues: {
@@ -120,6 +123,34 @@ function Page() {
             router.replace(url.cart()).then();
         }
     }, [cart.stateFrom, cart.items.length, router]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined' || domainToastShownRef.current) return;
+        const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/$/, '');
+        if (!appUrl) return;
+        domainToastShownRef.current = true;
+        if (isVercelDomain(appUrl)) {
+            toast.warning(
+                <>
+                    <strong>Checkout domain configuration</strong>
+                    <br />
+                    This environment uses a Vercel URL. Before going live, update NEXT_PUBLIC_APP_URL to your real domain so Kustom merchant URLs (terms/checkout/confirmation/push) match the production domain.
+                </>,
+                { theme: 'colored', autoClose: 10000 },
+            );
+        }
+        const origin = window.location.origin.replace(/\/$/, '');
+        if (origin !== appUrl) {
+            toast.warning(
+                <>
+                    <strong>Domain mismatch</strong>
+                    <br />
+                    Merchant URLs base differs from current site origin. Update NEXT_PUBLIC_APP_URL.
+                </>,
+                { theme: 'colored', autoClose: 10000 },
+            );
+        }
+    }, []);
 
     useEffect(() => {
         if (phase !== 'payment' || !htmlSnippet || !kcoContainerRef.current) return;
