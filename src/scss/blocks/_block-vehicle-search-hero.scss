@@ -475,7 +475,7 @@
                             inset 0 1px 0 rgba(255, 255, 255, 0.8);
 
                         &:hover {
-                            border-color: rgba(220, 53, 69, 0.4);
+                            border-color: rgba(255, 255, 255, 0.5);
                             background: rgba(255, 255, 255, 1);
                             box-shadow: 
                                 0 6px 20px rgba(0, 0, 0, 0.12),
@@ -483,10 +483,10 @@
                         }
 
                         &:focus {
-                            border-color: rgba(220, 53, 69, 0.6);
+                            border-color: rgba(255, 255, 255, 0.6);
                             box-shadow: 
-                                0 0 0 4px rgba(220, 53, 69, 0.15),
-                                0 8px 24px rgba(0, 0, 0, 0.15);
+                                0 6px 20px rgba(0, 0, 0, 0.12),
+                                inset 0 1px 0 rgba(255, 255, 255, 0.9);
                             outline: none;
                             background: rgba(255, 255, 255, 1);
                         }
