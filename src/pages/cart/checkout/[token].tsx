@@ -1,5 +1,5 @@
 // react
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 // third-party
 import { useRouter } from 'next/router';
 // application
@@ -9,23 +9,25 @@ import PageTitle from '~/components/shared/PageTitle';
 import AppLink from '~/components/shared/AppLink';
 import { FormattedMessage } from 'react-intl';
 import url from '~/services/url';
+import { renderKcoSnippet } from '~/utils/renderKcoSnippet';
 
 function Page() {
     const router = useRouter();
     const [snippet, setSnippet] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const token = router.query.token;
+    const confirmationContainerRef = useRef<HTMLDivElement>(null);
+    const orderId = typeof router.query.token === 'string' ? router.query.token : typeof router.query.order_id === 'string' ? router.query.order_id : undefined;
 
     useEffect(() => {
         let canceled = false;
 
-        if (typeof token !== 'string') {
+        if (!orderId) {
             setLoading(false);
             return;
         }
 
-        fetch(`/api/kustom/read-order?orderId=${encodeURIComponent(token)}`)
+        fetch(`/api/kustom/read-order?order_id=${encodeURIComponent(orderId)}`)
             .then((res) => {
                 if (canceled) return;
                 if (!res.ok) {
@@ -35,8 +37,9 @@ function Page() {
             })
             .then((data) => {
                 if (canceled) return;
-                setSnippet(data.html_snippet || null);
-                setError(data.html_snippet ? null : 'No confirmation content');
+                const html = data.html_snippet ?? null;
+                setSnippet(html);
+                setError(html ? null : 'No confirmation content');
             })
             .catch((err) => {
                 if (!canceled) {
@@ -50,7 +53,12 @@ function Page() {
         return () => {
             canceled = true;
         };
-    }, [token]);
+    }, [orderId]);
+
+    useEffect(() => {
+        if (loading || error || !snippet || !confirmationContainerRef.current) return;
+        renderKcoSnippet(confirmationContainerRef.current, snippet);
+    }, [loading, error, snippet]);
 
     return (
         <>
@@ -84,10 +92,11 @@ function Page() {
                             </div>
                         </div>
                     )}
-                    {snippet && !loading && (
+                    {snippet && !loading && !error && (
                         <div
+                            id="kco-confirmation-container"
+                            ref={confirmationContainerRef}
                             className="order-confirmation__snippet"
-                            dangerouslySetInnerHTML={{ __html: snippet }}
                         />
                     )}
                 </div>

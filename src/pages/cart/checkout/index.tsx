@@ -1,7 +1,7 @@
 /* eslint-disable no-alert */
 
 // react
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 // third-party
 import classNames from 'classnames';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -18,10 +18,10 @@ import PageTitle from '~/components/shared/PageTitle';
 import url from '~/services/url';
 import { getAddressFormDefaultValue, IAddressForm } from '~/components/shared/AddressForm';
 import { getRegisterFormDefaultValue, IRegisterForm } from '~/components/shared/RegisterForm';
-import { hrefToRouterArgs } from '~/services/router';
 import { useAsyncAction } from '~/store/hooks';
 import { useCart } from '~/store/cart/cartHooks';
 import { useUser, useUserSignUp } from '~/store/user/userHooks';
+import { renderKcoSnippet } from '~/utils/renderKcoSnippet';
 
 interface IForm {
     billingAddress: IAddressForm;
@@ -45,6 +45,7 @@ function Page() {
     const [orderId, setOrderId] = useState<string | null>(null);
     const [htmlSnippet, setHtmlSnippet] = useState<string | null>(null);
     const [checkoutError, setCheckoutError] = useState<string | null>(null);
+    const kcoContainerRef = useRef<HTMLDivElement>(null);
 
     const formMethods = useForm<IForm>({
         defaultValues: {
@@ -120,6 +121,11 @@ function Page() {
         }
     }, [cart.stateFrom, cart.items.length, router]);
 
+    useEffect(() => {
+        if (phase !== 'payment' || !htmlSnippet || !kcoContainerRef.current) return;
+        renderKcoSnippet(kcoContainerRef.current, htmlSnippet);
+    }, [phase, htmlSnippet]);
+
     if (cart.items.length < 1) {
         return null;
     }
@@ -142,8 +148,9 @@ function Page() {
                 <div className="block checkout-kustom">
                     <div className="container container--max--xl">
                         <div
+                            id="kco-checkout-container"
+                            ref={kcoContainerRef}
                             className="checkout-kustom__snippet"
-                            dangerouslySetInnerHTML={{ __html: htmlSnippet }}
                         />
                         <p className="mt-3 text-muted">
                             <FormattedMessage id="TEXT_CHECKOUT_COMPLETE_REDIRECT" defaultMessage="After completing payment you will be redirected to the confirmation page." />

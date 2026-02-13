@@ -50,6 +50,11 @@ export interface IKustomOrderLine {
     product_id?: string;
 }
 
+export interface IMerchantUrls {
+    checkout: string;
+    confirmation: string;
+}
+
 export interface ICreateAuthorizationPayload {
     order_lines: IKustomOrderLine[];
     billing_address: IKustomAddress;
@@ -59,6 +64,8 @@ export interface ICreateAuthorizationPayload {
     locale?: string;
     merchant_reference?: string;
     comment?: string;
+    /** Must include order_id={checkout.order.id} so Kustom can redirect with order_id */
+    merchant_urls?: IMerchantUrls;
 }
 
 export interface ICreateAuthorizationResponse {
@@ -76,13 +83,13 @@ export interface IReadOrderResponse {
 
 /**
  * Create a payment authorization (checkout session).
- * Returns HTML snippet to render the Kustom iframe and order_id for confirmation redirect.
+ * Uses POST /checkout/v3/orders. Returns HTML snippet and order_id for confirmation redirect.
  */
 export async function createAuthorization(
     payload: ICreateAuthorizationPayload,
 ): Promise<ICreateAuthorizationResponse> {
     const baseUrl = getBaseUrl();
-    const url = `${baseUrl}/payments/v1/authorizations/`;
+    const requestUrl = `${baseUrl}/checkout/v3/orders`;
     const auth = getAuthHeader();
 
     const body = {
@@ -94,9 +101,10 @@ export async function createAuthorization(
         ...(payload.shipping_address && { shipping_address: payload.shipping_address }),
         ...(payload.merchant_reference && { merchant_reference: payload.merchant_reference }),
         ...(payload.comment && { comment: payload.comment }),
+        ...(payload.merchant_urls && { merchant_urls: payload.merchant_urls }),
     };
 
-    const res = await fetch(url, {
+    const res = await fetch(requestUrl, {
         method: 'POST',
         headers: {
             Authorization: auth,
@@ -119,19 +127,18 @@ export async function createAuthorization(
 }
 
 /**
- * Read order details from Kustom (e.g. for confirmation page).
+ * Read order details from Kustom (GET /checkout/v3/orders/{order_id}).
  * Returns HTML snippet for confirmation UI if available.
  */
 export async function readOrder(orderId: string): Promise<IReadOrderResponse> {
     const baseUrl = getBaseUrl();
-    const url = `${baseUrl}/payments/v1/orders/${encodeURIComponent(orderId)}`;
+    const requestUrl = `${baseUrl}/checkout/v3/orders/${encodeURIComponent(orderId)}`;
     const auth = getAuthHeader();
 
-    const res = await fetch(url, {
+    const res = await fetch(requestUrl, {
         method: 'GET',
         headers: {
             Authorization: auth,
-            'Content-Type': 'application/json',
             Accept: 'application/json',
         },
     });

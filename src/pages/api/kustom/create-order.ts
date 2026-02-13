@@ -72,6 +72,11 @@ export default async function handler(
             };
         });
 
+        const origin =
+            (req.headers.origin ?? req.headers.referer ?? '').replace(/\/$/, '').split('/').slice(0, 3).join('/')
+            || process.env.NEXT_PUBLIC_APP_URL
+            || '';
+
         const payload = {
             order_lines,
             billing_address: mapAddress(body.billingAddress),
@@ -79,6 +84,12 @@ export default async function handler(
                 ? mapAddress(body.shippingAddress)
                 : undefined,
             comment: body.comment || undefined,
+            merchant_urls: origin
+                ? {
+                    checkout: `${origin}/cart/checkout?order_id={checkout.order.id}`,
+                    confirmation: `${origin}/cart/checkout/{checkout.order.id}`,
+                }
+                : undefined,
         };
 
         const result = await createAuthorization(payload);

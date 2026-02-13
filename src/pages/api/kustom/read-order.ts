@@ -17,14 +17,18 @@ export default async function handler(
     }
 
     const orderId =
-        typeof req.query.orderId === 'string'
-            ? req.query.orderId
-            : Array.isArray(req.query.orderId)
-              ? req.query.orderId[0]
-              : undefined;
+        typeof req.query.order_id === 'string'
+            ? req.query.order_id
+            : Array.isArray(req.query.order_id)
+              ? req.query.order_id[0]
+              : typeof req.query.orderId === 'string'
+                ? req.query.orderId
+                : Array.isArray(req.query.orderId)
+                  ? req.query.orderId[0]
+                  : undefined;
 
     if (!orderId) {
-        res.status(400).json({ error: 'Missing orderId query parameter' });
+        res.status(400).json({ error: 'Missing order_id or orderId query parameter' });
         return;
     }
 
