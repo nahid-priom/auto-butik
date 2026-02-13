@@ -51,8 +51,10 @@ export interface IKustomOrderLine {
 }
 
 export interface IMerchantUrls {
+    terms: string;
     checkout: string;
     confirmation: string;
+    push: string;
 }
 
 export interface ICreateAuthorizationPayload {

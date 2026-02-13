@@ -72,10 +72,20 @@ export default async function handler(
             };
         });
 
-        const origin =
-            (req.headers.origin ?? req.headers.referer ?? '').replace(/\/$/, '').split('/').slice(0, 3).join('/')
-            || process.env.NEXT_PUBLIC_APP_URL
-            || '';
+        const APP_URL = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/$/, '');
+        if (!APP_URL) {
+            res.status(500).json({
+                error: 'NEXT_PUBLIC_APP_URL is not set. Required for Kustom merchant_urls.',
+            });
+            return;
+        }
+
+        const merchant_urls = {
+            terms: `${APP_URL}/terms`,
+            checkout: `${APP_URL}/cart/checkout?order_id={checkout.order.id}`,
+            confirmation: `${APP_URL}/cart/checkout/confirmation?order_id={checkout.order.id}`,
+            push: `${APP_URL}/api/kustom/push?order_id={checkout.order.id}`,
+        };
 
         const payload = {
             order_lines,
@@ -84,12 +94,7 @@ export default async function handler(
                 ? mapAddress(body.shippingAddress)
                 : undefined,
             comment: body.comment || undefined,
-            merchant_urls: origin
-                ? {
-                    checkout: `${origin}/cart/checkout?order_id={checkout.order.id}`,
-                    confirmation: `${origin}/cart/checkout/{checkout.order.id}`,
-                }
-                : undefined,
+            merchant_urls,
         };
 
         const result = await createAuthorization(payload);
