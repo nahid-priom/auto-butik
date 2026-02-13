@@ -48,16 +48,11 @@ function Megamenu(props: Props) {
     // State to track which left category is active (only for two-column layout)
     const [activeCategory, setActiveCategory] = useState(leftCategories[0] || null);
 
-    // Max tiles to show in grid (2–3 rows × columns)
-    const MAX_RIGHT_ITEMS = 12;
-
-    // Get children of active category for right column (all; we slice when rendering)
+    // Get children of active category for right column (show all)
     const rightItems = useMemo(() => {
         if (!activeCategory || !activeCategory.links) return [];
         return activeCategory.links || [];
     }, [activeCategory]);
-
-    const rightItemsVisible = rightItems.slice(0, MAX_RIGHT_ITEMS);
 
     // For single-column layout: get all items from all categories
     // If no nested links, use the leftCategories themselves as items
@@ -193,7 +188,7 @@ function Megamenu(props: Props) {
                     {activeCategory && (
                         <div className="mm-blocks">
                             <div className="mm-blocks-grid mm-blocks-grid--double">
-                                {rightItemsVisible.map((item, index) => {
+                                {rightItems.map((item, index) => {
                                     const titleStr = typeof item.title === "string" ? item.title : "";
                                     const title =
                                         typeof item.title === "string" ? (
