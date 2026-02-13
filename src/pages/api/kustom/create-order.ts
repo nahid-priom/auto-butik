@@ -129,10 +129,32 @@ export default async function handler(
 
         const result = await createAuthorization(payload);
 
+        const merchantBaseUrl = APP_URL;
+        const protoRaw = (req.headers['x-forwarded-proto'] as string)?.split(',')[0]?.trim();
+        const host = (req.headers['x-forwarded-host'] as string)?.split(',')[0]?.trim() || (req.headers.host as string) || '';
+        const proto = protoRaw || (host && host.startsWith('localhost') ? 'http' : 'https');
+        const requestOrigin = host ? `${proto}://${host}`.replace(/\/$/, '') : '';
+
+        const warnings: Array<{ code: string; message: string; details?: { merchantBaseUrl: string; requestOrigin: string } }> = [];
+        if (requestOrigin && merchantBaseUrl) {
+            const reqNorm = requestOrigin.toLowerCase();
+            const baseNorm = merchantBaseUrl.toLowerCase();
+            const mismatch = reqNorm !== baseNorm;
+            const isVercelBase = baseNorm.includes('.vercel.app');
+            if (mismatch || isVercelBase) {
+                warnings.push({
+                    code: 'MERCHANT_URL_MISMATCH',
+                    message: 'Merchant URLs are using a different domain than the current request origin. Update NEXT_PUBLIC_APP_URL to your real domain before going live.',
+                    details: { merchantBaseUrl, requestOrigin },
+                });
+            }
+        }
+
         res.status(200).json({
             order_id: result.order_id,
             client_token: result.client_token ?? undefined,
             html_snippet: result.html_snippet,
+            warnings,
         });
     } catch (err) {
         const message = err instanceof Error ? err.message : 'Create order failed';
