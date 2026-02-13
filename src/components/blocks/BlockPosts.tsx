@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import Slick from 'react-slick';
 // application
 import AppSlick, { ISlickProps } from '~/components/shared/AppSlick';
+import { postsListPreset } from '~/components/shared/slickPresets';
 import PostCard from '~/components/shared/PostCard';
 import SectionHeader from '~/components/shared/SectionHeader';
 import { ILink } from '~/interfaces/link';
@@ -64,17 +65,7 @@ const slickSettings: Record<IBlockPostsCarouselLayout, ISlickProps> = {
             { breakpoint: 767, settings: { slidesToShow: 1, slidesToScroll: 1 } },
         ],
     },
-    list: {
-        dots: false,
-        arrows: false,
-        infinite: true,
-        speed: 400,
-        slidesToShow: 2,
-        slidesToScroll: 2,
-        responsive: [
-            { breakpoint: 991, settings: { slidesToShow: 1, slidesToScroll: 1 } },
-        ],
-    },
+    list: postsListPreset(),
 };
 
 const SKELETON_COUNT = 2;

@@ -266,36 +266,17 @@ $local-carousel-expand: 8px;
     }
 }
 
-// Mobile: compact product cards in carousel
+// Mobile (2-up): block-specific overrides (shared base in components/slick-shared)
 @include media-breakpoint-down(sm) {
-    .block-products-carousel__cell .product-card {
+    .block-products-carousel__cell .product-card .product-card__image .image--type--product .image__body {
+        padding-bottom: 68%;
+    }
+    .block-products-carousel__cell .product-card.product-card--compact {
+        .product-card__info {
+            padding: 6px 8px 0;
+        }
         .product-card__footer {
-            padding: 8px 10px 10px;
-            gap: 4px;
-        }
-        .product-card__name {
-            font-size: 13px;
-            min-height: 2.5em;
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-        .product-card__meta {
-            padding-left: 10px;
-            padding-right: 10px;
-            font-size: 10px;
-        }
-        .product-card__prices {
-            font-size: 15px;
-        }
-        .product-card__vat-and-shipping-info {
-            font-size: 10px;
-        }
-        .product-card__shipping-info__text {
-            font-size: 11px;
-            line-height: 1.3;
-        }
-        .product-card__image .image--type--product .image__body {
-            padding-bottom: 68%;
+            padding: 6px 8px 8px;
         }
     }
 }

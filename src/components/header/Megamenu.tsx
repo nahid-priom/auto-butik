@@ -48,7 +48,7 @@ function Megamenu(props: Props) {
     // State to track which left category is active (only for two-column layout)
     const [activeCategory, setActiveCategory] = useState(leftCategories[0] || null);
 
-    // Max tiles to show in grid (2–3 rows × columns); rest via "Visa fler" link
+    // Max tiles to show in grid (2–3 rows × columns)
     const MAX_RIGHT_ITEMS = 12;
 
     // Get children of active category for right column (all; we slice when rendering)
@@ -58,7 +58,6 @@ function Megamenu(props: Props) {
     }, [activeCategory]);
 
     const rightItemsVisible = rightItems.slice(0, MAX_RIGHT_ITEMS);
-    const hasMoreItems = rightItems.length > MAX_RIGHT_ITEMS;
 
     // For single-column layout: get all items from all categories
     // If no nested links, use the leftCategories themselves as items
@@ -189,7 +188,7 @@ function Megamenu(props: Props) {
                     })}
                 </div>
 
-                {/* RIGHT COLUMN: Child items (limited rows) + "Visa fler" to category page */}
+                {/* RIGHT COLUMN: Child items (limited rows) */}
                 <div className="main-menu__megamenu-right">
                     {activeCategory && (
                         <div className="mm-blocks">
@@ -225,18 +224,6 @@ function Megamenu(props: Props) {
                             </div>
 
                             {rightItems.length === 0 && <div className="mm-blocks-empty">No items available</div>}
-
-                            {hasMoreItems && activeCategory.url && (
-                                <div className="mm-blocks-more">
-                                    <AppLink
-                                        href={activeCategory.url}
-                                        className="mm-blocks-more-link"
-                                        onClick={() => onItemClick?.(activeCategory)}
-                                    >
-                                        <FormattedMessage id="LINK_VIEW_ALL" defaultMessage="Visa fler" />
-                                    </AppLink>
-                                </div>
-                            )}
                         </div>
                     )}
                 </div>

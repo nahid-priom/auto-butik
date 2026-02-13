@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 // application
 import AppLink from '~/components/shared/AppLink';
-import DropdownLanguage from '~/components/header/DropdownLanguage';
 import url from '~/services/url';
 import { useCompare } from '~/store/compare/compareHooks';
 
@@ -85,8 +84,6 @@ function Topbar(props: Props) {
                             <span className="topbar__button-title">{compare.items.length}</span>
                         </AppLink>
                     </div>
-
-                    <DropdownLanguage />
                 </React.Fragment>
             )}
         </div>

@@ -6,12 +6,12 @@ import Slick from 'react-slick';
 import { FormattedMessage } from 'react-intl';
 // application
 import AppLink from '~/components/shared/AppLink';
-import AppSlick, { ISlickProps } from '~/components/shared/AppSlick';
+import AppSlick from '~/components/shared/AppSlick';
 import Arrow from '~/components/shared/Arrow';
 import Decor from '~/components/shared/Decor';
 import ProductCard from '~/components/shared/ProductCard';
 import Timer from '~/components/shared/Timer';
-import { baseUrl } from '~/services/utils';
+import { productGrid5Preset } from '~/components/shared/slickPresets';
 import { IProduct } from '~/interfaces/product';
 
 interface Props {
@@ -20,20 +20,7 @@ interface Props {
     showHeader?: boolean; // when false, hide Deal Zone header/timer
 }
 
-const slickSettings: ISlickProps = {
-    dots: true,
-    arrows: false,
-    infinite: true,
-    speed: 400,
-    slidesToShow: 5,
-    slidesToScroll: 5,
-    responsive: [
-        { breakpoint: 1399, settings: { slidesToShow: 4, slidesToScroll: 4 } },
-        { breakpoint: 991, settings: { slidesToShow: 3, slidesToScroll: 3 } },
-        { breakpoint: 767, settings: { slidesToShow: 2, slidesToScroll: 2 } },
-        { breakpoint: 459, settings: { slidesToShow: 1, slidesToScroll: 1 } },
-    ],
-};
+const slickSettings = productGrid5Preset({ dots: true });
 
 function BlockSale(props: Props) {
     const { products, loading = false, showHeader = true } = props;
@@ -89,10 +76,6 @@ function BlockSale(props: Props) {
                 )}
                 <div className="block-sale__body">
                     <Decor type="bottom" className="block-sale__body-decor" />
-                    <div
-                        className="block-sale__image"
-                        style={{ backgroundImage: `url(${baseUrl('/images/sale.jpg')})` }}
-                    />
                     <div className="block-sale__loader" />
                     <div className="container">
                         <div className="block-sale__carousel">

@@ -5,6 +5,7 @@ import { useIntl, FormattedMessage } from 'react-intl';
 import { useRouter } from 'next/router';
 // application
 import { carApi } from '~/api/car.api';
+import VehicleSearchSelect from '~/components/shared/VehicleSearchSelect';
 import { ICarData, IWheelData, ITypesMap } from '~/interfaces/car';
 import { addCarSearchToHistory } from '~/services/car-search-history';
 import { useHeroBrands } from '~/store/homepage/homepageHooks';
@@ -290,76 +291,52 @@ function CarLookupForm(props: Props) {
                         <FormattedMessage id="TEXT_OR" />
                     </div>
 
-                    {/* 4-data search SECOND */}
+                    {/* 4-data search SECOND — custom dropdowns aligned under each trigger, with search */}
                     <div className="vehicle-form__item vehicle-form__item--select">
-                        <select
-                            className="form-control"
-                            aria-label={intl.formatMessage({ id: 'INPUT_VEHICLE_BRAND_LABEL' })}
+                        <VehicleSearchSelect
                             value={selectedBrand}
+                            options={brandsList}
+                            onChange={handleBrandChange}
                             disabled={loadingOr}
-                            onChange={(e) => handleBrandChange(e.target.value)}
-                        >
-                            <option value="">
-                                {intl.formatMessage({ id: 'INPUT_VEHICLE_BRAND_PLACEHOLDER' })}
-                            </option>
-                            {brandsList.map((b) => (
-                                <option key={b} value={b}>{b}</option>
-                            ))}
-                        </select>
+                            placeholder={intl.formatMessage({ id: 'INPUT_VEHICLE_BRAND_PLACEHOLDER' })}
+                            ariaLabel={intl.formatMessage({ id: 'INPUT_VEHICLE_BRAND_LABEL' })}
+                        />
                         <div className="vehicle-form__loader" />
                     </div>
 
                     <div className="vehicle-form__item vehicle-form__item--select">
-                        <select
-                            className="form-control"
-                            aria-label={intl.formatMessage({ id: 'INPUT_VEHICLE_YEAR_LABEL' })}
+                        <VehicleSearchSelect
                             value={selectedYear}
-                            disabled={loadingOr || !selectedBrand}
-                            onChange={(e) => handleYearChange(e.target.value)}
-                        >
-                            <option value="">
-                                {intl.formatMessage({ id: 'INPUT_VEHICLE_YEAR_PLACEHOLDER' })}
-                            </option>
-                            {years.map((y) => (
-                                <option key={y as any} value={y as any}>{y as any}</option>
-                            ))}
-                        </select>
+                            options={years.map((y) => String(y))}
+                            onChange={handleYearChange}
+                            disabled={!selectedBrand}
+                            placeholder={intl.formatMessage({ id: 'INPUT_VEHICLE_YEAR_PLACEHOLDER' })}
+                            ariaLabel={intl.formatMessage({ id: 'INPUT_VEHICLE_YEAR_LABEL' })}
+                        />
                         <div className="vehicle-form__loader" />
                     </div>
 
                     <div className="vehicle-form__item vehicle-form__item--select">
-                        <select
-                            className="form-control"
-                            aria-label={intl.formatMessage({ id: 'INPUT_VEHICLE_MODEL_LABEL' })}
+                        <VehicleSearchSelect
                             value={selectedModel}
+                            options={models}
+                            onChange={handleModelChange}
                             disabled={loadingOr || !selectedYear}
-                            onChange={(e) => handleModelChange(e.target.value)}
-                        >
-                            <option value="">
-                                {intl.formatMessage({ id: 'INPUT_VEHICLE_MODEL_PLACEHOLDER' })}
-                            </option>
-                            {models.map((m) => (
-                                <option key={m} value={m}>{m}</option>
-                            ))}
-                        </select>
+                            placeholder={intl.formatMessage({ id: 'INPUT_VEHICLE_MODEL_PLACEHOLDER' })}
+                            ariaLabel={intl.formatMessage({ id: 'INPUT_VEHICLE_MODEL_LABEL' })}
+                        />
                         <div className="vehicle-form__loader" />
                     </div>
 
                     <div className="vehicle-form__item vehicle-form__item--select">
-                        <select
-                            className="form-control"
-                            aria-label={intl.formatMessage({ id: 'INPUT_VEHICLE_ENGINE_LABEL' })}
+                        <VehicleSearchSelect
                             value={selectedEngineId}
+                            options={engines}
+                            onChange={handleEngineChange}
                             disabled={loadingOr || !selectedModel}
-                            onChange={(e) => handleEngineChange(e.target.value)}
-                        >
-                            <option value="">
-                                {intl.formatMessage({ id: 'INPUT_VEHICLE_ENGINE_PLACEHOLDER' })}
-                            </option>
-                            {Object.entries(engines).map(([id, desc]) => (
-                                <option key={id} value={id}>{desc}</option>
-                            ))}
-                        </select>
+                            placeholder={intl.formatMessage({ id: 'INPUT_VEHICLE_ENGINE_PLACEHOLDER' })}
+                            ariaLabel={intl.formatMessage({ id: 'INPUT_VEHICLE_ENGINE_LABEL' })}
+                        />
                         <div className="vehicle-form__loader" />
                     </div>
                 </>

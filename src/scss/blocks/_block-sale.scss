@@ -110,24 +110,6 @@ $local-arrow-angel: 30deg;
 
     @include decor-style(map_get($body-scheme, main));
 }
-.block-sale__image {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-size: cover;
-    background-position: center center;
-    z-index: -1;
-
-    &:before {
-        display: block;
-        content: '';
-        width: 100%;
-        height: 100%;
-        background: $block-sale-overlay-bg;
-    }
-}
 .block-sale__carousel {
     $local-carousel-expand: 10px;
 

@@ -304,6 +304,15 @@ function AppSlickInner(props: Props) {
         );
     });
 
+    // Non-mutating copy of settings so react-slick never mutates preset/caller objects
+    const safeSettings: ISlickProps = { ...otherProps };
+    if (Array.isArray(safeSettings.responsive)) {
+        safeSettings.responsive = safeSettings.responsive.map((r) => ({
+            ...r,
+            settings: typeof r.settings === 'object' && r.settings !== null ? { ...r.settings } : r.settings,
+        }));
+    }
+
     return (
         // eslint-disable-next-line jsx-a11y/no-static-element-interactions
         <div
@@ -311,7 +320,7 @@ function AppSlickInner(props: Props) {
             onMouseDown={onMousedown}
         >
             <SlickComponent
-                {...otherProps}
+                {...safeSettings}
                 rtl={direction === 'rtl'}
                 beforeChange={beforeChangeWrapper}
                 infinite={otherProps.infinite && React.Children.count(children) > currentSlidesToShow}

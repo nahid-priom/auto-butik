@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import Slick from 'react-slick';
 // application
 import AppSlick, { ISlickProps } from '~/components/shared/AppSlick';
+import { productGrid5Preset } from '~/components/shared/slickPresets';
 import ProductCard, { IProductCardElement, IProductCardLayout } from '~/components/shared/ProductCard';
 import SectionHeader, { ISectionHeaderGroup } from '~/components/shared/SectionHeader';
 import { ILink } from '~/interfaces/link';
@@ -75,20 +76,7 @@ const slickSettings: Record<IBlockProductsCarouselLayout, ISlickProps> = {
             { breakpoint: 767, settings: { slidesToShow: 1, slidesToScroll: 1 } },
         ],
     },
-    'grid-5': {
-        dots: false,
-        arrows: false,
-        infinite: true,
-        speed: 400,
-        slidesToShow: 5,
-        slidesToScroll: 5,
-        responsive: [
-            { breakpoint: 1399, settings: { slidesToShow: 4, slidesToScroll: 4 } },
-            { breakpoint: 991, settings: { slidesToShow: 3, slidesToScroll: 3 } },
-            { breakpoint: 767, settings: { slidesToShow: 2, slidesToScroll: 2 } },
-            { breakpoint: 360, settings: { slidesToShow: 1, slidesToScroll: 1 } },
-        ],
-    },
+    'grid-5': productGrid5Preset(),
     'grid-6': {
         dots: false,
         arrows: false,

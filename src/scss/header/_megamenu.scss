@@ -27,7 +27,9 @@ body.megamenu-open {
 
         .main-menu__submenu {
             position: fixed;
-            /* top, left, width set via JS from header__navbar.getBoundingClientRect() for alignment under categories row */
+            /* top, left, width set via JS (MainMenu.tsx); desktop: centered, same max-width as header container */
+            width: 1360px;
+            max-width: calc(100vw - 32px);
             height: auto;
             z-index: 10002; // Above header and sticky navbar
             opacity: 0;
