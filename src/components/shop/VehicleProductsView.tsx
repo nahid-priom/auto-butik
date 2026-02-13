@@ -353,7 +353,7 @@ function VehicleProductsView(props: Props) {
 
                 {(!navigation || !isEmptyList(navigation)) && (
                     <React.Fragment>
-                        {positionButtons.length > 0 && !useCatalogLayout && (
+                        {positionButtons.length > 0 && (
                             <div className="products-view__positions">
                                 <div className="products-view__positions-title">
                                     <FormattedMessage id="POSITION" defaultMessage="Placering" />
@@ -371,6 +371,8 @@ function VehicleProductsView(props: Props) {
                                                 key={pos.code}
                                                 type="button"
                                                 className={btnClasses}
+                                                aria-pressed={isActive}
+                                                title={pos.label}
                                                 onClick={() =>
                                                     setSelectedPosition(
                                                         isActive ? null : pos.code
