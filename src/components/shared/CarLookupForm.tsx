@@ -279,9 +279,6 @@ function CarLookupForm(props: Props) {
                         <FormattedMessage id={enableVinSearch ? 'BUTTON_SEARCH_VIN' : 'BUTTON_SEARCH_PRODUCTS'} />
                     </button>
                 )}
-                {errorOr && (
-                    <div className="alert alert-sm alert-danger my-2">{error}</div>
-                )}
             </div>
 
             {/* OR divider */}
